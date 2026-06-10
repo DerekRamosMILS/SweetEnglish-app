@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SweetEnglish — Lesson Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink-soft: #FFB7C5;
+  --cream: #FFF5F7;
+  --rose: #E8638C;
+  --rose-deep: #D24A75;
+  --mauve: #4A2535;
+  --mauve-soft: #8A6472;
+  --white: #FFFFFF;
+  --pink-border: #FFD7E0;
+  --pink-border-strong: #FFB7C5;
+  --track: #FFCDD8;
+  --mint: #BFE3D0;
+  --lemon: #FFE9A8;
+  --shadow-sm: 0 4px 12px rgba(232,99,140,0.12);
+  --shadow-md: 0 10px 26px rgba(232,99,140,0.16);
+  --shadow-lg: 0 22px 50px rgba(232,99,140,0.22);
+  --shadow-pop: 0 14px 34px rgba(210,74,117,0.30);
+  --r-sm: 14px;
+  --r-md: 20px;
+  --r-lg: 28px;
+  --r-xl: 36px;
+  --r-pill: 999px;
+  --font: 'Nunito', system-ui, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-smoothing:antialiased;background:var(--cream);overflow:hidden}
+
+.app-layout{display:grid;grid-template-columns:288px 1fr;height:100vh;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{background:var(--white);border-right:2px solid var(--pink-border);display:flex;flex-direction:column;overflow:hidden;position:relative}
+.sidebar::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,183,197,0.38) 1.4px,transparent 1.6px);background-size:22px 22px;pointer-events:none;opacity:0.55}
+.sidebar__brand{display:flex;align-items:center;gap:11px;padding:16px 16px 14px;border-bottom:2px solid var(--pink-border);position:relative;z-index:1;flex-shrink:0}
+.sidebar__brand .mark{width:40px;height:40px;border-radius:50%;background:var(--pink-soft);display:grid;place-items:center;box-shadow:var(--shadow-sm);flex-shrink:0}
+.sidebar__brand .name{font-weight:900;font-size:18px;line-height:1.2}
+.sidebar__brand .name b{color:var(--rose)}
+.sidebar__brand .name small{display:block;font-size:11px;font-weight:700;color:var(--mauve-soft)}
+.sidebar__toolbar{display:flex;gap:6px;padding:10px 12px;border-bottom:2px solid var(--pink-border);position:relative;z-index:1;flex-shrink:0}
+.toolbar-btn{font-family:var(--font);font-size:11.5px;font-weight:800;border:2px solid var(--pink-border);background:var(--cream);color:var(--mauve);border-radius:var(--r-pill);padding:7px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .14s;flex:1;justify-content:center;white-space:nowrap}
+.toolbar-btn:hover{border-color:var(--pink-border-strong);background:var(--white)}
+.toolbar-btn.primary{background:var(--rose);color:var(--white);border-color:var(--rose)}
+.toolbar-btn.primary:hover{background:var(--rose-deep)}
+.sidebar__search{position:relative;padding:10px 12px 6px;z-index:1;flex-shrink:0}
+.sidebar__search input{width:100%;height:36px;border-radius:var(--r-pill);background:var(--cream);border:2px solid var(--pink-border);padding:0 12px 0 34px;font-family:var(--font);font-weight:700;font-size:13px;color:var(--mauve);outline:none;transition:border-color .14s}
+.sidebar__search input:focus{border-color:var(--rose)}
+.sidebar__search input::placeholder{color:#C9A9B5}
+.sidebar__search .si{position:absolute;left:22px;top:50%;transform:translateY(-50%);pointer-events:none}
+.lesson-scroll{flex:1;overflow-y:auto;padding:6px 8px 120px;scrollbar-width:thin;scrollbar-color:var(--pink-border) transparent;position:relative;z-index:1}
+.level-group{margin-bottom:12px}
+.level-head{display:flex;align-items:center;gap:7px;padding:4px 6px 5px;cursor:pointer;border-radius:10px;transition:background .12s}
+.level-head:hover{background:var(--cream)}
+.level-badge{font-size:10px;font-weight:900;color:var(--white);background:var(--rose);padding:2px 9px;border-radius:var(--r-pill);letter-spacing:0.4px;flex-shrink:0}
+.level-badge.a2{background:#E89B3C}
+.level-badge.b1{background:#7BC598}
+.level-head .lh-label{font-size:12px;font-weight:800;color:var(--mauve-soft);flex:1}
+.level-head .lh-count{font-size:11px;font-weight:800;color:var(--mauve-soft)}
+.add-lesson-btn{width:22px;height:22px;border-radius:7px;border:2px solid var(--pink-border);background:var(--white);color:var(--rose);font-size:15px;font-weight:900;display:grid;place-items:center;cursor:pointer;transition:all .14s;line-height:1;font-family:var(--font);flex-shrink:0}
+.add-lesson-btn:hover{background:var(--rose);color:var(--white);border-color:var(--rose)}
+.level-lessons{overflow:hidden;transition:max-height .2s ease}
+.lesson{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--r-md);cursor:pointer;margin-bottom:3px;border:2px solid transparent;transition:background .15s,border-color .15s;position:relative}
+.lesson:hover{background:var(--cream)}
+.lesson.active{background:#FFE7EE;border-color:var(--pink-border-strong)}
+.lesson__icon{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--track);color:var(--rose);flex-shrink:0}
+.lesson.active .lesson__icon{background:var(--rose);color:var(--white)}
+.lesson__body{flex:1;min-width:0}
+.lesson__title{font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lesson__meta{font-size:11px;font-weight:700;color:var(--mauve-soft)}
+.lesson__dot{width:8px;height:8px;border-radius:50%;background:var(--mint);flex-shrink:0}
+.lesson__dot.draft{background:var(--lemon)}
+.lesson__dot.empty{background:var(--track)}
+.lesson__del{width:20px;height:20px;border-radius:6px;border:1.5px solid transparent;background:transparent;color:var(--mauve-soft);font-size:12px;display:none;place-items:center;cursor:pointer;transition:all .12s}
+.lesson:hover .lesson__del{display:grid}
+.lesson__del:hover{border-color:#F0A0A0;color:#C0392B;background:#FDEDED}
+.add-unit-wrap{padding:10px 8px 4px;position:relative;z-index:1}
+.add-unit-btn{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px;border:2px dashed var(--pink-border-strong);border-radius:var(--r-md);background:transparent;color:var(--rose);font-family:var(--font);font-weight:800;font-size:12px;cursor:pointer;transition:background .14s}
+.add-unit-btn:hover{background:#FFF0F4}
+.sidebar__fade{position:absolute;left:0;right:0;bottom:0;height:80px;background:linear-gradient(to top,var(--white) 20%,transparent);pointer-events:none;z-index:2}
+.sidebar__mascot{position:absolute;right:0;bottom:0;width:110px;height:110px;z-index:3;background:#FFEAF1;border-radius:20px 0 0 0;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--rose);border-top:2px solid var(--pink-border);border-left:2px solid var(--pink-border)}
+.sidebar__mascot img{width:100%;height:100%;object-fit:cover;border-radius:20px 0 0 0}
+
+/* ── MAIN ── */
+.main{display:flex;flex-direction:column;overflow:hidden;background:var(--cream)}
+.topbar{height:68px;background:var(--white);border-bottom:2px solid var(--pink-border);display:flex;align-items:center;padding:0 24px;gap:12px;flex-shrink:0}
+.topbar__left{display:flex;flex-direction:column;flex:1;min-width:0}
+.topbar__crumb{font-size:11.5px;font-weight:800;color:var(--mauve-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar__title{font-size:20px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar__chip{font-size:11.5px;font-weight:800;padding:4px 11px;border-radius:var(--r-pill);background:var(--track);color:var(--rose-deep);flex-shrink:0}
+.topbar__actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.btn{font-family:var(--font);font-weight:800;font-size:13px;border:none;cursor:pointer;border-radius:var(--r-pill);padding:9px 17px;display:inline-flex;align-items:center;gap:7px;transition:transform .12s,box-shadow .12s,background .12s;white-space:nowrap}
+.btn:active{transform:translateY(1px) scale(0.99)}
+.btn--primary{background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop)}
+.btn--primary:hover{background:var(--rose-deep)}
+.btn--ghost{background:var(--white);color:var(--mauve);border:2px solid var(--pink-border)}
+.btn--ghost:hover{border-color:var(--pink-border-strong)}
+.main__body{flex:1;overflow:hidden;padding:18px 22px;display:flex;flex-direction:column;gap:14px}
+.empty-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--mauve-soft);text-align:center}
+.empty-state .es-icon{font-size:48px}
+.empty-state h2{font-size:20px;font-weight:900;color:var(--mauve)}
+.empty-state p{font-size:14px;font-weight:700;max-width:300px;line-height:1.5}
+.ex-list-head{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.ex-list-head h2{font-size:16px;font-weight:900}
+.exercise-list{display:flex;flex-direction:column;gap:10px;overflow-y:auto;flex:1;scrollbar-width:thin;scrollbar-color:var(--pink-border) transparent;padding-right:2px}
+.ex-card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:14px 16px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:12px;transition:border-color .14s,box-shadow .14s}
+.ex-card:hover{border-color:var(--pink-border-strong);box-shadow:var(--shadow-md)}
+.ex-card__num{width:30px;height:30px;border-radius:10px;background:var(--track);color:var(--rose-deep);font-size:13px;font-weight:900;display:grid;place-items:center;flex-shrink:0}
+.ex-card__body{flex:1;min-width:0}
+.ex-card__type{font-size:10.5px;font-weight:900;color:var(--rose);background:#FFE7EE;padding:2px 9px;border-radius:var(--r-pill);display:inline-block;margin-bottom:5px}
+.ex-card__prompt{font-size:14px;font-weight:800;color:var(--mauve);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-card__answer{font-size:12px;font-weight:700;color:var(--mauve-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ex-card__actions{display:flex;gap:6px;flex-shrink:0}
+.icon-btn{width:30px;height:30px;border-radius:9px;border:2px solid var(--pink-border);background:var(--cream);color:var(--mauve-soft);cursor:pointer;display:grid;place-items:center;transition:all .12s;flex-shrink:0}
+.icon-btn:hover{border-color:var(--pink-border-strong);color:var(--mauve)}
+.icon-btn.danger:hover{border-color:#F0A0A0;color:#C0392B;background:#FDEDED}
+.drag-handle{color:#D8B6C2;cursor:grab;font-size:16px;flex-shrink:0}
+
+/* ── MODALS ── */
+.modal-backdrop{position:fixed;inset:0;background:rgba(74,37,53,0.4);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);width:880px;max-width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;animation:modalIn .22s ease}
+@keyframes modalIn{from{opacity:0;transform:translateY(18px) scale(0.97)}to{opacity:1;transform:none}}
+.modal--sm{width:480px}
+.modal__head{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:2px solid var(--pink-border);flex-shrink:0}
+.modal__head h2{font-size:18px;font-weight:900}
+.modal__close{width:32px;height:32px;border-radius:10px;border:2px solid var(--pink-border);background:var(--cream);cursor:pointer;display:grid;place-items:center;color:var(--mauve-soft);font-size:16px;font-weight:700;transition:all .12s;line-height:1}
+.modal__close:hover{border-color:var(--rose);color:var(--rose)}
+.modal__body{display:grid;grid-template-columns:1fr 320px;flex:1;overflow:hidden}
+.modal__body--full{grid-template-columns:1fr}
+.modal__editor{padding:18px 22px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--pink-border) transparent}
+.modal__preview{background:var(--cream);border-left:2px solid var(--pink-border);padding:18px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.modal__footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px;border-top:2px solid var(--pink-border);flex-shrink:0}
+.modal__padded{padding:20px 22px;overflow-y:auto;flex:1}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tab{font-family:var(--font);font-weight:800;font-size:12px;border:2px solid var(--pink-border);background:var(--cream);color:var(--mauve-soft);border-radius:var(--r-pill);padding:7px 13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .14s}
+.tab:hover{border-color:var(--pink-border-strong);color:var(--mauve)}
+.tab.active{background:var(--rose);color:var(--white);border-color:var(--rose);box-shadow:var(--shadow-sm)}
+.tab svg{width:14px;height:14px}
+.tab-pane{display:none}
+.tab-pane.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── FORM ── */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:800;color:var(--mauve);margin-bottom:5px}
+.field label .req{color:var(--rose)}
+.field label .hint{font-weight:700;color:var(--mauve-soft);font-size:11px}
+.input,.textarea,.select{width:100%;font-family:var(--font);font-weight:700;font-size:13.5px;color:var(--mauve);background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 13px;outline:none;transition:border-color .14s,box-shadow .14s}
+.input:focus,.textarea:focus,.select:focus{border-color:var(--rose);box-shadow:0 0 0 4px rgba(232,99,140,0.12);background:var(--white)}
+.textarea{resize:vertical;min-height:68px;line-height:1.5}
+.input::placeholder,.textarea::placeholder{color:#C9A9B5}
+.select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238A6472' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:32px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.opt-row{display:flex;align-items:center;gap:9px;background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:8px 11px;margin-bottom:7px;transition:border-color .14s,background .14s}
+.opt-row.correct{border-color:var(--mint);background:#EBF8F1}
+.opt-radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--pink-border-strong);display:grid;place-items:center;cursor:pointer;flex-shrink:0;background:var(--white);transition:all .12s}
+.opt-row.correct .opt-radio{border-color:#5FBF8A;background:#5FBF8A;color:var(--white)}
+.opt-row input.opt-text{flex:1;border:none;background:transparent;font-family:var(--font);font-weight:700;font-size:13px;color:var(--mauve);outline:none}
+.opt-row .badge-correct{font-size:10px;font-weight:900;color:#3FA06E;background:#D6F0E1;padding:2px 7px;border-radius:var(--r-pill);flex-shrink:0}
+.opt-row .del{color:#E89BB0;cursor:pointer;width:18px;height:18px;display:grid;place-items:center;font-size:13px;border-radius:5px;transition:all .12s;flex-shrink:0}
+.opt-row .del:hover{color:var(--rose);background:#FFE7EE}
+.add-opt{display:inline-flex;align-items:center;gap:6px;font-family:var(--font);font-weight:800;font-size:12px;color:var(--rose);background:#FFF0F4;border:2px dashed var(--pink-border-strong);border-radius:var(--r-md);padding:8px 13px;cursor:pointer;width:100%;justify-content:center;transition:background .14s}
+.add-opt:hover{background:#FFE4EC}
+.tokens{display:flex;flex-wrap:wrap;gap:7px;padding:10px;border:2px dashed var(--pink-border-strong);border-radius:var(--r-md);min-height:48px;align-content:flex-start}
+.token{font-weight:800;font-size:13px;background:var(--white);border:2px solid var(--pink-border-strong);color:var(--mauve);border-radius:var(--r-md);padding:7px 11px;cursor:grab;box-shadow:var(--shadow-sm);user-select:none;display:inline-flex;align-items:center;gap:6px}
+.token .num{width:16px;height:16px;border-radius:5px;background:var(--track);color:var(--rose-deep);font-size:10px;display:grid;place-items:center;flex-shrink:0}
+.flashcard-preview{border-radius:var(--r-lg);background:linear-gradient(160deg,#FFF6F9,#FFE7EF);border:2px solid var(--pink-border-strong);padding:18px;text-align:center;box-shadow:var(--shadow-sm)}
+.flashcard-preview .fp-word{font-size:26px;font-weight:900;color:var(--rose-deep)}
+.flashcard-preview .fp-phon{font-size:13px;font-weight:700;color:var(--mauve-soft);margin-top:3px}
+.flashcard-preview .fp-hint{margin-top:10px;font-size:11px;font-weight:800;color:var(--rose)}
+.flashcard-preview .fp-back{font-size:15px;font-weight:800;color:var(--mauve);margin-top:6px;padding-top:10px;border-top:2px solid var(--pink-border)}
+
+/* ── PREVIEW PANEL ── */
+.prev-head{display:flex;align-items:center;gap:7px;margin-bottom:10px}
+.prev-head h3{font-size:13.5px;font-weight:900;flex:1}
+.prev-live{font-size:10px;font-weight:900;color:#3FA06E;display:inline-flex;align-items:center;gap:4px}
+.prev-live i{width:7px;height:7px;border-radius:50%;background:#5FBF8A;display:block}
+.mini-card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:13px;box-shadow:var(--shadow-sm)}
+.mini-card .ask{font-size:10.5px;font-weight:800;color:var(--mauve-soft);margin-bottom:3px}
+.mini-card .q{font-size:14.5px;font-weight:900;margin-bottom:9px}
+.mini-opt{border:2px solid var(--pink-border);border-radius:var(--r-md);padding:8px 11px;margin-bottom:6px;font-weight:800;font-size:12.5px;display:flex;align-items:center;gap:7px}
+.mini-opt.correct{border-color:var(--mint);background:#EBF8F1}
+.mini-opt .k{width:20px;height:20px;border-radius:6px;background:var(--track);color:var(--rose-deep);display:grid;place-items:center;font-size:10px;font-weight:900;flex-shrink:0}
+.mini-opt.correct .k{background:#5FBF8A;color:var(--white)}
+.prev-meta{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.prev-meta .row{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;font-weight:800;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:8px 11px}
+.prev-meta .row span:last-child{color:var(--mauve-soft)}
+.mini-blank{font-size:14px;font-weight:800;padding:10px;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md)}
+.mini-blank .gap{display:inline-block;min-width:60px;border-bottom:3px solid var(--rose);margin:0 4px;color:var(--rose-deep)}
+.mini-trans{display:flex;flex-direction:column;gap:8px}
+.mini-trans .src{font-size:14px;font-weight:800;color:var(--mauve);padding:10px;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md)}
+.mini-trans .ans{font-size:12px;font-weight:700;color:var(--mauve-soft);padding:9px 11px;background:var(--cream);border:2px dashed var(--pink-border-strong);border-radius:var(--r-md)}
+.mini-words{display:flex;flex-wrap:wrap;gap:6px;padding:9px;border:2px dashed var(--pink-border-strong);border-radius:var(--r-md)}
+.mini-word{font-weight:800;font-size:12px;background:var(--white);border:2px solid var(--pink-border-strong);color:var(--mauve);border-radius:10px;padding:5px 10px}
+
+/* ── PROGRESS MODAL ── */
+.progress-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.stat-card{background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:13px;text-align:center}
+.stat-card .val{font-size:26px;font-weight:900;color:var(--rose-deep)}
+.stat-card .lab{font-size:11px;font-weight:800;color:var(--mauve-soft);margin-top:2px}
+.prog-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.prog-table th{text-align:left;padding:7px 9px;font-weight:900;font-size:11px;color:var(--mauve-soft);border-bottom:2px solid var(--pink-border);white-space:nowrap}
+.prog-table td{padding:9px;border-bottom:1px solid var(--pink-border)}
+.prog-table tr:last-child td{border-bottom:none}
+.acc-bar{height:7px;border-radius:99px;background:var(--track);overflow:hidden;min-width:70px}
+.acc-bar span{display:block;height:100%;background:var(--rose);border-radius:99px}
+.state-chip{font-size:10px;font-weight:900;padding:2px 7px;border-radius:var(--r-pill)}
+.state-chip.new{background:#FFE7EE;color:var(--rose)}
+.state-chip.learning{background:#FFF8DD;color:#B8860B}
+.state-chip.review{background:#D6F0E1;color:#3FA06E}
+.state-chip.relearning{background:#FFE7EE;color:var(--rose)}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--mauve);color:var(--white);padding:11px 18px;border-radius:var(--r-pill);font-size:13px;font-weight:800;box-shadow:var(--shadow-lg);z-index:200;transform:translateY(70px);opacity:0;transition:transform .3s ease,opacity .3s ease;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── DRAG ── */
+.ex-card.drag-over{border-color:var(--rose);background:#FFF0F4}
+.ex-card[draggable]{cursor:grab}
+</style>
+</head>
+<body>
+
+<div class="app-layout">
+
+  <!-- ══════════ SIDEBAR ══════════ -->
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <div class="mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 21s-7.5-4.7-10-9.3C.2 8.3 1.7 5 5 5c2 0 3.2 1.1 4 2.3C9.8 6.1 11 5 13 5c3.3 0 4.8 3.3 3 6.7C19.5 16.3 12 21 12 21z"/></svg>
+      </div>
+      <div class="name">Sweet<b>English</b><small>Lesson Studio</small></div>
+    </div>
+
+    <div class="sidebar__toolbar">
+      <button class="toolbar-btn primary" id="btnExport">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        Export
+      </button>
+      <button class="toolbar-btn" id="btnImport" title="Import curriculum.json">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 21V9m0 0-4 4m4-4 4 4M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>
+        Import
+      </button>
+      <button class="toolbar-btn" id="btnProgress" title="Import student progress.json">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M4 19V9M10 19V4M16 19v-7M22 19H2"/></svg>
+        Progress
+      </button>
+    </div>
+
+    <div class="sidebar__search">
+      <svg class="si" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C9A9B5" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="m20 20-3-3"/></svg>
+      <input type="text" id="searchInput" placeholder="Search lessons…">
+    </div>
+
+    <div class="lesson-scroll" id="lessonScroll"></div>
+
+    <div class="add-unit-wrap">
+      <button class="add-unit-btn" id="btnNewUnit">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        New Unit
+      </button>
+    </div>
+
+    <div class="sidebar__fade"></div>
+    <div class="sidebar__mascot" title="Drop My Sweet Piano mascot image here">
+      <img id="mascotImg" src="" alt="" style="display:none">
+      <span id="mascotPlaceholder">♡</span>
+    </div>
+  </aside>
+
+  <!-- ══════════ MAIN ══════════ -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar__left">
+        <div class="topbar__crumb" id="topbarCrumb">No lesson selected</div>
+        <div class="topbar__title" id="topbarTitle">SweetEnglish Studio</div>
+      </div>
+      <div id="topbarChip"></div>
+      <div class="topbar__actions" id="topbarActions"></div>
+    </div>
+
+    <div class="main__body" id="mainBody">
+      <div class="empty-state">
+        <div class="es-icon">♡</div>
+        <h2>Welcome to Lesson Studio</h2>
+        <p>Create a unit and lesson in the sidebar, or import an existing curriculum.json to get started.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════ EXERCISE MODAL ══════════ -->
+<div class="modal-backdrop" id="exerciseModal">
+  <div class="modal">
+    <div class="modal__head">
+      <h2 id="exModalTitle">Add Exercise</h2>
+      <button class="modal__close" id="exModalClose">✕</button>
+    </div>
+    <div class="modal__body">
+      <div class="modal__editor" id="exModalEditor">
+        <div class="tabs" id="exTypeTabs">
+          <button class="tab active" data-type="multiple_choice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><circle cx="6" cy="7" r="2.5"/><circle cx="6" cy="17" r="2.5"/><path d="M11 7h9M11 17h9"/></svg>
+            Multiple Choice
+          </button>
+          <button class="tab" data-type="fill_blank">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 7h16M4 12h7M15 12h5M4 17h16"/></svg>
+            Fill Blank
+          </button>
+          <button class="tab" data-type="translation_es_en">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 5h7M7 5v3M5 12c2 0 4-1.5 4-4M4 8c0 3 3 5 6 5M13 19l4-9 4 9M14.5 16h5"/></svg>
+            ES→EN
+          </button>
+          <button class="tab" data-type="translation_en_es">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M4 5h7M7 5v3M5 12c2 0 4-1.5 4-4M4 8c0 3 3 5 6 5M13 19l4-9 4 9M14.5 16h5"/></svg>
+            EN→ES
+          </button>
+          <button class="tab" data-type="word_order">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="8" width="6" height="8" rx="1.6"/><rect x="11" y="8" width="6" height="8" rx="1.6"/><path d="M19 12h2"/></svg>
+            Word Order
+          </button>
+          <button class="tab" data-type="flashcard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><rect x="3" y="6" width="14" height="12" rx="2"/><path d="M7 18l5 3 9-4V7l-4 1.5"/></svg>
+            Flashcard
+          </button>
+        </div>
+        <div id="exFormBody"></div>
+      </div>
+      <div class="modal__preview">
+        <div class="prev-head">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8638C" stroke-width="2.3"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          <h3>Student preview</h3>
+          <span class="prev-live"><i></i> LIVE</span>
+        </div>
+        <div id="exPreviewBody"></div>
+        <div class="prev-meta" id="exPreviewMeta"></div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" id="exModalCancel">Cancel</button>
+      <button class="btn btn--primary" id="exModalSave">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg>
+        Save Exercise
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ UNIT MODAL ══════════ -->
+<div class="modal-backdrop" id="unitModal">
+  <div class="modal modal--sm">
+    <div class="modal__head">
+      <h2 id="unitModalTitle">New Unit</h2>
+      <button class="modal__close" id="unitModalClose">✕</button>
+    </div>
+    <div class="modal__padded">
+      <div class="field">
+        <label>Unit Title <span class="req">*</span></label>
+        <input class="input" id="unitTitle" placeholder="e.g. Greetings &amp; Introductions">
+      </div>
+      <div class="two-col">
+        <div class="field">
+          <label>Level <span class="req">*</span></label>
+          <select class="select" id="unitLevel">
+            <option value="A1">A1 — Beginner</option>
+            <option value="A2">A2 — Elementary</option>
+            <option value="B1">B1 — Intermediate</option>
+            <option value="B2">B2 — Upper-Intermediate</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Order</label>
+          <input class="input" id="unitOrder" type="number" min="1" value="1">
+        </div>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" id="unitModalCancel">Cancel</button>
+      <button class="btn btn--primary" id="unitModalSave">Create Unit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ LESSON MODAL ══════════ -->
+<div class="modal-backdrop" id="lessonModal">
+  <div class="modal modal--sm">
+    <div class="modal__head">
+      <h2 id="lessonModalTitle">New Lesson</h2>
+      <button class="modal__close" id="lessonModalClose">✕</button>
+    </div>
+    <div class="modal__padded">
+      <div class="field">
+        <label>Lesson Title <span class="req">*</span></label>
+        <input class="input" id="lessonTitle" placeholder="e.g. Hello and Goodbye">
+      </div>
+      <div class="field">
+        <label>Order</label>
+        <input class="input" id="lessonOrder" type="number" min="1" value="1">
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" id="lessonModalCancel">Cancel</button>
+      <button class="btn btn--primary" id="lessonModalSave">Create Lesson</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PROGRESS MODAL ══════════ -->
+<div class="modal-backdrop" id="progressModal">
+  <div class="modal" style="width:700px">
+    <div class="modal__head">
+      <h2>Student Progress Report</h2>
+      <button class="modal__close" id="progressModalClose">✕</button>
+    </div>
+    <div class="modal__padded modal__body--full">
+      <div class="progress-stats" id="progressStats"></div>
+      <div style="overflow-x:auto;max-height:380px;overflow-y:auto">
+        <table class="prog-table" id="progressTable">
+          <thead>
+            <tr>
+              <th>Exercise</th>
+              <th>Type</th>
+              <th>Reps</th>
+              <th>Accuracy</th>
+              <th>State</th>
+              <th>Next due</th>
+            </tr>
+          </thead>
+          <tbody id="progressTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--ghost" id="progressModalClose2">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden file inputs -->
+<input type="file" id="importCurrFile" accept=".json" style="display:none">
+<input type="file" id="importProgFile" accept=".json" style="display:none">
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+const LS_KEY = 'elm_curriculum';
+let curriculum = { version: '1.0', units: [] };
+let selUnitId = null;
+let selLessonId = null;
+let editingExId = null;   // null = new exercise
+let newLessonUnitId = null;
+let activeExType = 'multiple_choice';
+let mcOptions = [];
+
+function uid(prefix) {
+  return prefix + '_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+}
+
+// ══════════════════════════════════════
+//  PERSISTENCE
+// ══════════════════════════════════════
+function saveCurriculum() {
+  localStorage.setItem(LS_KEY, JSON.stringify(curriculum));
+}
+
+function loadCurriculum() {
+  try {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) curriculum = JSON.parse(saved);
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════
+function getUnit(id) { return curriculum.units.find(u => u.id === id); }
+function getLesson(unitId, lessonId) {
+  const u = getUnit(unitId);
+  return u ? u.lessons.find(l => l.id === lessonId) : null;
+}
+function getSelectedLesson() { return getLesson(selUnitId, selLessonId); }
+
+function levelColor(lvl) {
+  if (lvl === 'A2') return 'a2';
+  if (lvl === 'B1' || lvl === 'B2') return 'b1';
+  return '';
+}
+
+function typeLabel(t) {
+  const m = {
+    multiple_choice: 'Multiple Choice', fill_blank: 'Fill Blank',
+    translation_es_en: 'ES → EN', translation_en_es: 'EN → ES',
+    word_order: 'Word Order', flashcard: 'Flashcard'
+  };
+  return m[t] || t;
+}
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+let toastTimer;
+function toast(msg, isError) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = isError ? '#C0392B' : '#4A2535';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════
+//  SIDEBAR RENDER
+// ══════════════════════════════════════
+function renderSidebar(filter) {
+  const scroll = document.getElementById('lessonScroll');
+  const q = (filter || '').toLowerCase();
+
+  if (!curriculum.units.length) {
+    scroll.innerHTML = '<div style="text-align:center;padding:30px 10px;color:var(--mauve-soft);font-size:13px;font-weight:700;">No units yet.<br>Click <b style="color:var(--rose)">New Unit</b> below ↓</div>';
+    return;
+  }
+
+  scroll.innerHTML = curriculum.units.map(unit => {
+    const lessonsHtml = (unit.lessons || [])
+      .filter(l => !q || l.title.toLowerCase().includes(q) || unit.title.toLowerCase().includes(q))
+      .map(l => {
+        const exCount = (l.exercises || []).length;
+        const isActive = l.id === selLessonId && unit.id === selUnitId;
+        const dotClass = exCount === 0 ? 'empty' : '';
+        return `
+          <div class="lesson${isActive ? ' active' : ''}" data-unit="${unit.id}" data-lesson="${l.id}">
+            <div class="lesson__icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 19V9a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10"/><path d="M4 19h16"/><path d="M9 7V5a2 2 0 0 1 4 0v2"/></svg>
+            </div>
+            <div class="lesson__body">
+              <div class="lesson__title">${esc(l.title)}</div>
+              <div class="lesson__meta">${exCount === 0 ? 'empty' : exCount + ' exercise' + (exCount === 1 ? '' : 's')}</div>
+            </div>
+            <div class="lesson__dot ${dotClass}"></div>
+            <button class="lesson__del" data-del-lesson="${l.id}" data-del-unit="${unit.id}" title="Delete lesson">✕</button>
+          </div>`;
+      }).join('');
+
+    const count = (unit.lessons || []).length;
+    if (q && !lessonsHtml) return '';
+    return `
+      <div class="level-group">
+        <div class="level-head" data-unit-toggle="${unit.id}">
+          <span class="level-badge ${levelColor(unit.level)}">${esc(unit.level)}</span>
+          <span class="lh-label">${esc(unit.title)}</span>
+          <span class="lh-count">${count}</span>
+          <button class="add-lesson-btn" data-add-lesson="${unit.id}" title="Add lesson">+</button>
+        </div>
+        <div class="level-lessons" data-unit-lessons="${unit.id}">
+          ${lessonsHtml}
+        </div>
+      </div>`;
+  }).join('');
+
+  // Attach events
+  scroll.querySelectorAll('.lesson').forEach(el => {
+    el.addEventListener('click', e => {
+      if (e.target.closest('[data-del-lesson]')) return;
+      selectLesson(el.dataset.unit, el.dataset.lesson);
+    });
+  });
+  scroll.querySelectorAll('[data-del-lesson]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      deleteLesson(btn.dataset.delUnit, btn.dataset.delLesson);
+    });
+  });
+  scroll.querySelectorAll('[data-add-lesson]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      openLessonModal(btn.dataset.addLesson);
+    });
+  });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══════════════════════════════════════
+//  LESSON SELECTION
+// ══════════════════════════════════════
+function selectLesson(unitId, lessonId) {
+  selUnitId = unitId;
+  selLessonId = lessonId;
+  renderSidebar(document.getElementById('searchInput').value);
+  renderMainArea();
+}
+
+// ══════════════════════════════════════
+//  MAIN AREA
+// ══════════════════════════════════════
+function renderMainArea() {
+  const body = document.getElementById('mainBody');
+  const crumb = document.getElementById('topbarCrumb');
+  const title = document.getElementById('topbarTitle');
+  const chipEl = document.getElementById('topbarChip');
+  const actionsEl = document.getElementById('topbarActions');
+
+  const lesson = getSelectedLesson();
+  const unit = getUnit(selUnitId);
+
+  if (!lesson) {
+    crumb.textContent = 'No lesson selected';
+    title.textContent = 'SweetEnglish Studio';
+    chipEl.innerHTML = '';
+    actionsEl.innerHTML = '';
+    body.innerHTML = `
+      <div class="empty-state">
+        <div class="es-icon">♡</div>
+        <h2>Select a Lesson</h2>
+        <p>Choose a lesson from the sidebar to view and edit its exercises.</p>
+      </div>`;
+    return;
+  }
+
+  const exCount = (lesson.exercises || []).length;
+  crumb.textContent = `${unit.level} · ${esc(unit.title)}`;
+  title.textContent = lesson.title;
+  chipEl.innerHTML = `<div class="topbar__chip">${exCount} exercise${exCount === 1 ? '' : 's'}</div>`;
+  actionsEl.innerHTML = `
+    <button class="btn btn--ghost" id="btnRenameLesson" style="font-size:12px;padding:7px 13px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Rename
+    </button>
+    <button class="btn btn--primary" id="btnAddEx">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      Add Exercise
+    </button>`;
+
+  document.getElementById('btnAddEx').addEventListener('click', () => openExerciseModal());
+  document.getElementById('btnRenameLesson').addEventListener('click', () => {
+    const newTitle = prompt('Rename lesson:', lesson.title);
+    if (newTitle && newTitle.trim()) {
+      lesson.title = newTitle.trim();
+      saveCurriculum();
+      renderSidebar(document.getElementById('searchInput').value);
+      renderMainArea();
+    }
+  });
+
+  if (exCount === 0) {
+    body.innerHTML = `
+      <div class="empty-state">
+        <div class="es-icon">📝</div>
+        <h2>No exercises yet</h2>
+        <p>Click <b style="color:var(--rose)">Add Exercise</b> in the top bar to create the first exercise for this lesson.</p>
+      </div>`;
+    return;
+  }
+
+  body.innerHTML = `
+    <div class="ex-list-head">
+      <h2>Exercises</h2>
+    </div>
+    <div class="exercise-list" id="exerciseList">
+      ${(lesson.exercises || []).map((ex, i) => renderExCard(ex, i)).join('')}
+    </div>`;
+
+  attachExCardEvents();
+}
+
+function renderExCard(ex, i) {
+  const prompt = ex.type === 'flashcard' ? ex.front : (ex.prompt || ex.words?.join(' ') || '');
+  const answer = ex.type === 'flashcard' ? ex.back : (ex.answer || (ex.options?.find(o=>o===ex.answer)) || '');
+  return `
+    <div class="ex-card" draggable="true" data-ex-id="${ex.id}">
+      <div class="drag-handle">⋮⋮</div>
+      <div class="ex-card__num">${i + 1}</div>
+      <div class="ex-card__body">
+        <div class="ex-card__type">${typeLabel(ex.type)}</div>
+        <div class="ex-card__prompt">${esc(prompt || '(no prompt)')}</div>
+        <div class="ex-card__answer">→ ${esc(String(answer || ''))}</div>
+      </div>
+      <div class="ex-card__actions">
+        <button class="icon-btn" data-edit-ex="${ex.id}" title="Edit">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
+        <button class="icon-btn danger" data-del-ex="${ex.id}" title="Delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+        </button>
+      </div>
+    </div>`;
+}
+
+function attachExCardEvents() {
+  document.querySelectorAll('[data-edit-ex]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lesson = getSelectedLesson();
+      if (!lesson) return;
+      const ex = lesson.exercises.find(e => e.id === btn.dataset.editEx);
+      if (ex) openExerciseModal(ex);
+    });
+  });
+  document.querySelectorAll('[data-del-ex]').forEach(btn => {
+    btn.addEventListener('click', () => deleteExercise(btn.dataset.delEx));
+  });
+  setupDragDrop();
+}
+
+// ══════════════════════════════════════
+//  DRAG & DROP REORDER
+// ══════════════════════════════════════
+let dragSrc = null;
+
+function setupDragDrop() {
+  document.querySelectorAll('.ex-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      dragSrc = card;
+      e.dataTransfer.effectAllowed = 'move';
+      setTimeout(() => card.style.opacity = '0.5', 0);
+    });
+    card.addEventListener('dragend', () => { card.style.opacity = ''; dragSrc = null; });
+    card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      if (!dragSrc || dragSrc === card) return;
+      const lesson = getSelectedLesson();
+      if (!lesson) return;
+      const fromId = dragSrc.dataset.exId;
+      const toId = card.dataset.exId;
+      const exs = lesson.exercises;
+      const fromIdx = exs.findIndex(e => e.id === fromId);
+      const toIdx = exs.findIndex(e => e.id === toId);
+      if (fromIdx < 0 || toIdx < 0) return;
+      const [moved] = exs.splice(fromIdx, 1);
+      exs.splice(toIdx, 0, moved);
+      saveCurriculum();
+      renderMainArea();
+    });
+  });
+}
+
+// ══════════════════════════════════════
+//  DELETE
+// ══════════════════════════════════════
+function deleteExercise(exId) {
+  if (!confirm('Delete this exercise?')) return;
+  const lesson = getSelectedLesson();
+  if (!lesson) return;
+  lesson.exercises = lesson.exercises.filter(e => e.id !== exId);
+  saveCurriculum();
+  renderMainArea();
+  toast('Exercise deleted');
+}
+
+function deleteLesson(unitId, lessonId) {
+  if (!confirm('Delete this lesson and all its exercises?')) return;
+  const unit = getUnit(unitId);
+  if (!unit) return;
+  unit.lessons = unit.lessons.filter(l => l.id !== lessonId);
+  if (selLessonId === lessonId) { selLessonId = null; selUnitId = null; }
+  saveCurriculum();
+  renderSidebar(document.getElementById('searchInput').value);
+  renderMainArea();
+  toast('Lesson deleted');
+}
+
+// ══════════════════════════════════════
+//  EXERCISE MODAL
+// ══════════════════════════════════════
+function openExerciseModal(existingEx) {
+  editingExId = existingEx ? existingEx.id : null;
+  activeExType = existingEx ? existingEx.type : 'multiple_choice';
+
+  document.getElementById('exModalTitle').textContent = existingEx ? 'Edit Exercise' : 'Add Exercise';
+
+  // Activate the right tab
+  document.querySelectorAll('#exTypeTabs .tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.type === activeExType);
+  });
+
+  renderExForm(existingEx);
+  updateExPreview();
+  document.getElementById('exerciseModal').classList.add('open');
+}
+
+function renderExForm(ex) {
+  const body = document.getElementById('exFormBody');
+
+  if (activeExType === 'multiple_choice') {
+    mcOptions = ex?.options
+      ? ex.options.map(o => ({ text: o, correct: o === ex.answer }))
+      : [{ text: '', correct: false }, { text: '', correct: false }, { text: '', correct: false }, { text: '', correct: false }];
+    body.innerHTML = `
+      <div class="field">
+        <label>Question prompt <span class="req">*</span></label>
+        <input class="input" id="mcPrompt" placeholder="¿Cómo se dice 'hola'?" value="${esc(ex?.prompt || '')}">
+      </div>
+      <div class="field">
+        <label>Answer options <span class="req">*</span> <span class="hint">— click the circle to mark the correct one</span></label>
+        <div id="mcOptions">${renderMcOptions()}</div>
+        <button class="add-opt" id="btnAddOpt">＋ Add another option</button>
+      </div>
+      <div class="field">
+        <label>Hint <span class="hint">(optional, shown if wrong)</span></label>
+        <input class="input" id="mcHint" placeholder="e.g. Think of a greeting…" value="${esc(ex?.hint || '')}">
+      </div>
+      <div class="field">
+        <label>Tags <span class="hint">(comma-separated, optional)</span></label>
+        <input class="input" id="mcTags" placeholder="vocabulary, greetings" value="${esc((ex?.tags || []).join(', '))}">
+      </div>`;
+    attachMcEvents();
+
+  } else if (activeExType === 'fill_blank') {
+    body.innerHTML = `
+      <div class="field">
+        <label>Sentence with blank <span class="req">*</span> <span class="hint">— use ___ for the gap</span></label>
+        <textarea class="textarea" id="fbPrompt" placeholder="My name ___ Sarah.">${esc(ex?.prompt || '')}</textarea>
+      </div>
+      <div class="two-col">
+        <div class="field"><label>Correct answer <span class="req">*</span></label><input class="input" id="fbAnswer" placeholder="is" value="${esc(ex?.answer || '')}"></div>
+        <div class="field"><label>Also accept <span class="hint">(optional)</span></label><input class="input" id="fbAlso" placeholder="alternative" value="${esc(ex?.acceptable_answers?.join(', ') || '')}"></div>
+      </div>
+      <div class="field">
+        <label>Hint <span class="hint">(optional)</span></label>
+        <input class="input" id="fbHint" placeholder="Verb to be" value="${esc(ex?.hint || '')}">
+      </div>`;
+
+  } else if (activeExType === 'translation_es_en' || activeExType === 'translation_en_es') {
+    const [srcLang, tgtLang] = activeExType === 'translation_es_en' ? ['Spanish', 'English'] : ['English', 'Spanish'];
+    body.innerHTML = `
+      <div class="two-col">
+        <div class="field"><label>${srcLang} (source) <span class="req">*</span></label><textarea class="textarea" id="trPrompt" placeholder="e.g. Buenos días">${esc(ex?.prompt || '')}</textarea></div>
+        <div class="field"><label>${tgtLang} (answer) <span class="req">*</span></label><textarea class="textarea" id="trAnswer" placeholder="e.g. Good morning">${esc(ex?.answer || '')}</textarea></div>
+      </div>
+      <div class="field">
+        <label>Alternative accepted answers <span class="hint">(comma-separated)</span></label>
+        <input class="input" id="trAlso" placeholder="Good morning!, Morning!" value="${esc((ex?.acceptable_answers || []).join(', '))}">
+      </div>
+      <div class="field">
+        <label>Hint <span class="hint">(optional)</span></label>
+        <input class="input" id="trHint" placeholder="Formal greeting" value="${esc(ex?.hint || '')}">
+      </div>`;
+
+  } else if (activeExType === 'word_order') {
+    body.innerHTML = `
+      <div class="field">
+        <label>Target sentence <span class="req">*</span></label>
+        <input class="input" id="woSentence" placeholder="My name is Sarah" value="${esc(ex?.answer || (ex?.words?.join(' ') || ''))}">
+      </div>
+      <div class="field">
+        <label>Preview tokens <span class="hint">(auto-generated from sentence)</span></label>
+        <div class="tokens" id="woTokens"></div>
+      </div>
+      <div class="field">
+        <label>Distractor words <span class="hint">(optional, comma-separated)</span></label>
+        <input class="input" id="woDistractors" placeholder="very, often" value="${esc((ex?.distractors || []).join(', '))}">
+      </div>`;
+    const woInput = body.querySelector('#woSentence');
+    const renderTokens = () => {
+      const words = woInput.value.trim().split(/\s+/).filter(Boolean);
+      document.getElementById('woTokens').innerHTML = words.map((w, i) =>
+        `<span class="token"><span class="num">${i+1}</span>${esc(w)}</span>`).join('');
+      updateExPreview();
+    };
+    woInput.addEventListener('input', renderTokens);
+    renderTokens();
+
+  } else if (activeExType === 'flashcard') {
+    body.innerHTML = `
+      <div class="two-col">
+        <div class="field"><label>Front (word/phrase) <span class="req">*</span></label><input class="input" id="fcFront" placeholder="Hello" value="${esc(ex?.front || '')}"></div>
+        <div class="field"><label>Phonetic <span class="hint">(optional)</span></label><input class="input" id="fcPhon" placeholder="/həˈloʊ/" value="${esc(ex?.phonetic || '')}"></div>
+      </div>
+      <div class="field"><label>Back (translation) <span class="req">*</span></label><input class="input" id="fcBack" placeholder="Hola" value="${esc(ex?.back || '')}"></div>
+      <div class="field">
+        <label>Example sentence <span class="hint">(optional)</span></label>
+        <input class="input" id="fcExample" placeholder="Hello, how are you?" value="${esc(ex?.example_sentence || '')}">
+      </div>`;
+  }
+
+  // Attach live preview listeners
+  body.querySelectorAll('input, textarea').forEach(el => {
+    el.addEventListener('input', updateExPreview);
+  });
+}
+
+function renderMcOptions() {
+  return mcOptions.map((opt, i) => {
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+    return `
+      <div class="opt-row${opt.correct ? ' correct' : ''}" data-opt-idx="${i}">
+        <button class="opt-radio" data-correct-toggle="${i}" type="button">
+          ${opt.correct ? `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-11"/></svg>` : ''}
+        </button>
+        <input class="opt-text" placeholder="Option ${letters[i]}" value="${esc(opt.text)}" data-opt-text="${i}">
+        ${opt.correct ? '<span class="badge-correct">CORRECT</span>' : `<span class="del" data-del-opt="${i}">✕</span>`}
+      </div>`;
+  }).join('');
+}
+
+function attachMcEvents() {
+  const container = document.getElementById('mcOptions');
+  if (!container) return;
+
+  container.querySelectorAll('[data-correct-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.correctToggle);
+      mcOptions = mcOptions.map((o, i) => ({ ...o, correct: i === idx }));
+      container.innerHTML = renderMcOptions();
+      attachMcEvents();
+      updateExPreview();
+    });
+  });
+  container.querySelectorAll('[data-opt-text]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const idx = parseInt(inp.dataset.optText);
+      mcOptions[idx].text = inp.value;
+      updateExPreview();
+    });
+  });
+  container.querySelectorAll('[data-del-opt]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.delOpt);
+      if (mcOptions.length <= 2) return;
+      mcOptions.splice(idx, 1);
+      container.innerHTML = renderMcOptions();
+      attachMcEvents();
+      updateExPreview();
+    });
+  });
+
+  const addBtn = document.getElementById('btnAddOpt');
+  if (addBtn) {
+    addBtn.addEventListener('click', () => {
+      mcOptions.push({ text: '', correct: false });
+      container.innerHTML = renderMcOptions();
+      attachMcEvents();
+      updateExPreview();
+    });
+  }
+}
+
+// ══════════════════════════════════════
+//  LIVE PREVIEW
+// ══════════════════════════════════════
+function updateExPreview() {
+  const body = document.getElementById('exPreviewBody');
+  const meta = document.getElementById('exPreviewMeta');
+  const letters = ['A', 'B', 'C', 'D', 'E'];
+
+  if (activeExType === 'multiple_choice') {
+    const prompt = document.getElementById('mcPrompt')?.value || '…';
+    const opts = mcOptions;
+    const correctIdx = opts.findIndex(o => o.correct);
+    body.innerHTML = `
+      <div class="mini-card">
+        <div class="ask">PREVIEW</div>
+        <div class="q">${esc(prompt)}</div>
+        ${opts.map((o, i) => `
+          <div class="mini-opt${i === correctIdx ? ' correct' : ''}">
+            <div class="k">${i === correctIdx ? '✓' : letters[i]}</div>
+            ${esc(o.text || `Option ${letters[i]}`)}
+          </div>`).join('')}
+      </div>`;
+    meta.innerHTML = `
+      <div class="row"><span>Type</span><span>Multiple Choice</span></div>
+      <div class="row"><span>Options</span><span>${opts.length}</span></div>
+      <div class="row"><span>Has hint</span><span>${document.getElementById('mcHint')?.value ? 'Yes' : 'No'}</span></div>`;
+
+  } else if (activeExType === 'fill_blank') {
+    const prompt = (document.getElementById('fbPrompt')?.value || '___');
+    const ans = document.getElementById('fbAnswer')?.value || '…';
+    const rendered = esc(prompt).replace(/___/g, `<span class="gap">&nbsp;${esc(ans)}&nbsp;</span>`);
+    body.innerHTML = `
+      <div class="mini-card">
+        <div class="ask">PREVIEW</div>
+        <div class="mini-blank">${rendered}</div>
+      </div>`;
+    meta.innerHTML = `<div class="row"><span>Type</span><span>Fill Blank</span></div>`;
+
+  } else if (activeExType === 'translation_es_en' || activeExType === 'translation_en_es') {
+    const prompt = document.getElementById('trPrompt')?.value || '…';
+    const ans = document.getElementById('trAnswer')?.value || '…';
+    const dir = activeExType === 'translation_es_en' ? 'ES → EN' : 'EN → ES';
+    body.innerHTML = `
+      <div class="mini-trans">
+        <div class="src"><b>${dir}:</b> ${esc(prompt)}</div>
+        <div class="ans">✎ Write your translation…</div>
+        <div class="mini-card" style="margin-top:0"><div class="ask">ANSWER</div><div style="font-weight:800;font-size:14px">${esc(ans)}</div></div>
+      </div>`;
+    meta.innerHTML = `<div class="row"><span>Type</span><span>Translation</span></div>`;
+
+  } else if (activeExType === 'word_order') {
+    const sentence = document.getElementById('woSentence')?.value || '';
+    const words = sentence.trim().split(/\s+/).filter(Boolean);
+    const shuffled = [...words].sort(() => Math.random() - 0.5);
+    body.innerHTML = `
+      <div class="mini-card">
+        <div class="ask">ARRANGE THE WORDS</div>
+        <div class="mini-words" style="margin-bottom:8px;border:2px dashed var(--pink-border-strong);min-height:38px">&nbsp;</div>
+        <div class="mini-words">
+          ${shuffled.map(w => `<span class="mini-word">${esc(w)}</span>`).join('')}
+        </div>
+      </div>`;
+    meta.innerHTML = `<div class="row"><span>Words</span><span>${words.length}</span></div>`;
+
+  } else if (activeExType === 'flashcard') {
+    const front = document.getElementById('fcFront')?.value || 'Word';
+    const phon = document.getElementById('fcPhon')?.value || '';
+    const back = document.getElementById('fcBack')?.value || 'Translation';
+    body.innerHTML = `
+      <div class="flashcard-preview">
+        <div class="fp-word">${esc(front)}</div>
+        ${phon ? `<div class="fp-phon">${esc(phon)}</div>` : ''}
+        <div class="fp-hint">↻ tap to flip</div>
+        <div class="fp-back">${esc(back)}</div>
+      </div>`;
+    meta.innerHTML = `<div class="row"><span>Type</span><span>Flashcard</span></div>`;
+  }
+}
+
+// ══════════════════════════════════════
+//  SAVE EXERCISE
+// ══════════════════════════════════════
+function saveExercise() {
+  const lesson = getSelectedLesson();
+  if (!lesson) return;
+
+  let ex = { id: editingExId || uid('ex'), type: activeExType };
+
+  if (activeExType === 'multiple_choice') {
+    const prompt = document.getElementById('mcPrompt')?.value?.trim();
+    if (!prompt) { toast('Please enter a question prompt', true); return; }
+    const correctOpt = mcOptions.find(o => o.correct);
+    if (!correctOpt) { toast('Please mark a correct answer', true); return; }
+    const filledOpts = mcOptions.filter(o => o.text.trim());
+    if (filledOpts.length < 2) { toast('Please fill at least 2 options', true); return; }
+    ex.prompt = prompt;
+    ex.options = mcOptions.map(o => o.text);
+    ex.answer = correctOpt.text;
+    ex.hint = document.getElementById('mcHint')?.value?.trim() || undefined;
+    const tagsRaw = document.getElementById('mcTags')?.value?.trim();
+    if (tagsRaw) ex.tags = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+
+  } else if (activeExType === 'fill_blank') {
+    const prompt = document.getElementById('fbPrompt')?.value?.trim();
+    const answer = document.getElementById('fbAnswer')?.value?.trim();
+    if (!prompt || !answer) { toast('Please fill in the sentence and answer', true); return; }
+    ex.prompt = prompt; ex.answer = answer;
+    const also = document.getElementById('fbAlso')?.value?.trim();
+    if (also) ex.acceptable_answers = also.split(',').map(a => a.trim()).filter(Boolean);
+    const hint = document.getElementById('fbHint')?.value?.trim();
+    if (hint) ex.hint = hint;
+
+  } else if (activeExType === 'translation_es_en' || activeExType === 'translation_en_es') {
+    const prompt = document.getElementById('trPrompt')?.value?.trim();
+    const answer = document.getElementById('trAnswer')?.value?.trim();
+    if (!prompt || !answer) { toast('Please fill source and target text', true); return; }
+    ex.prompt = prompt; ex.answer = answer;
+    const also = document.getElementById('trAlso')?.value?.trim();
+    if (also) ex.acceptable_answers = also.split(',').map(a => a.trim()).filter(Boolean);
+    const hint = document.getElementById('trHint')?.value?.trim();
+    if (hint) ex.hint = hint;
+
+  } else if (activeExType === 'word_order') {
+    const sentence = document.getElementById('woSentence')?.value?.trim();
+    if (!sentence) { toast('Please enter a target sentence', true); return; }
+    ex.words = sentence.split(/\s+/).filter(Boolean);
+    ex.answer = sentence;
+    const dist = document.getElementById('woDistractors')?.value?.trim();
+    if (dist) ex.distractors = dist.split(',').map(d => d.trim()).filter(Boolean);
+
+  } else if (activeExType === 'flashcard') {
+    const front = document.getElementById('fcFront')?.value?.trim();
+    const back = document.getElementById('fcBack')?.value?.trim();
+    if (!front || !back) { toast('Please fill front and back', true); return; }
+    ex.front = front; ex.back = back;
+    const phon = document.getElementById('fcPhon')?.value?.trim();
+    if (phon) ex.phonetic = phon;
+    const example = document.getElementById('fcExample')?.value?.trim();
+    if (example) ex.example_sentence = example;
+  }
+
+  if (editingExId) {
+    const idx = lesson.exercises.findIndex(e => e.id === editingExId);
+    if (idx >= 0) lesson.exercises[idx] = ex;
+  } else {
+    if (!lesson.exercises) lesson.exercises = [];
+    lesson.exercises.push(ex);
+  }
+
+  saveCurriculum();
+  closeExModal();
+  renderMainArea();
+  toast(editingExId ? 'Exercise updated ♡' : 'Exercise added ♡');
+}
+
+function closeExModal() {
+  document.getElementById('exerciseModal').classList.remove('open');
+  editingExId = null;
+}
+
+// ══════════════════════════════════════
+//  UNIT MODAL
+// ══════════════════════════════════════
+function openUnitModal() {
+  document.getElementById('unitTitle').value = '';
+  document.getElementById('unitOrder').value = curriculum.units.length + 1;
+  document.getElementById('unitModal').classList.add('open');
+  setTimeout(() => document.getElementById('unitTitle').focus(), 50);
+}
+
+function saveUnit() {
+  const title = document.getElementById('unitTitle').value.trim();
+  if (!title) { toast('Please enter a unit title', true); return; }
+  const level = document.getElementById('unitLevel').value;
+  const order = parseInt(document.getElementById('unitOrder').value) || curriculum.units.length + 1;
+  curriculum.units.push({ id: uid('unit'), title, level, order, lessons: [] });
+  curriculum.units.sort((a, b) => a.order - b.order);
+  saveCurriculum();
+  document.getElementById('unitModal').classList.remove('open');
+  renderSidebar();
+  toast('Unit created ♡');
+}
+
+// ══════════════════════════════════════
+//  LESSON MODAL
+// ══════════════════════════════════════
+function openLessonModal(unitId) {
+  newLessonUnitId = unitId;
+  const unit = getUnit(unitId);
+  const count = unit ? (unit.lessons || []).length + 1 : 1;
+  document.getElementById('lessonTitle').value = '';
+  document.getElementById('lessonOrder').value = count;
+  document.getElementById('lessonModal').classList.add('open');
+  setTimeout(() => document.getElementById('lessonTitle').focus(), 50);
+}
+
+function saveLesson() {
+  const title = document.getElementById('lessonTitle').value.trim();
+  if (!title) { toast('Please enter a lesson title', true); return; }
+  const unit = getUnit(newLessonUnitId);
+  if (!unit) return;
+  const order = parseInt(document.getElementById('lessonOrder').value) || (unit.lessons.length + 1);
+  if (!unit.lessons) unit.lessons = [];
+  const newLesson = { id: uid('lesson'), title, order, exercises: [] };
+  unit.lessons.push(newLesson);
+  unit.lessons.sort((a, b) => a.order - b.order);
+  saveCurriculum();
+  document.getElementById('lessonModal').classList.remove('open');
+  selectLesson(newLessonUnitId, newLesson.id);
+  toast('Lesson created ♡');
+}
+
+// ══════════════════════════════════════
+//  EXPORT / IMPORT
+// ══════════════════════════════════════
+function exportCurriculum() {
+  const data = { ...curriculum, exported_at: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'curriculum.json'; a.click();
+  URL.revokeObjectURL(url);
+  toast('curriculum.json downloaded ♡');
+}
+
+function importCurriculumFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.version || !Array.isArray(data.units)) throw new Error('Invalid schema');
+      data.units.forEach(u => {
+        if (!u.id || !u.title || !Array.isArray(u.lessons)) throw new Error('Invalid unit structure');
+      });
+      curriculum = data;
+      selUnitId = null; selLessonId = null;
+      saveCurriculum();
+      renderSidebar();
+      renderMainArea();
+      const exCount = curriculum.units.reduce((t, u) => t + u.lessons.reduce((tt, l) => tt + (l.exercises || []).length, 0), 0);
+      toast(`Imported: ${curriculum.units.length} units, ${exCount} exercises ♡`);
+    } catch(err) {
+      toast('Import error: ' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function importProgressFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      showProgressModal(data);
+    } catch(err) {
+      toast('Error reading progress.json: ' + err.message, true);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ══════════════════════════════════════
+//  PROGRESS MODAL
+// ══════════════════════════════════════
+function showProgressModal(progressData) {
+  const allExercises = [];
+  curriculum.units.forEach(u => {
+    u.lessons.forEach(l => {
+      (l.exercises || []).forEach(ex => {
+        allExercises.push({ ...ex, unitTitle: u.title, lessonTitle: l.title });
+      });
+    });
+  });
+
+  const cards = Object.values(progressData.exercises || progressData || {});
+  const totalReps = cards.reduce((t, c) => t + (c.reps || 0), 0);
+  const totalCorrect = cards.reduce((t, c) => t + (c.correct || 0), 0);
+  const totalAttempts = cards.reduce((t, c) => t + ((c.correct || 0) + (c.incorrect || 0)), 0);
+  const accuracy = totalAttempts > 0 ? Math.round(100 * totalCorrect / totalAttempts) : 0;
+  const now = new Date();
+  const due = cards.filter(c => !c.due || new Date(c.due) <= now).length;
+
+  document.getElementById('progressStats').innerHTML = `
+    <div class="stat-card"><div class="val">${cards.length}</div><div class="lab">Cards seen</div></div>
+    <div class="stat-card"><div class="val">${accuracy}%</div><div class="lab">Accuracy</div></div>
+    <div class="stat-card"><div class="val">${due}</div><div class="lab">Due today</div></div>`;
+
+  const tbody = document.getElementById('progressTableBody');
+  tbody.innerHTML = cards.map(c => {
+    const ex = allExercises.find(e => e.id === c.exercise_id);
+    const prompt = ex ? (ex.prompt || ex.front || ex.answer || ex.id) : c.exercise_id;
+    const attempts = (c.correct || 0) + (c.incorrect || 0);
+    const acc = attempts > 0 ? Math.round(100 * (c.correct || 0) / attempts) : 0;
+    const dueDate = c.due ? new Date(c.due).toLocaleDateString() : '—';
+    const stateClass = c.state || 'new';
+    return `
+      <tr>
+        <td title="${esc(prompt)}" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(String(prompt).slice(0, 40))}</td>
+        <td>${esc(typeLabel(ex?.type || ''))}</td>
+        <td>${c.reps || 0}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div class="acc-bar"><span style="width:${acc}%"></span></div>
+            <span>${acc}%</span>
+          </div>
+        </td>
+        <td><span class="state-chip ${stateClass}">${c.state || 'new'}</span></td>
+        <td>${dueDate}</td>
+      </tr>`;
+  }).join('');
+
+  document.getElementById('progressModal').classList.add('open');
+}
+
+// ══════════════════════════════════════
+//  EVENT WIRING
+// ══════════════════════════════════════
+// Exercise type tabs
+document.getElementById('exTypeTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.tab');
+  if (!tab) return;
+  activeExType = tab.dataset.type;
+  document.querySelectorAll('#exTypeTabs .tab').forEach(t => t.classList.toggle('active', t === tab));
+  const lesson = getSelectedLesson();
+  const ex = editingExId ? lesson?.exercises?.find(e => e.id === editingExId) : null;
+  renderExForm(ex ? (ex.type === activeExType ? ex : null) : null);
+  updateExPreview();
+});
+
+// Exercise modal close/cancel/save
+document.getElementById('exModalClose').addEventListener('click', closeExModal);
+document.getElementById('exModalCancel').addEventListener('click', closeExModal);
+document.getElementById('exModalSave').addEventListener('click', saveExercise);
+
+// Unit modal
+document.getElementById('btnNewUnit').addEventListener('click', openUnitModal);
+document.getElementById('unitModalClose').addEventListener('click', () => document.getElementById('unitModal').classList.remove('open'));
+document.getElementById('unitModalCancel').addEventListener('click', () => document.getElementById('unitModal').classList.remove('open'));
+document.getElementById('unitModalSave').addEventListener('click', saveUnit);
+
+// Lesson modal
+document.getElementById('lessonModalClose').addEventListener('click', () => document.getElementById('lessonModal').classList.remove('open'));
+document.getElementById('lessonModalCancel').addEventListener('click', () => document.getElementById('lessonModal').classList.remove('open'));
+document.getElementById('lessonModalSave').addEventListener('click', saveLesson);
+
+// Progress modal close
+document.getElementById('progressModalClose').addEventListener('click', () => document.getElementById('progressModal').classList.remove('open'));
+document.getElementById('progressModalClose2').addEventListener('click', () => document.getElementById('progressModal').classList.remove('open'));
+
+// Export/Import
+document.getElementById('btnExport').addEventListener('click', exportCurriculum);
+document.getElementById('btnImport').addEventListener('click', () => document.getElementById('importCurrFile').click());
+document.getElementById('importCurrFile').addEventListener('change', e => { importCurriculumFile(e.target.files[0]); e.target.value = ''; });
+document.getElementById('btnProgress').addEventListener('click', () => document.getElementById('importProgFile').click());
+document.getElementById('importProgFile').addEventListener('change', e => { importProgressFile(e.target.files[0]); e.target.value = ''; });
+
+// Search
+document.getElementById('searchInput').addEventListener('input', e => {
+  renderSidebar(e.target.value);
+});
+
+// Backdrop click to close modals
+['exerciseModal', 'unitModal', 'lessonModal', 'progressModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target === e.currentTarget) {
+      e.currentTarget.classList.remove('open');
+      if (id === 'exerciseModal') editingExId = null;
+    }
+  });
+});
+
+// Enter key in modals
+document.getElementById('unitTitle').addEventListener('keydown', e => { if (e.key === 'Enter') saveUnit(); });
+document.getElementById('lessonTitle').addEventListener('keydown', e => { if (e.key === 'Enter') saveLesson(); });
+
+// ── INIT ──
+loadCurriculum();
+renderSidebar();
+renderMainArea();
+</script>
+</body>
+</html>

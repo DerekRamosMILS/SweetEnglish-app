@@ -1,0 +1,1883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#E8638C">
+<title>SweetEnglish</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink-soft: #FFB7C5;
+  --cream: #FFF5F7;
+  --rose: #E8638C;
+  --rose-deep: #D24A75;
+  --mauve: #4A2535;
+  --mauve-soft: #8A6472;
+  --white: #FFFFFF;
+  --pink-border: #FFD7E0;
+  --pink-border-strong: #FFB7C5;
+  --track: #FFCDD8;
+  --mint: #BFE3D0;
+  --lemon: #FFE9A8;
+  --shadow-sm: 0 4px 12px rgba(232,99,140,0.12);
+  --shadow-md: 0 10px 26px rgba(232,99,140,0.16);
+  --shadow-lg: 0 22px 50px rgba(232,99,140,0.22);
+  --shadow-pop: 0 14px 34px rgba(210,74,117,0.30);
+  --r-sm: 14px;
+  --r-md: 20px;
+  --r-lg: 28px;
+  --r-xl: 36px;
+  --r-pill: 999px;
+  --font: 'Nunito', system-ui, sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-smoothing:antialiased;background:var(--cream);overflow:hidden}
+
+/* ── APP SHELL ── */
+#app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--cream);overflow:hidden}
+.screen{display:none;flex:1;overflow:hidden;flex-direction:column}
+.screen.active{display:flex}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroll-area::-webkit-scrollbar{display:none}
+
+/* ── PINK GRADIENT BACKGROUND ── */
+.screen-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 80% 6%, rgba(255,183,197,0.45) 0, transparent 40%),
+    radial-gradient(circle at 10% 90%, rgba(255,183,197,0.3) 0, transparent 40%),
+    var(--cream);
+  pointer-events:none;z-index:0
+}
+
+/* ── STATUS BAR AREA ── */
+.status-pad{height:54px;flex-shrink:0}
+
+/* ── BOTTOM NAV ── */
+.tabbar{
+  height:calc(64px + var(--safe-bottom));
+  padding-bottom:var(--safe-bottom);
+  background:var(--white);
+  border-top:2px solid var(--pink-border);
+  display:flex;align-items:stretch;
+  padding-left:8px;padding-right:8px;
+  position:fixed;bottom:0;left:0;right:0;z-index:200
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  cursor:pointer;color:var(--mauve-soft);font-size:10.5px;font-weight:800;
+  border:none;background:none;font-family:var(--font);padding-top:8px
+}
+.nav-item svg{width:22px;height:22px}
+.nav-item.active{color:var(--rose)}
+.nav-item.active .ni-pill{background:#FFE7EE}
+.ni-pill{width:48px;height:30px;border-radius:var(--r-pill);display:grid;place-items:center;transition:background .14s}
+
+/* ── COMMON COMPONENTS ── */
+.btn-pill{
+  font-family:var(--font);font-weight:900;font-size:16px;
+  border:none;border-radius:var(--r-pill);padding:15px 24px;cursor:pointer;
+  background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:transform .12s,background .14s;width:100%
+}
+.btn-pill:active{transform:translateY(2px)}
+.btn-pill:hover{background:var(--rose-deep)}
+.btn-ghost{
+  font-family:var(--font);font-weight:800;font-size:14px;
+  border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:11px 20px;cursor:pointer;
+  background:var(--white);color:var(--mauve);display:inline-flex;align-items:center;gap:7px;
+  transition:all .14s
+}
+.btn-ghost:hover{border-color:var(--pink-border-strong)}
+.card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.pill-chip{
+  font-size:11px;font-weight:800;
+  background:var(--white);border:2px solid var(--pink-border);
+  border-radius:var(--r-pill);padding:5px 12px;color:var(--mauve-soft)
+}
+
+/* ── WELCOME / IMPORT SCREEN ── */
+#screenWelcome{
+  background:
+    radial-gradient(circle at 80% 8%, rgba(255,183,197,0.55) 0, transparent 44%),
+    radial-gradient(circle at 10% 88%, rgba(255,183,197,0.35) 0, transparent 40%),
+    var(--cream);
+  align-items:center;justify-content:center;padding:32px 24px;
+}
+.welcome-box{display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px;max-width:340px;width:100%}
+.welcome-mascot{
+  width:120px;height:120px;border-radius:var(--r-xl);
+  background:linear-gradient(160deg,#FFE7EF,var(--pink-soft));
+  border:3px solid var(--pink-border-strong);
+  display:flex;align-items:center;justify-content:center;
+  font-size:52px;box-shadow:var(--shadow-md)
+}
+.welcome-mascot img{width:100%;height:100%;object-fit:cover;border-radius:var(--r-xl)}
+.welcome-title{font-size:32px;font-weight:900;color:var(--mauve);line-height:1.15}
+.welcome-title span{color:var(--rose)}
+.welcome-sub{font-size:14px;font-weight:700;color:var(--mauve-soft);line-height:1.5}
+.name-row{display:flex;flex-direction:column;gap:8px;width:100%}
+.name-row label{font-size:13px;font-weight:800;color:var(--mauve);text-align:left}
+.name-input{
+  width:100%;font-family:var(--font);font-weight:700;font-size:15px;color:var(--mauve);
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:12px 15px;outline:none;transition:border-color .14s,box-shadow .14s
+}
+.name-input:focus{border-color:var(--rose);box-shadow:0 0 0 4px rgba(232,99,140,0.12)}
+.name-input::placeholder{color:#C9A9B5}
+.import-status{
+  font-size:13px;font-weight:800;color:var(--mauve-soft);
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:12px 14px;width:100%;text-align:left;line-height:1.5
+}
+.import-status.ok{border-color:var(--mint);background:#EBF8F1;color:#3FA06E}
+.import-status.err{border-color:#F0A0A0;background:#FDEDED;color:#C0392B}
+
+/* ── HOME SCREEN ── */
+#screenHome .scroll-area{padding:8px 18px calc(72px + var(--safe-bottom));position:relative;z-index:1}
+.m-hello{display:flex;align-items:center;gap:12px;margin:6px 2px 16px}
+.m-hello .av{
+  width:46px;height:46px;border-radius:16px;
+  background:var(--pink-soft);display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-sm);overflow:hidden;flex-shrink:0;font-size:20px
+}
+.m-hello .av img{width:100%;height:100%;object-fit:cover}
+.m-hello .txt h2{margin:0;font-size:19px;font-weight:900}
+.m-hello .txt p{margin:1px 0 0;font-size:13px;font-weight:700;color:var(--mauve-soft)}
+.m-hello .streak{
+  margin-left:auto;display:flex;align-items:center;gap:6px;
+  background:var(--white);border:2px solid var(--pink-border);
+  border-radius:var(--r-pill);padding:7px 12px;
+  font-weight:900;font-size:14px;color:var(--rose-deep);
+  box-shadow:var(--shadow-sm);flex-shrink:0
+}
+.unit-card{
+  background:linear-gradient(155deg,#FFFFFF,#FFF1F5);
+  border:2px solid var(--pink-border);border-radius:var(--r-lg);
+  padding:18px;box-shadow:var(--shadow-md);margin-bottom:16px;position:relative;overflow:hidden
+}
+.unit-card .ribbon{
+  position:absolute;top:0;right:0;
+  background:var(--rose);color:var(--white);
+  font-size:11px;font-weight:900;padding:5px 13px;border-radius:0 0 0 var(--r-md)
+}
+.unit-card .u-label{font-size:12px;font-weight:800;color:var(--rose);letter-spacing:0.4px}
+.unit-card .u-title{font-size:20px;font-weight:900;margin:2px 0 13px;line-height:1.2}
+.unit-card .u-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.unit-card .lab{font-size:13px;font-weight:800;color:var(--mauve)}
+.unit-card .val{font-size:13px;font-weight:900;color:var(--rose-deep)}
+.bar{height:14px;border-radius:99px;background:var(--track);overflow:hidden;position:relative}
+.bar>span{
+  position:absolute;left:0;top:0;bottom:0;border-radius:99px;
+  background:linear-gradient(90deg,#F07FA3,var(--rose));
+  box-shadow:0 2px 8px rgba(232,99,140,0.4);transition:width .5s ease
+}
+.bar>span::after{content:"";position:absolute;right:6px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.9)}
+.dots-row{display:flex;align-items:center;gap:6px;margin-top:13px}
+.node{
+  width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;
+  font-weight:900;font-size:13px;background:var(--track);color:var(--rose-deep);
+  border:2px solid transparent
+}
+.node.done{background:var(--rose);color:var(--white)}
+.node.now{background:var(--white);border-color:var(--rose);color:var(--rose);box-shadow:var(--shadow-sm)}
+.node.lock{background:#F4E6EB;color:#D6B3C0}
+.dots-row .link{flex:1;height:3px;border-radius:99px;background:var(--track)}
+.dots-row .link.done{background:var(--rose)}
+.unit-card .u-foot{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.home-guide{
+  display:flex;align-items:center;gap:12px;
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);
+  padding:12px 14px;box-shadow:var(--shadow-sm);margin-bottom:16px
+}
+.guide-mascot{
+  width:54px;height:54px;flex-shrink:0;border-radius:16px;
+  background:linear-gradient(160deg,#FFE7EF,var(--pink-soft));
+  border:2px solid var(--pink-border-strong);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  filter:drop-shadow(0 6px 10px rgba(232,99,140,0.22))
+}
+.guide-mascot img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+.guide-bubble{font-size:13px;font-weight:800;color:var(--mauve);line-height:1.4}
+.guide-bubble b{color:var(--rose)}
+.home-deco{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  text-align:center;margin-top:20px;padding-bottom:8px;
+  font-size:12px;font-weight:800;color:var(--mauve-soft);line-height:1.5
+}
+.due-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#FFE7EE;border:2px solid var(--pink-border-strong);border-radius:var(--r-pill);
+  padding:5px 12px;font-size:12px;font-weight:900;color:var(--rose-deep);margin-bottom:4px
+}
+
+/* ── EXERCISE SCREEN ── */
+#screenExercise{position:relative}
+#screenExercise .scroll-area{padding:0 18px 18px;position:relative;z-index:1}
+.ex-topbar{display:flex;align-items:center;gap:10px;padding:4px 18px 0;position:relative;z-index:1;flex-shrink:0;margin-top:2px}
+.ex-back{
+  width:38px;height:38px;border-radius:12px;flex-shrink:0;
+  background:var(--white);border:2px solid var(--pink-border);
+  display:grid;place-items:center;color:var(--mauve);cursor:pointer;transition:all .12s
+}
+.ex-back:hover{border-color:var(--pink-border-strong)}
+.ex-prog-bar{flex:1;height:12px;border-radius:99px;background:var(--track);overflow:hidden}
+.ex-prog-bar>span{display:block;height:100%;background:linear-gradient(90deg,#F07FA3,var(--rose));border-radius:99px;transition:width .4s ease}
+.ex-hearts{display:inline-flex;align-items:center;gap:4px;flex-shrink:0;font-weight:900;font-size:15px;color:var(--rose-deep)}
+.guide-row{display:flex;align-items:flex-end;gap:10px;margin:12px 0 6px;flex-shrink:0;padding:0 18px}
+.guide-row .guide-mascot{width:74px;height:74px;border-radius:20px}
+.guide-row .bubble{
+  background:var(--white);border:2px solid var(--pink-border);
+  border-radius:var(--r-md) var(--r-md) var(--r-md) 4px;padding:10px 13px;
+  font-size:13px;font-weight:800;color:var(--mauve);box-shadow:var(--shadow-sm);
+  margin-bottom:8px;line-height:1.4;flex:1
+}
+.guide-row .bubble b{color:var(--rose)}
+.ex-card{
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-xl);
+  padding:18px 16px 20px;box-shadow:var(--shadow-md)
+}
+.ex-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.ex-type-chip{
+  font-size:10.5px;font-weight:900;color:var(--rose);
+  background:#FFE7EE;padding:4px 10px;border-radius:var(--r-pill);
+  display:inline-flex;align-items:center;gap:5px
+}
+.q-count{
+  font-size:12px;font-weight:900;color:var(--mauve-soft);
+  background:var(--cream);border:2px solid var(--pink-border);
+  border-radius:var(--r-pill);padding:4px 11px
+}
+.ex-q{font-size:21px;font-weight:900;line-height:1.25;margin-bottom:5px}
+.ex-sub{font-size:13px;font-weight:700;color:var(--mauve-soft);margin-bottom:16px}
+.ex-sub b{color:var(--rose-deep)}
+
+/* Multiple choice */
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice{
+  display:flex;align-items:center;gap:12px;
+  background:var(--cream);border:2.5px solid var(--pink-border);border-radius:var(--r-md);
+  padding:14px;cursor:pointer;font-weight:800;font-size:15px;color:var(--mauve);
+  transition:transform .1s,border-color .14s,background .14s;text-align:left;
+  font-family:var(--font);width:100%
+}
+.choice:hover{border-color:var(--pink-border-strong);transform:translateY(-1px)}
+.choice .key{
+  width:28px;height:28px;border-radius:9px;background:var(--white);border:2px solid var(--pink-border);
+  display:grid;place-items:center;font-size:13px;font-weight:900;color:var(--rose);flex-shrink:0
+}
+.choice.selected{border-color:var(--rose);background:#FFF0F4}
+.choice.correct{border-color:#5FBF8A;background:#EAF8F0}
+.choice.correct .key{background:#5FBF8A;border-color:#5FBF8A;color:var(--white)}
+.choice.wrong{border-color:#F0A0A0;background:#FDEDED;animation:shake .4s ease}
+.choice.wrong .key{background:#EC8C8C;border-color:#EC8C8C;color:var(--white)}
+.choice .mark{margin-left:auto;flex-shrink:0}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* Fill blank */
+.fill-display{
+  font-size:18px;font-weight:800;line-height:1.5;padding:12px 14px;
+  background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  margin-bottom:14px
+}
+.fill-display .gap{
+  display:inline-block;min-width:80px;border-bottom:3px solid var(--rose);
+  margin:0 4px;padding:0 4px;color:var(--rose-deep);font-weight:900
+}
+.blank-input{
+  width:100%;font-family:var(--font);font-weight:800;font-size:16px;color:var(--mauve);
+  background:var(--white);border:2.5px solid var(--pink-border);border-radius:var(--r-md);
+  padding:13px 15px;outline:none;transition:border-color .14s,box-shadow .14s;
+  margin-bottom:8px
+}
+.blank-input:focus{border-color:var(--rose);box-shadow:0 0 0 4px rgba(232,99,140,0.12)}
+.blank-input::placeholder{color:#C9A9B5}
+.blank-input.correct{border-color:#5FBF8A;background:#EAF8F0}
+.blank-input.wrong{border-color:#F0A0A0;background:#FDEDED}
+
+/* Translation */
+.trans-prompt{
+  font-size:20px;font-weight:800;padding:12px 14px;
+  background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  margin-bottom:14px;line-height:1.4;color:var(--mauve)
+}
+.trans-input{
+  width:100%;font-family:var(--font);font-weight:700;font-size:15px;color:var(--mauve);
+  background:var(--white);border:2.5px solid var(--pink-border);border-radius:var(--r-md);
+  padding:13px 15px;outline:none;resize:none;min-height:80px;line-height:1.5;
+  transition:border-color .14s,box-shadow .14s;margin-bottom:8px
+}
+.trans-input:focus{border-color:var(--rose);box-shadow:0 0 0 4px rgba(232,99,140,0.12)}
+.trans-input.correct{border-color:#5FBF8A;background:#EAF8F0}
+.trans-input.wrong{border-color:#F0A0A0;background:#FDEDED}
+.acceptable-answers{
+  font-size:12px;font-weight:700;color:var(--mauve-soft);margin-top:6px;
+  background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:9px 12px
+}
+.acceptable-answers b{color:var(--mauve)}
+
+/* Word order */
+.word-drop-area{
+  min-height:56px;border:2.5px dashed var(--pink-border-strong);border-radius:var(--r-md);
+  padding:10px;display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;
+  background:var(--white);align-content:flex-start;transition:border-color .14s
+}
+.word-drop-area.correct{border-color:#5FBF8A;background:#EAF8F0}
+.word-drop-area.wrong{border-color:#F0A0A0;background:#FDEDED;animation:shake .4s ease}
+.word-drop-area .placeholder-text{
+  font-size:13px;font-weight:700;color:#C9A9B5;
+  display:flex;align-items:center;height:36px
+}
+.word-pool{display:flex;flex-wrap:wrap;gap:7px}
+.word-chip{
+  font-weight:800;font-size:14px;background:var(--white);
+  border:2.5px solid var(--pink-border-strong);color:var(--mauve);border-radius:12px;
+  padding:9px 14px;cursor:pointer;box-shadow:var(--shadow-sm);
+  transition:transform .1s,opacity .14s,border-color .14s;user-select:none
+}
+.word-chip:hover{transform:translateY(-2px);border-color:var(--rose)}
+.word-chip:active{transform:translateY(0)}
+.word-chip.placed{background:#FFE7EE;border-color:var(--rose);color:var(--rose-deep)}
+.word-chip.used{opacity:0.25;pointer-events:none}
+
+/* Flashcard */
+.flashcard-scene{perspective:600px;margin-bottom:16px;height:180px}
+.flashcard-inner{
+  width:100%;height:100%;position:relative;transition:transform 0.55s ease;
+  transform-style:preserve-3d;cursor:pointer
+}
+.flashcard-inner.flipped{transform:rotateY(180deg)}
+.fc-face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:linear-gradient(160deg,#FFF6F9,#FFE7EF);
+  border:2.5px solid var(--pink-border-strong);border-radius:var(--r-xl);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;text-align:center;box-shadow:var(--shadow-md)
+}
+.fc-back{transform:rotateY(180deg)}
+.fc-front-word{font-size:32px;font-weight:900;color:var(--rose-deep)}
+.fc-front-phon{font-size:14px;font-weight:700;color:var(--mauve-soft);margin-top:4px}
+.fc-tap-hint{font-size:12px;font-weight:800;color:var(--rose);margin-top:10px}
+.fc-back-word{font-size:22px;font-weight:900;color:var(--mauve);margin-bottom:6px}
+.fc-example{font-size:13px;font-weight:700;color:var(--mauve-soft);font-style:italic}
+.fsrs-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.fsrs-btn{
+  font-family:var(--font);font-weight:900;font-size:13px;
+  border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 6px;
+  cursor:pointer;transition:all .14s;flex-direction:column;
+  display:flex;align-items:center;gap:3px
+}
+.fsrs-btn .rating-label{font-size:10px;font-weight:700;color:var(--mauve-soft)}
+.fsrs-btn[data-rating="1"]{background:#FDEDED;border-color:#F0A0A0;color:#C0392B}
+.fsrs-btn[data-rating="1"]:hover{background:#FFDCDC}
+.fsrs-btn[data-rating="2"]{background:#FFF8DD;border-color:#E0C060;color:#8B6914}
+.fsrs-btn[data-rating="2"]:hover{background:#FFF3C0}
+.fsrs-btn[data-rating="3"]{background:#EAF8F0;border-color:#5FBF8A;color:#3FA06E}
+.fsrs-btn[data-rating="3"]:hover{background:#D6F0E1}
+.fsrs-btn[data-rating="4"]{background:#E8F0FE;border-color:#7FA8E8;color:#3060B8}
+.fsrs-btn[data-rating="4"]:hover{background:#D0E0FC}
+
+/* Feedback bar */
+.feedback-bar{
+  margin-top:12px;padding:12px 14px;border-radius:var(--r-md);
+  font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px;
+  display:none
+}
+.feedback-bar.correct{background:#EAF8F0;border:2px solid #5FBF8A;color:#2A7A4E}
+.feedback-bar.wrong{background:#FDEDED;border:2px solid #F0A0A0;color:#C0392B}
+.feedback-bar.show{display:flex}
+.hint-text{
+  margin-top:6px;font-size:12.5px;font-weight:700;color:var(--mauve-soft);
+  background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:9px 12px;display:none
+}
+.hint-text.show{display:block}
+
+/* Check button */
+.check-btn{
+  width:100%;font-family:var(--font);font-weight:900;font-size:16px;
+  border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;
+  background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);
+  transition:transform .12s,background .14s,opacity .14s;margin-top:14px
+}
+.check-btn:disabled{opacity:0.4;box-shadow:none;cursor:default}
+.check-btn:not(:disabled):active{transform:translateY(2px)}
+.continue-btn{
+  width:100%;font-family:var(--font);font-weight:900;font-size:16px;
+  border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;
+  background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);
+  margin-top:10px;display:none;transition:transform .12s
+}
+.continue-btn.show{display:block}
+.continue-btn:active{transform:translateY(2px)}
+
+/* ── LESSONS SCREEN ── */
+#screenLessons .scroll-area{padding:14px 16px calc(72px + var(--safe-bottom));position:relative;z-index:1}
+.screen-head{font-size:22px;font-weight:900;margin-bottom:14px;padding:0 2px}
+.unit-section{margin-bottom:18px}
+.unit-section-head{
+  display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:4px 2px
+}
+.unit-badge{
+  font-size:11px;font-weight:900;color:var(--white);background:var(--rose);
+  padding:3px 10px;border-radius:var(--r-pill)
+}
+.unit-badge.a2{background:#E89B3C}
+.unit-badge.b1{background:#7BC598}
+.unit-section-head .unit-name{font-size:15px;font-weight:900}
+.lesson-row{
+  display:flex;align-items:center;gap:11px;
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:13px 14px;margin-bottom:7px;cursor:pointer;
+  transition:border-color .14s,box-shadow .14s
+}
+.lesson-row:hover{border-color:var(--pink-border-strong);box-shadow:var(--shadow-sm)}
+.lesson-row.locked{opacity:0.55;cursor:default}
+.lesson-row .l-icon{
+  width:36px;height:36px;border-radius:12px;background:var(--track);
+  display:grid;place-items:center;color:var(--rose);flex-shrink:0;font-size:17px
+}
+.lesson-row.locked .l-icon{background:#F4E6EB;color:#D6B3C0}
+.lesson-row .l-body{flex:1;min-width:0}
+.lesson-row .l-title{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lesson-row .l-meta{font-size:11.5px;font-weight:700;color:var(--mauve-soft)}
+.l-pct{font-size:12px;font-weight:900;color:var(--rose-deep);flex-shrink:0}
+.l-prog{height:5px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:4px}
+.l-prog span{display:block;height:100%;background:var(--rose);border-radius:99px}
+
+/* ── FLASHCARDS SCREEN ── */
+#screenFlashcards .scroll-area{padding:14px 16px calc(72px + var(--safe-bottom));position:relative;z-index:1}
+.fc-unit-filter{
+  display:flex;gap:7px;margin-bottom:16px;overflow-x:auto;padding-bottom:6px;
+  scrollbar-width:none;-ms-overflow-style:none
+}
+.fc-unit-filter::-webkit-scrollbar{display:none}
+.filter-chip{
+  font-family:var(--font);font-weight:800;font-size:12px;
+  border:2px solid var(--pink-border);background:var(--cream);color:var(--mauve-soft);
+  border-radius:var(--r-pill);padding:7px 14px;cursor:pointer;white-space:nowrap;
+  transition:all .14s;flex-shrink:0
+}
+.filter-chip.active{background:var(--rose);color:var(--white);border-color:var(--rose)}
+.fc-grid{display:flex;flex-direction:column;gap:10px}
+.fc-card-item{
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);
+  overflow:hidden;box-shadow:var(--shadow-sm);transition:border-color .14s;cursor:pointer
+}
+.fc-card-item:hover{border-color:var(--pink-border-strong)}
+.fc-card-item .fc-front-row{
+  display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px
+}
+.fc-card-item .fc-word{font-size:18px;font-weight:900;color:var(--mauve)}
+.fc-card-item .fc-phon{font-size:12px;font-weight:700;color:var(--mauve-soft)}
+.fc-card-item .fc-flip-hint{font-size:11px;font-weight:800;color:var(--rose)}
+.fc-card-item .fc-back-row{
+  display:none;padding:0 16px 14px;
+  border-top:2px solid var(--pink-border);padding-top:10px;margin:0 16px
+}
+.fc-card-item.flipped .fc-back-row{display:block}
+.fc-card-item.flipped{border-color:var(--rose)}
+.fc-back-row .fc-translation{font-size:16px;font-weight:800;color:var(--rose-deep)}
+.fc-back-row .fc-ex{font-size:12px;font-weight:700;color:var(--mauve-soft);margin-top:4px;font-style:italic}
+.study-all-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--font);font-weight:900;font-size:14px;
+  background:var(--rose);color:var(--white);border:none;border-radius:var(--r-pill);
+  padding:12px 22px;cursor:pointer;box-shadow:var(--shadow-pop);
+  margin-bottom:14px;transition:background .14s
+}
+.study-all-btn:hover{background:var(--rose-deep)}
+
+/* ── PROGRESS SCREEN ── */
+#screenProgress .scroll-area{padding:14px 16px calc(72px + var(--safe-bottom));position:relative;z-index:1}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px}
+.stat-tile{
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:13px 10px;text-align:center;box-shadow:var(--shadow-sm)
+}
+.stat-tile .stv{font-size:26px;font-weight:900;color:var(--rose-deep)}
+.stat-tile .stl{font-size:10.5px;font-weight:800;color:var(--mauve-soft);margin-top:2px}
+.section-title{font-size:15px;font-weight:900;margin-bottom:10px;padding-left:2px}
+.unit-bars{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.unit-bar-row{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:12px 14px;box-shadow:var(--shadow-sm)}
+.unit-bar-row .ubr-head{display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px;font-weight:800}
+.unit-bar-row .ubr-pct{color:var(--rose-deep)}
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.heat-cell{
+  aspect-ratio:1;border-radius:5px;background:var(--pink-border);
+  transition:background .2s
+}
+.heat-cell.l1{background:var(--track)}
+.heat-cell.l2{background:#F48FAD}
+.heat-cell.l3{background:var(--rose)}
+.heat-cell.l4{background:var(--rose-deep)}
+.heatmap-legend{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--mauve-soft);margin-bottom:14px}
+.hl-cell{width:12px;height:12px;border-radius:3px}
+.export-prog-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--font);font-weight:900;font-size:14px;
+  background:var(--white);color:var(--rose);border:2px solid var(--pink-border-strong);
+  border-radius:var(--r-pill);padding:12px 22px;cursor:pointer;
+  transition:all .14s;width:100%
+}
+.export-prog-btn:hover{background:#FFF0F4;border-color:var(--rose)}
+
+/* ── CELEBRATION OVERLAY ── */
+#celebrate{
+  position:fixed;inset:0;z-index:60;
+  display:none;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding-bottom:calc(30px + var(--safe-bottom));
+  background:radial-gradient(circle at 50% 40%, rgba(255,255,255,0.93), rgba(255,225,235,0.97));
+  text-align:center
+}
+#celebrate.show{display:flex;animation:popIn .3s ease}
+@keyframes popIn{from{opacity:0}to{opacity:1}}
+.celebrate-mascot{
+  width:190px;height:190px;margin-top:auto;border-radius:var(--r-xl);
+  background:linear-gradient(160deg,#FFE7EF,var(--pink-soft));
+  border:3px solid var(--pink-border-strong);
+  display:flex;align-items:center;justify-content:center;font-size:80px;
+  animation:bounceMascot 1.1s ease-in-out infinite;
+  filter:drop-shadow(0 14px 22px rgba(232,99,140,0.3))
+}
+.celebrate-mascot img{width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r-xl) - 3px)}
+@keyframes bounceMascot{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-14px) rotate(2deg)}}
+.celebrate-title{font-size:32px;font-weight:900;color:var(--rose-deep);margin:10px 0 2px;animation:popTitle .4s ease both}
+@keyframes popTitle{from{transform:scale(0.6);opacity:0}to{transform:scale(1);opacity:1}}
+.celebrate-sub{font-size:14px;font-weight:800;color:var(--mauve);margin-bottom:4px;padding:0 24px}
+.celebrate-xp{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-pill);
+  padding:8px 16px;font-weight:900;font-size:14px;color:var(--rose-deep);
+  box-shadow:var(--shadow-sm);margin:8px 0 16px
+}
+.celebrate-btn{
+  width:calc(100% - 48px);font-family:var(--font);font-weight:900;font-size:16px;
+  border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;
+  background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop)
+}
+.celebrate-btn:active{transform:translateY(2px)}
+#confetti{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:61}
+#confetti i{position:absolute;top:-20px;opacity:0;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(120vh) rotate(540deg);opacity:1}}
+.spark{position:fixed;z-index:62;animation:twinkle 1.4s ease-in-out infinite;pointer-events:none}
+@keyframes twinkle{0%,100%{transform:scale(0.7);opacity:0.5}50%{transform:scale(1.2);opacity:1}}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(60px);
+  background:var(--mauve);color:var(--white);padding:11px 18px;border-radius:var(--r-pill);
+  font-size:13px;font-weight:800;box-shadow:var(--shadow-lg);z-index:50;
+  opacity:0;transition:transform .3s ease,opacity .3s ease;white-space:nowrap;pointer-events:none
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ── MERGE DIALOG ── */
+.dialog-overlay{
+  position:fixed;inset:0;background:rgba(74,37,53,0.45);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;z-index:80;padding:20px
+}
+.dialog-overlay.open{display:flex}
+.dialog{
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-xl);
+  box-shadow:var(--shadow-lg);width:340px;padding:24px;animation:modalIn .22s ease
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:none}}
+.dialog h3{font-size:18px;font-weight:900;margin-bottom:8px}
+.dialog p{font-size:13px;font-weight:700;color:var(--mauve-soft);margin-bottom:18px;line-height:1.5}
+.dialog-btns{display:flex;flex-direction:column;gap:8px}
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══ WELCOME SCREEN ══ -->
+  <div class="screen active" id="screenWelcome">
+    <div class="welcome-box">
+      <div class="welcome-mascot" id="welcomeMascot">♡</div>
+      <div>
+        <div class="welcome-title"><span>Sweet</span>English</div>
+        <div style="font-size:16px;font-weight:800;color:var(--mauve-soft);margin-top:4px">Your cozy English companion ♪</div>
+      </div>
+      <p class="welcome-sub">Learn at your own pace with personalized spaced-repetition lessons from your teacher.</p>
+      <div class="name-row">
+        <label>Your name</label>
+        <input class="name-input" id="studentNameInput" placeholder="e.g. María" autocomplete="off">
+      </div>
+      <div class="import-status" id="importStatus">Tap below to import your curriculum.json from your teacher ♡</div>
+      <button class="btn-pill" id="btnImportCurr">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 21V9m0 0-4 4m4-4 4 4M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>
+        Import Curriculum
+      </button>
+      <button class="btn-pill" id="btnStartApp" style="display:none">
+        Start Learning ♪
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ HOME SCREEN ══ -->
+  <div class="screen" id="screenHome">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="scroll-area" id="homeScrollArea">
+      <div class="m-hello">
+        <div class="av" id="homeAvatar">♡</div>
+        <div class="txt">
+          <h2 id="helloName">Hi there!</h2>
+          <p>Ready for today's lesson?</p>
+        </div>
+        <div class="streak" id="streakBadge">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 2c1 4-2 5-2 8a4 4 0 0 0 8 0c0-1-.5-2-1-3 2 1 3 3 3 6a8 8 0 0 1-16 0c0-5 5-7 8-11z"/></svg>
+          <span id="streakCount">0</span>
+        </div>
+      </div>
+      <div id="homeUnitCard"></div>
+      <div class="home-guide">
+        <div class="guide-mascot mascot-home" id="homeMascot">♡</div>
+        <div class="guide-bubble" id="homeBubble">Let's practice today! Ready when you are ♪</div>
+      </div>
+      <div id="dueBadgeWrap"></div>
+      <button class="btn-pill" id="btnStartPractice">
+        Start Today's Practice
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <div class="home-deco">
+        <svg width="26" height="20" viewBox="0 0 34 26" fill="none"><path d="M17 13c-3-5-8-7-11-4s-1 8 4 8c3 0 5-2 7-4z" fill="#fff" stroke="#E8638C" stroke-width="1.6"/><path d="M17 13c3-5 8-7 11-4s1 8-4 8c-3 0-5-2-7-4z" fill="#fff" stroke="#E8638C" stroke-width="1.6"/><circle cx="17" cy="13" r="3.4" fill="#E8638C"/></svg>
+        <span id="streakMotivation">Keep practicing every day ♡</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ EXERCISE SCREEN ══ -->
+  <div class="screen" id="screenExercise">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="ex-topbar">
+      <button class="ex-back" id="btnExBack">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div class="ex-prog-bar"><span id="exProgFill" style="width:0%"></span></div>
+      <div class="ex-hearts" id="exHearts">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 21s-7-4.5-9.5-8.7C.8 8.6 2.3 5.5 5.3 5.5c1.9 0 3 1 3.7 2.1.7-1.1 1.8-2.1 3.7-2.1 3 0 4.5 3.1 2.8 6.8C19 16.5 12 21 12 21z"/></svg>
+        <span id="heartsCount">♡</span>
+      </div>
+    </div>
+    <div class="guide-row">
+      <div class="guide-mascot mascot-guide" id="exMascot">♡</div>
+      <div class="bubble" id="exBubble">You've got this! ♪</div>
+    </div>
+    <div class="scroll-area" id="exScrollArea">
+      <div class="ex-card" id="exCard">
+        <div class="ex-card-head">
+          <div class="ex-type-chip" id="exTypeChip"></div>
+          <div class="q-count" id="exQCount"></div>
+        </div>
+        <div id="exBody"></div>
+      </div>
+      <div class="feedback-bar" id="feedbackBar"></div>
+      <div class="hint-text" id="hintText"></div>
+      <button class="continue-btn" id="continueBtn">Continue ♪</button>
+    </div>
+  </div>
+
+  <!-- ══ LESSONS SCREEN ══ -->
+  <div class="screen" id="screenLessons">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="scroll-area">
+      <div class="screen-head">Lessons</div>
+      <div id="lessonsList"></div>
+    </div>
+  </div>
+
+  <!-- ══ FLASHCARDS SCREEN ══ -->
+  <div class="screen" id="screenFlashcards">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="scroll-area">
+      <div class="screen-head">Flashcards</div>
+      <div class="fc-unit-filter" id="fcFilter"></div>
+      <button class="study-all-btn" id="btnStudyAll">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Study All Flashcards
+      </button>
+      <div class="fc-grid" id="fcGrid"></div>
+    </div>
+  </div>
+
+  <!-- ══ PROGRESS SCREEN ══ -->
+  <div class="screen" id="screenProgress">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="scroll-area">
+      <div class="screen-head">My Progress</div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="section-title">Accuracy by Unit</div>
+      <div class="unit-bars" id="unitBars"></div>
+      <div class="section-title">Practice History (last 28 days)</div>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="heatmap-legend">
+        <span>Less</span>
+        <div class="hl-cell" style="background:var(--pink-border)"></div>
+        <div class="hl-cell" style="background:var(--track)"></div>
+        <div class="hl-cell" style="background:#F48FAD"></div>
+        <div class="hl-cell" style="background:var(--rose)"></div>
+        <span>More</span>
+      </div>
+      <button class="export-prog-btn" id="btnExportProgress">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        Export progress.json
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ BOTTOM NAV ══ -->
+  <nav class="tabbar" id="tabbar" style="display:none">
+    <button class="nav-item active" data-screen="screenHome">
+      <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 11l9-7 9 7M5 10v9h14v-9"/></svg></div>
+      Home
+    </button>
+    <button class="nav-item" data-screen="screenLessons">
+      <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg></div>
+      Lessons
+    </button>
+    <button class="nav-item" data-screen="screenFlashcards">
+      <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="6" width="13" height="11" rx="2"/><path d="M7 17l5 3 9-4V8l-3 1.2"/></svg></div>
+      Flashcards
+    </button>
+    <button class="nav-item" data-screen="screenProgress">
+      <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 19V9M10 19V4M16 19v-7M22 19H2"/></svg></div>
+      Progress
+    </button>
+  </nav>
+
+</div><!-- #app -->
+
+<!-- ══ CELEBRATION OVERLAY ══ -->
+<div id="celebrate">
+  <div id="confetti"></div>
+  <div class="celebrate-mascot mascot-correct" id="celebrateMascot">🎉</div>
+  <div class="celebrate-title" id="celebrateTitle">Correct! ♡</div>
+  <div class="celebrate-sub" id="celebrateSub"></div>
+  <div class="celebrate-xp" id="celebrateXP">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 2l2.6 6.6L21 9.3l-5 4.3 1.6 6.7L12 16.9 6.4 20.3 8 13.6l-5-4.3 6.4-.7z"/></svg>
+    +10 XP earned!
+  </div>
+  <button class="celebrate-btn" id="celebrateBtn">Continue ♪</button>
+</div>
+
+<!-- ══ MERGE DIALOG ══ -->
+<div class="dialog-overlay" id="mergeDialog">
+  <div class="dialog">
+    <h3>Curriculum already loaded</h3>
+    <p>Do you want to replace everything, or merge and keep your progress for existing exercises?</p>
+    <div class="dialog-btns">
+      <button class="btn-pill" id="btnMerge" style="font-size:14px;padding:12px">Merge — keep my progress</button>
+      <button class="btn-ghost" id="btnReplace" style="justify-content:center;width:100%">Replace all</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept=".json" style="display:none">
+
+<script>
+'use strict';
+
+// ══════════════════════════════════════
+//  SERVICE WORKER
+// ══════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
+// ══════════════════════════════════════
+//  STORAGE KEYS
+// ══════════════════════════════════════
+const LS = {
+  curriculum: 'elm_curriculum',
+  studentName: 'elm_student_name',
+  progress: 'elm_progress',
+  streak: 'elm_streak',
+  stats: 'elm_stats',
+  practiceLog: 'elm_practice_log'
+};
+
+function store(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
+function load(key, fallback) {
+  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : fallback; } catch(e) { return fallback; }
+}
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let curriculum = load(LS.curriculum, null);
+let studentName = load(LS.studentName, '');
+let progress = load(LS.progress, {});
+let streak = load(LS.streak, { current: 0, last_date: null });
+let stats = load(LS.stats, { total_done: 0, total_correct: 0, xp: 0 });
+let practiceLog = load(LS.practiceLog, {}); // { 'YYYY-MM-DD': count }
+
+let currentScreen = 'screenWelcome';
+let session = null; // { queue, idx, lessonId, mode }
+let pendingImport = null; // parsed JSON waiting for merge decision
+let fcFilterUnit = 'all';
+
+// ══════════════════════════════════════
+//  FSRS ALGORITHM
+// ══════════════════════════════════════
+const FSRS = {
+  S0: { 1: 0.4, 2: 1.18, 3: 3.13, 4: 15.47 },
+  D0: { 1: 7.2, 2: 6.1, 3: 5.0, 4: 3.9 },
+
+  schedule(card, rating) {
+    const now = new Date();
+    let { stability: s, difficulty: d, reps, lapses, state, last_review } = { ...card };
+    s = s || 0.1; d = d || 5; reps = reps || 0; lapses = lapses || 0;
+    const elapsed = last_review ? Math.max(0, (now - new Date(last_review)) / 86400000) : 0;
+
+    if (!reps || state === 'new') {
+      s = this.S0[rating] || 3;
+      d = this.D0[rating] || 5;
+      state = rating === 1 ? 'learning' : 'review';
+      reps = 1; lapses = 0;
+    } else {
+      const r = Math.exp(Math.log(0.9) * elapsed / s);
+      if (rating === 1) {
+        s = Math.max(0.1, 0.3 * Math.pow(d, -0.15) * (Math.pow(s + 1, 0.22) - 1) * Math.exp(0.28 * (1 - r)));
+        lapses++; state = 'relearning';
+      } else {
+        const hm = rating === 2 ? 0.8 : 1;
+        const eb = rating === 4 ? 1.3 : 1;
+        s = Math.max(0.1, s * (1 + Math.exp(0.9) * (11 - d) * Math.pow(s, -0.2) * (Math.exp(0.1 * (1 - r)) - 1) * hm * eb));
+        state = 'review';
+      }
+      d = Math.min(10, Math.max(1, d - 0.206 * (rating - 3) * 0.1 * (10 - d)));
+      reps++;
+    }
+
+    const scheduledDays = Math.max(1, Math.round(s * 9));
+    return {
+      ...card, stability: s, difficulty: d, reps, lapses, state,
+      scheduled_days: scheduledDays, elapsed_days: elapsed,
+      due: new Date(now.getTime() + scheduledDays * 86400000).toISOString(),
+      last_review: now.toISOString()
+    };
+  },
+
+  isDue(card) {
+    if (!card || !card.reps || card.state === 'new') return true;
+    return !card.due || new Date(card.due) <= new Date();
+  },
+
+  newCard(exId) {
+    return {
+      exercise_id: exId, due: new Date().toISOString(),
+      stability: 0, difficulty: 5, elapsed_days: 0, scheduled_days: 0,
+      reps: 0, lapses: 0, state: 'new', last_review: null, correct: 0, incorrect: 0
+    };
+  }
+};
+
+// ══════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function getAllExercises() {
+  if (!curriculum) return [];
+  return curriculum.units.flatMap(u => u.lessons.flatMap(l => (l.exercises || []).map(e => ({ ...e, _unit: u, _lesson: l }))));
+}
+
+function getExerciseProgress(exId) {
+  return progress[exId] || null;
+}
+
+function today() { return new Date().toISOString().slice(0, 10); }
+
+function updateStreak() {
+  if (typeof streak !== 'object' || streak === null) streak = { current: 0, last_date: null };
+  const t = today();
+  if (streak.last_date === t) return;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (streak.last_date === yesterday) {
+    streak.current++;
+  } else if (streak.last_date !== t) {
+    streak.current = 1;
+  }
+  streak.last_date = t;
+  store(LS.streak, streak);
+
+  practiceLog[t] = (practiceLog[t] || 0) + 1;
+  store(LS.practiceLog, practiceLog);
+}
+
+function countDueToday() {
+  if (!curriculum) return 0;
+  return getAllExercises().filter(ex => FSRS.isDue(progress[ex.id])).length;
+}
+
+function lessonCompletion(lesson) {
+  if (!lesson.exercises || !lesson.exercises.length) return 0;
+  const done = lesson.exercises.filter(ex => {
+    const c = progress[ex.id];
+    return c && c.reps > 0;
+  }).length;
+  return Math.round(100 * done / lesson.exercises.length);
+}
+
+function typeLabel(t) {
+  const m = { multiple_choice:'Multiple Choice', fill_blank:'Fill Blank',
+    translation_es_en:'ES → EN', translation_en_es:'EN → ES',
+    word_order:'Word Order', flashcard:'Flashcard' };
+  return m[t] || t;
+}
+
+function typeIcon(t) {
+  if (t === 'multiple_choice') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="6" cy="7" r="2"/><circle cx="6" cy="17" r="2"/><path d="M11 7h9M11 17h9"/></svg>';
+  if (t === 'fill_blank') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 7h16M4 12h7M15 12h5M4 17h16"/></svg>';
+  if (t === 'word_order') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><rect x="3" y="8" width="6" height="8" rx="1.5"/><rect x="11" y="8" width="6" height="8" rx="1.5"/></svg>';
+  if (t === 'flashcard') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><rect x="3" y="6" width="13" height="11" rx="2"/></svg>';
+  return '⇄';
+}
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════
+//  ROUTER
+// ══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  currentScreen = id;
+
+  const showNav = id !== 'screenWelcome' && id !== 'screenExercise';
+  document.getElementById('tabbar').style.display = showNav ? 'flex' : 'none';
+
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.screen === id);
+  });
+
+  if (id === 'screenHome') renderHome();
+  else if (id === 'screenLessons') renderLessons();
+  else if (id === 'screenFlashcards') renderFlashcards();
+  else if (id === 'screenProgress') renderProgress();
+}
+
+// ══════════════════════════════════════
+//  HOME SCREEN
+// ══════════════════════════════════════
+function renderHome() {
+  document.getElementById('helloName').textContent = `Hi, ${studentName || 'there'}!`;
+  document.getElementById('streakCount').textContent = streak.current || 0;
+
+  const due = countDueToday();
+  const dueBadge = document.getElementById('dueBadgeWrap');
+  if (due > 0) {
+    dueBadge.innerHTML = `<div class="due-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="#D24A75"><path d="M12 2l2.6 6.6L21 9.3l-5 4.3 1.6 6.7L12 16.9 6.4 20.3 8 13.6l-5-4.3 6.4-.7z"/></svg>${due} exercise${due === 1 ? '' : 's'} due today</div>`;
+  } else {
+    dueBadge.innerHTML = '';
+  }
+
+  document.getElementById('streakMotivation').textContent =
+    streak.current > 1 ? `Keep your ${streak.current}-day streak alive ♡` : 'Start your streak today! ♡';
+
+  const bubbles = [
+    'Ready to practice? ♪', "Let's learn something new today! ♡",
+    'You can do it! ¡Tú puedes! ♪', 'Every lesson makes you stronger ♡',
+    'Great things take practice ♪'
+  ];
+  document.getElementById('homeBubble').textContent = bubbles[Math.floor(Math.random() * bubbles.length)];
+
+  // Unit card
+  const unitCardEl = document.getElementById('homeUnitCard');
+  if (!curriculum || !curriculum.units.length) {
+    unitCardEl.innerHTML = '<div class="card" style="padding:18px;text-align:center;color:var(--mauve-soft);font-weight:800;font-size:14px">No curriculum loaded ♡<br>Go to your teacher for the curriculum.json</div>';
+    return;
+  }
+
+  // Find the first unit/lesson with incomplete exercises
+  let currentUnit = null, currentLesson = null;
+  outer: for (const u of curriculum.units) {
+    for (const l of u.lessons) {
+      const pct = lessonCompletion(l);
+      if (pct < 100) { currentUnit = u; currentLesson = l; break outer; }
+    }
+  }
+  if (!currentUnit) { currentUnit = curriculum.units[0]; currentLesson = curriculum.units[0].lessons?.[0]; }
+  if (!currentUnit || !currentLesson) { unitCardEl.innerHTML = ''; return; }
+
+  const u = currentUnit;
+  const completedLessons = u.lessons.filter(l => lessonCompletion(l) === 100).length;
+  const totalLessons = u.lessons.length;
+  const unitPct = totalLessons ? Math.round(100 * completedLessons / totalLessons) : 0;
+
+  const dotsHtml = u.lessons.slice(0, 5).map((l, i) => {
+    const pct = lessonCompletion(l);
+    const cls = pct === 100 ? 'done' : (l.id === currentLesson.id ? 'now' : (i <= completedLessons ? '' : 'lock'));
+    const linkCls = i < completedLessons ? 'done' : '';
+    return `<span class="node ${cls}">${pct === 100 ? '✓' : (i + 1)}</span>${i < u.lessons.slice(0, 5).length - 1 ? `<span class="link ${linkCls}"></span>` : ''}`;
+  }).join('');
+
+  unitCardEl.innerHTML = `
+    <div class="unit-card">
+      <div class="ribbon">${esc(u.level)}</div>
+      <div class="u-label">CURRENT UNIT</div>
+      <div class="u-title">${esc(u.title)}</div>
+      <div class="u-row"><span class="lab">Unit progress</span><span class="val">${completedLessons} / ${totalLessons} lessons</span></div>
+      <div class="bar"><span style="width:${unitPct}%"></span></div>
+      <div class="dots-row">${dotsHtml}</div>
+      <div class="u-foot">
+        <span class="pill-chip">♡ ${stats.xp || 0} XP total</span>
+        <span class="pill-chip">${due} due today</span>
+      </div>
+    </div>`;
+
+  // Update start button
+  const btn = document.getElementById('btnStartPractice');
+  const lessonPct = lessonCompletion(currentLesson);
+  btn.innerHTML = `${lessonPct > 0 ? 'Continue' : 'Start'} — ${esc(currentLesson.title)} <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+  btn.onclick = () => startSession(u.id, currentLesson.id, 'fsrs');
+}
+
+// ══════════════════════════════════════
+//  LESSONS SCREEN
+// ══════════════════════════════════════
+function renderLessons() {
+  const el = document.getElementById('lessonsList');
+  if (!curriculum) { el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mauve-soft);font-weight:800">No curriculum loaded</div>'; return; }
+
+  let prevLessonCompleted = true;
+  el.innerHTML = curriculum.units.map(u => {
+    const badgeCls = u.level === 'A2' ? 'a2' : (u.level.startsWith('B') ? 'b1' : '');
+    const lessonsHtml = (u.lessons || []).map(l => {
+      const pct = lessonCompletion(l);
+      const locked = false; // could enforce sequencing
+      const exCount = (l.exercises || []).length;
+      const html = `
+        <div class="lesson-row${locked ? ' locked' : ''}" data-unit="${u.id}" data-lesson="${l.id}">
+          <div class="l-icon">${pct === 100 ? '✓' : '📖'}</div>
+          <div class="l-body">
+            <div class="l-title">${esc(l.title)}</div>
+            <div class="l-meta">${exCount} exercise${exCount === 1 ? '' : 's'}</div>
+            <div class="l-prog"><span style="width:${pct}%"></span></div>
+          </div>
+          <div class="l-pct">${pct}%</div>
+        </div>`;
+      prevLessonCompleted = pct === 100;
+      return html;
+    }).join('');
+    return `
+      <div class="unit-section">
+        <div class="unit-section-head">
+          <span class="unit-badge ${badgeCls}">${esc(u.level)}</span>
+          <span class="unit-name">${esc(u.title)}</span>
+        </div>
+        ${lessonsHtml}
+      </div>`;
+  }).join('');
+
+  el.querySelectorAll('.lesson-row:not(.locked)').forEach(row => {
+    row.addEventListener('click', () => startSession(row.dataset.unit, row.dataset.lesson, 'practice'));
+  });
+}
+
+// ══════════════════════════════════════
+//  FLASHCARDS SCREEN
+// ══════════════════════════════════════
+function renderFlashcards() {
+  if (!curriculum) {
+    document.getElementById('fcGrid').innerHTML = '<div style="text-align:center;padding:40px;color:var(--mauve-soft);font-weight:800">No curriculum loaded</div>';
+    return;
+  }
+
+  // Build filter chips
+  const filterEl = document.getElementById('fcFilter');
+  filterEl.innerHTML = `<button class="filter-chip${fcFilterUnit === 'all' ? ' active' : ''}" data-fc-unit="all">All</button>` +
+    curriculum.units.map(u => `<button class="filter-chip${fcFilterUnit === u.id ? ' active' : ''}" data-fc-unit="${u.id}">${esc(u.level)} · ${esc(u.title)}</button>`).join('');
+  filterEl.querySelectorAll('.filter-chip').forEach(btn => {
+    btn.addEventListener('click', () => { fcFilterUnit = btn.dataset.fcUnit; renderFlashcards(); });
+  });
+
+  // Gather flashcards
+  const flashcards = [];
+  curriculum.units.forEach(u => {
+    if (fcFilterUnit !== 'all' && u.id !== fcFilterUnit) return;
+    u.lessons.forEach(l => {
+      (l.exercises || []).filter(e => e.type === 'flashcard').forEach(e => {
+        flashcards.push({ ...e, _unit: u, _lesson: l });
+      });
+    });
+  });
+
+  const grid = document.getElementById('fcGrid');
+  if (!flashcards.length) {
+    grid.innerHTML = '<div style="text-align:center;padding:30px;color:var(--mauve-soft);font-weight:800">No flashcards in this unit ♡</div>';
+    return;
+  }
+
+  grid.innerHTML = flashcards.map(fc => `
+    <div class="fc-card-item" data-fc-id="${fc.id}">
+      <div class="fc-front-row">
+        <div>
+          <div class="fc-word">${esc(fc.front)}</div>
+          ${fc.phonetic ? `<div class="fc-phon">${esc(fc.phonetic)}</div>` : ''}
+        </div>
+        <div class="fc-flip-hint">↻ tap</div>
+      </div>
+      <div class="fc-back-row">
+        <div class="fc-translation">${esc(fc.back)}</div>
+        ${fc.example_sentence ? `<div class="fc-ex">"${esc(fc.example_sentence)}"</div>` : ''}
+      </div>
+    </div>`).join('');
+
+  grid.querySelectorAll('.fc-card-item').forEach(card => {
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+  });
+}
+
+// ══════════════════════════════════════
+//  PROGRESS SCREEN
+// ══════════════════════════════════════
+function renderProgress() {
+  const all = getAllExercises();
+  const done = all.filter(e => progress[e.id] && progress[e.id].reps > 0).length;
+  const totalAttempts = Object.values(progress).reduce((t, c) => t + (c.correct || 0) + (c.incorrect || 0), 0);
+  const totalCorrect = Object.values(progress).reduce((t, c) => t + (c.correct || 0), 0);
+  const acc = totalAttempts > 0 ? Math.round(100 * totalCorrect / totalAttempts) : 0;
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-tile"><div class="stv">${done}</div><div class="stl">Exercises done</div></div>
+    <div class="stat-tile"><div class="stv">${acc}%</div><div class="stl">Accuracy</div></div>
+    <div class="stat-tile"><div class="stv">${streak.current || 0}</div><div class="stl">Day streak</div></div>`;
+
+  // Per-unit accuracy bars
+  const ubEl = document.getElementById('unitBars');
+  if (curriculum) {
+    ubEl.innerHTML = curriculum.units.map(u => {
+      const exs = u.lessons.flatMap(l => l.exercises || []);
+      const ua = exs.reduce((t, e) => t + (progress[e.id]?.correct || 0), 0);
+      const ut = exs.reduce((t, e) => t + (progress[e.id]?.correct || 0) + (progress[e.id]?.incorrect || 0), 0);
+      const pct = ut > 0 ? Math.round(100 * ua / ut) : 0;
+      return `
+        <div class="unit-bar-row">
+          <div class="ubr-head"><span>${esc(u.level)} · ${esc(u.title)}</span><span class="ubr-pct">${pct}%</span></div>
+          <div class="bar" style="height:10px"><span style="width:${pct}%"></span></div>
+        </div>`;
+    }).join('');
+  } else {
+    ubEl.innerHTML = '<div style="color:var(--mauve-soft);font-weight:700;font-size:14px">No data yet</div>';
+  }
+
+  // Heatmap (28 days)
+  const heatEl = document.getElementById('heatmap');
+  const cells = [];
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    const count = practiceLog[d] || 0;
+    const level = count === 0 ? '' : count < 3 ? 'l1' : count < 6 ? 'l2' : count < 10 ? 'l3' : 'l4';
+    cells.push(`<div class="heat-cell ${level}" title="${d}: ${count} exercises"></div>`);
+  }
+  heatEl.innerHTML = cells.join('');
+}
+
+// ══════════════════════════════════════
+//  SESSION MANAGEMENT
+// ══════════════════════════════════════
+function startSession(unitId, lessonId, mode) {
+  const unit = curriculum?.units.find(u => u.id === unitId);
+  const lesson = unit?.lessons.find(l => l.id === lessonId);
+  if (!lesson || !lesson.exercises || !lesson.exercises.length) {
+    showToast('No exercises in this lesson'); return;
+  }
+
+  let exIds = lesson.exercises.map(e => e.id);
+
+  if (mode === 'fsrs') {
+    const due = exIds.filter(id => FSRS.isDue(progress[id]));
+    const notDue = exIds.filter(id => !FSRS.isDue(progress[id]));
+    exIds = [...due, ...notDue].slice(0, 20);
+  }
+
+  const queue = exIds.map(id => ({
+    exercise: lesson.exercises.find(e => e.id === id),
+    card: progress[id] || FSRS.newCard(id)
+  })).filter(item => item.exercise);
+
+  if (!queue.length) { showToast('All exercises up to date ♡'); return; }
+
+  session = { queue, idx: 0, unitId, lessonId, mode, xp: 0, correct: 0, total: 0, answered: false };
+  showScreen('screenExercise');
+  renderExercise();
+}
+
+// ══════════════════════════════════════
+//  EXERCISE PLAYER
+// ══════════════════════════════════════
+const CORRECT_MSGS = ['Correct! ♡', '¡Muy bien! ♡', 'Perfect! ♪', 'That\'s right! ♡', 'Excellent! ♡'];
+const WRONG_MSGS = ['Not quite — try again', 'Almost! ♡', 'Keep going!', 'Good effort! Try once more'];
+
+function renderExercise() {
+  if (!session) return;
+  const { queue, idx } = session;
+  const item = queue[idx];
+  const ex = item.exercise;
+  session.answered = false;
+
+  // Progress bar
+  document.getElementById('exProgFill').style.width = `${Math.round(100 * idx / queue.length)}%`;
+  document.getElementById('exQCount').textContent = `${idx + 1} / ${queue.length}`;
+  document.getElementById('exTypeChip').innerHTML = `${typeIcon(ex.type)} ${typeLabel(ex.type)}`;
+
+  // Reset state
+  document.getElementById('feedbackBar').className = 'feedback-bar';
+  document.getElementById('feedbackBar').textContent = '';
+  document.getElementById('hintText').className = 'hint-text';
+  document.getElementById('hintText').textContent = '';
+  document.getElementById('continueBtn').className = 'continue-btn';
+
+  // Bubble tip
+  const tips = {
+    multiple_choice: 'Tap the correct answer, then check ♪',
+    fill_blank: 'Fill in the blank, then check ♪',
+    translation_es_en: 'Translate to English ♡',
+    translation_en_es: 'Traduce al español ♡',
+    word_order: 'Tap the words to build the sentence ♪',
+    flashcard: 'Tap the card to flip it ♡'
+  };
+  document.getElementById('exBubble').innerHTML = `<b>${tips[ex.type] || 'Good luck! ♡'}</b>`;
+
+  // Render by type
+  const body = document.getElementById('exBody');
+  const type = ex.type;
+
+  if (type === 'multiple_choice') renderMC(ex, body);
+  else if (type === 'fill_blank') renderFillBlank(ex, body);
+  else if (type === 'translation_es_en' || type === 'translation_en_es') renderTranslation(ex, body);
+  else if (type === 'word_order') renderWordOrder(ex, body);
+  else if (type === 'flashcard') renderFlashcard(ex, body);
+}
+
+function renderMC(ex, body) {
+  const opts = ex.options || [];
+  const letters = ['A','B','C','D','E'];
+  body.innerHTML = `
+    <div class="ex-q">${esc(ex.prompt || '')}</div>
+    ${ex.hint ? '' : ''}
+    <div class="choices" id="mcChoices">
+      ${opts.map((opt, i) => `
+        <button class="choice" data-opt="${esc(opt)}" data-correct="${opt === ex.answer}">
+          <div class="key">${letters[i]}</div>
+          ${esc(opt)}
+          <span class="mark"></span>
+        </button>`).join('')}
+    </div>
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+
+  let selected = null;
+  body.querySelectorAll('.choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (session.answered) return;
+      body.querySelectorAll('.choice').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selected = btn;
+      document.getElementById('checkBtn').disabled = false;
+    });
+  });
+
+  document.getElementById('checkBtn').addEventListener('click', () => {
+    if (!selected || session.answered) return;
+    session.answered = true;
+    const isCorrect = selected.dataset.correct === 'true';
+    const tick = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FBF8A" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-11"/></svg>';
+    const cross = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EC8C8C" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+    selected.classList.remove('selected');
+    selected.classList.add(isCorrect ? 'correct' : 'wrong');
+    selected.querySelector('.mark').innerHTML = isCorrect ? tick : cross;
+
+    if (!isCorrect) {
+      body.querySelectorAll('.choice').forEach(b => {
+        if (b.dataset.correct === 'true') { b.classList.add('correct'); b.querySelector('.mark').innerHTML = tick; }
+      });
+    }
+    document.getElementById('checkBtn').style.display = 'none';
+    onAnswered(isCorrect, ex);
+  });
+}
+
+function renderFillBlank(ex, body) {
+  const prompt = (ex.prompt || '').replace(/___/g, `<span class="gap">___</span>`);
+  body.innerHTML = `
+    <div class="fill-display">${prompt}</div>
+    <input class="blank-input" id="blankInput" placeholder="Type your answer…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+
+  const inp = document.getElementById('blankInput');
+  inp.addEventListener('input', () => {
+    document.getElementById('checkBtn').disabled = !inp.value.trim();
+  });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !document.getElementById('checkBtn').disabled) document.getElementById('checkBtn').click(); });
+  inp.focus();
+
+  document.getElementById('checkBtn').addEventListener('click', () => {
+    if (session.answered) return;
+    const val = inp.value.trim().toLowerCase();
+    const acceptable = [ex.answer, ...(ex.acceptable_answers || [])].map(a => a.toLowerCase().trim());
+    const isCorrect = acceptable.includes(val);
+    session.answered = true;
+    inp.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.getElementById('checkBtn').style.display = 'none';
+    if (!isCorrect) {
+      const corrEl = document.createElement('div');
+      corrEl.innerHTML = `<div style="font-size:13px;font-weight:800;color:var(--mauve-soft);margin-top:6px">Correct: <b style="color:var(--rose-deep)">${esc(ex.answer)}</b></div>`;
+      inp.after(corrEl);
+    }
+    onAnswered(isCorrect, ex);
+  });
+}
+
+function renderTranslation(ex, body) {
+  const dir = ex.type === 'translation_es_en' ? 'Translate to English:' : 'Traduce al español:';
+  body.innerHTML = `
+    <div class="trans-prompt">${esc(ex.prompt || '')}</div>
+    <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:6px">${dir}</div>
+    <textarea class="trans-input" id="transInput" placeholder="Your translation…" rows="3" autocorrect="off" spellcheck="false"></textarea>
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+
+  const inp = document.getElementById('transInput');
+  inp.addEventListener('input', () => {
+    document.getElementById('checkBtn').disabled = !inp.value.trim();
+  });
+  inp.focus();
+
+  document.getElementById('checkBtn').addEventListener('click', () => {
+    if (session.answered) return;
+    const val = inp.value.trim().toLowerCase().replace(/[¡!¿?.]/g, '').trim();
+    const acceptable = [ex.answer, ...(ex.acceptable_answers || [])].map(a =>
+      a.toLowerCase().trim().replace(/[¡!¿?.]/g, '').trim()
+    );
+    const isCorrect = acceptable.includes(val) || acceptable.some(a => similarity(val, a) > 0.85);
+    session.answered = true;
+    inp.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.getElementById('checkBtn').style.display = 'none';
+    if (!isCorrect) {
+      const all = [ex.answer, ...(ex.acceptable_answers || [])].filter(Boolean);
+      const acceptableEl = document.createElement('div');
+      acceptableEl.className = 'acceptable-answers';
+      acceptableEl.innerHTML = `<b>Accepted:</b> ${all.map(a => esc(a)).join(' · ')}`;
+      inp.after(acceptableEl);
+    }
+    onAnswered(isCorrect, ex);
+  });
+}
+
+function similarity(a, b) {
+  if (a === b) return 1;
+  const longer = a.length > b.length ? a : b;
+  const shorter = a.length > b.length ? b : a;
+  if (!longer.length) return 1;
+  let matches = 0;
+  for (let i = 0; i < shorter.length; i++) { if (longer.includes(shorter[i])) matches++; }
+  return matches / longer.length;
+}
+
+function renderWordOrder(ex, body) {
+  const words = (ex.words || ex.answer?.split(' ') || []).filter(Boolean);
+  const distractors = ex.distractors || [];
+  const pool = [...words, ...distractors].sort(() => Math.random() - 0.5);
+  let placed = [];
+  let poolState = [...pool];
+
+  const render = () => {
+    const dropArea = document.getElementById('woDrop');
+    const poolArea = document.getElementById('woPool');
+    if (!dropArea || !poolArea) return;
+    dropArea.innerHTML = placed.length
+      ? placed.map((w, i) => `<span class="word-chip placed" data-placed="${i}">${esc(w)}</span>`).join('')
+      : '<span class="placeholder-text">Tap words below to build your answer</span>';
+    poolArea.innerHTML = poolState.map((w, i) =>
+      `<span class="word-chip${placed.includes(w) && !poolState.includes(w) ? ' used' : ''}" data-pool="${i}">${esc(w)}</span>`
+    ).join('');
+
+    dropArea.querySelectorAll('[data-placed]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const idx = parseInt(chip.dataset.placed);
+        const word = placed[idx];
+        placed.splice(idx, 1);
+        poolState.push(word);
+        document.getElementById('checkBtn').disabled = placed.length < words.length;
+        render();
+      });
+    });
+    poolArea.querySelectorAll('[data-pool]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const idx = parseInt(chip.dataset.pool);
+        const word = poolState.splice(idx, 1)[0];
+        placed.push(word);
+        document.getElementById('checkBtn').disabled = false;
+        render();
+      });
+    });
+  };
+
+  body.innerHTML = `
+    <div class="ex-q" style="font-size:15px;margin-bottom:10px">Arrange the words in the correct order:</div>
+    <div class="word-drop-area" id="woDrop"><span class="placeholder-text">Tap words below to build your answer</span></div>
+    <div class="word-pool" id="woPool"></div>
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+  render();
+
+  document.getElementById('checkBtn').addEventListener('click', () => {
+    if (session.answered) return;
+    const built = placed.join(' ');
+    const correct = ex.answer || words.join(' ');
+    const isCorrect = built.toLowerCase() === correct.toLowerCase();
+    session.answered = true;
+    const drop = document.getElementById('woDrop');
+    drop.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.getElementById('checkBtn').style.display = 'none';
+    if (!isCorrect) {
+      const corrEl = document.createElement('div');
+      corrEl.innerHTML = `<div style="font-size:13px;font-weight:800;color:var(--mauve-soft);margin-top:8px">Correct: <b style="color:var(--rose-deep)">${esc(correct)}</b></div>`;
+      drop.after(corrEl);
+    }
+    onAnswered(isCorrect, ex);
+  });
+}
+
+function renderFlashcard(ex, body) {
+  body.innerHTML = `
+    <div class="flashcard-scene" id="fcScene">
+      <div class="flashcard-inner" id="fcInner">
+        <div class="fc-face fc-front">
+          <div class="fc-front-word">${esc(ex.front || '')}</div>
+          ${ex.phonetic ? `<div class="fc-front-phon">${esc(ex.phonetic)}</div>` : ''}
+          <div class="fc-tap-hint">↻ tap to flip</div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-back-word">${esc(ex.back || '')}</div>
+          ${ex.example_sentence ? `<div class="fc-example">"${esc(ex.example_sentence)}"</div>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="fsrs-buttons" id="fsrsBtns" style="display:none">
+      <button class="fsrs-btn" data-rating="1">Again<div class="rating-label">&lt;1d</div></button>
+      <button class="fsrs-btn" data-rating="2">Hard<div class="rating-label">~3d</div></button>
+      <button class="fsrs-btn" data-rating="3">Good<div class="rating-label">~9d</div></button>
+      <button class="fsrs-btn" data-rating="4">Easy<div class="rating-label">~15d</div></button>
+    </div>`;
+
+  let flipped = false;
+  document.getElementById('fcInner').addEventListener('click', () => {
+    if (session.answered) return;
+    flipped = !flipped;
+    document.getElementById('fcInner').classList.toggle('flipped', flipped);
+    if (flipped) {
+      document.getElementById('fsrsBtns').style.display = 'grid';
+    }
+  });
+
+  document.querySelectorAll('#fsrsBtns .fsrs-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (session.answered) return;
+      session.answered = true;
+      const rating = parseInt(btn.dataset.rating);
+      onFlashcardRated(rating, ex);
+    });
+  });
+}
+
+// ══════════════════════════════════════
+//  ANSWER HANDLING
+// ══════════════════════════════════════
+function onAnswered(isCorrect, ex) {
+  if (!session) return;
+  session.total++;
+
+  const card = session.queue[session.idx].card;
+  const rating = isCorrect ? 3 : 1;
+  const newCard = FSRS.schedule({ ...card }, rating);
+  newCard.correct = (card.correct || 0) + (isCorrect ? 1 : 0);
+  newCard.incorrect = (card.incorrect || 0) + (isCorrect ? 0 : 1);
+  progress[ex.id] = newCard;
+  store(LS.progress, progress);
+  session.queue[session.idx].card = newCard;
+
+  if (isCorrect) {
+    session.correct++;
+    session.xp += 10;
+    stats.total_done++;
+    stats.total_correct++;
+    stats.xp += 10;
+  } else {
+    stats.total_done++;
+  }
+  store(LS.stats, stats);
+  updateStreak();
+
+  // Update practice log
+  practiceLog[today()] = (practiceLog[today()] || 0) + 1;
+  store(LS.practiceLog, practiceLog);
+
+  // Show feedback
+  showFeedback(isCorrect, ex);
+
+  if (isCorrect) {
+    // Auto-advance after celebration
+    setTimeout(() => {
+      if (session.idx < session.queue.length - 1) {
+        advanceExercise();
+      } else {
+        showSessionComplete();
+      }
+    }, 1400);
+  }
+}
+
+function onFlashcardRated(rating, ex) {
+  if (!session) return;
+  session.total++;
+  const card = session.queue[session.idx].card;
+  const newCard = FSRS.schedule({ ...card }, rating);
+  newCard.correct = (card.correct || 0) + (rating >= 3 ? 1 : 0);
+  newCard.incorrect = (card.incorrect || 0) + (rating <= 2 ? 1 : 0);
+  progress[ex.id] = newCard;
+  store(LS.progress, progress);
+  session.queue[session.idx].card = newCard;
+  if (rating >= 3) { session.correct++; session.xp += 10; stats.xp += 10; }
+  stats.total_done++;
+  store(LS.stats, stats);
+  updateStreak();
+  practiceLog[today()] = (practiceLog[today()] || 0) + 1;
+  store(LS.practiceLog, practiceLog);
+
+  showFeedback(rating >= 3, ex);
+
+  setTimeout(() => {
+    if (session.idx < session.queue.length - 1) {
+      advanceExercise();
+    } else {
+      showSessionComplete();
+    }
+  }, 1000);
+}
+
+function showFeedback(isCorrect, ex) {
+  const fb = document.getElementById('feedbackBar');
+  const cont = document.getElementById('continueBtn');
+  const hint = document.getElementById('hintText');
+
+  if (isCorrect) {
+    fb.className = 'feedback-bar correct show';
+    fb.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FBF8A" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-11"/></svg> ${CORRECT_MSGS[Math.floor(Math.random() * CORRECT_MSGS.length)]}`;
+    document.getElementById('exMascot').textContent = '😊';
+    showMiniCelebration();
+  } else {
+    fb.className = 'feedback-bar wrong show';
+    fb.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EC8C8C" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg> ${WRONG_MSGS[Math.floor(Math.random() * WRONG_MSGS.length)]}`;
+    document.getElementById('exMascot').textContent = '😔';
+    if (ex.hint) {
+      hint.className = 'hint-text show';
+      hint.innerHTML = `💡 Hint: ${esc(ex.hint)}`;
+    }
+    cont.className = 'continue-btn show';
+    cont.onclick = () => {
+      if (session.idx < session.queue.length - 1) advanceExercise();
+      else showSessionComplete();
+    };
+  }
+}
+
+function advanceExercise() {
+  session.idx++;
+  session.answered = false;
+  document.getElementById('exMascot').textContent = '♡';
+  renderExercise();
+  document.getElementById('exScrollArea').scrollTop = 0;
+}
+
+// ══════════════════════════════════════
+//  CELEBRATION
+// ══════════════════════════════════════
+function showMiniCelebration() {
+  if (session.idx === session.queue.length - 1) return; // don't show mini for last one
+  // just let the feedback bar handle it
+}
+
+function showSessionComplete() {
+  const cel = document.getElementById('celebrate');
+  document.getElementById('celebrateTitle').textContent = session.correct === session.total ? 'Perfect Session! ♡' : `Session Complete! ♡`;
+  document.getElementById('celebrateSub').textContent = `${session.correct} / ${session.total} correct · ${session.xp} XP earned`;
+  document.getElementById('celebrateXP').innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 2l2.6 6.6L21 9.3l-5 4.3 1.6 6.7L12 16.9 6.4 20.3 8 13.6l-5-4.3 6.4-.7z"/></svg>+${session.xp} XP earned!`;
+  cel.classList.add('show');
+  burstConfetti();
+  addSparkles();
+
+  document.getElementById('celebrateBtn').onclick = () => {
+    cel.classList.remove('show');
+    clearCelebration();
+    session = null;
+    showScreen('screenHome');
+  };
+}
+
+function showBigCelebration(title, sub) {
+  document.getElementById('celebrateTitle').textContent = title;
+  document.getElementById('celebrateSub').textContent = sub;
+  document.getElementById('celebrate').classList.add('show');
+  burstConfetti(); addSparkles();
+}
+
+const CONFETTI_COLORS = ['#E8638C','#FFB7C5','#FFCDD8','#FFE9A8','#BFE3D0','#D9C9F0','#FFFFFF'];
+
+function burstConfetti() {
+  const wrap = document.getElementById('confetti');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 90; i++) {
+    const c = document.createElement('i');
+    const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+    const size = 7 + Math.random() * 9;
+    const round = Math.random() > 0.5;
+    c.style.cssText = `left:${Math.random()*100}%;width:${size}px;height:${round?size:size*0.6}px;background:${color};border-radius:${round?'50%':'2px'};animation-duration:${1.6+Math.random()*1.8}s;animation-delay:${Math.random()*0.4}s`;
+    wrap.appendChild(c);
+  }
+  setTimeout(() => { if (!document.getElementById('celebrate').classList.contains('show')) wrap.innerHTML = ''; }, 5000);
+}
+
+function addSparkles() {
+  document.getElementById('celebrate').querySelectorAll('.spark').forEach(s => s.remove());
+  [[18,30],[78,26],[30,52],[72,55],[50,20],[12,62],[86,48]].forEach((p, i) => {
+    const s = document.createElement('div');
+    s.className = 'spark';
+    const sz = 14 + Math.random() * 12;
+    s.style.cssText = `left:${p[0]}%;top:${p[1]}%;animation-delay:${i*0.12}s`;
+    s.innerHTML = `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="#FFD86B"><path d="M12 2l1.8 6.4L20 10l-6.2 1.6L12 22l-1.8-10.4L4 10l6.2-1.6z"/></svg>`;
+    document.getElementById('celebrate').appendChild(s);
+  });
+}
+
+function clearCelebration() {
+  document.getElementById('confetti').innerHTML = '';
+  document.getElementById('celebrate').querySelectorAll('.spark').forEach(s => s.remove());
+}
+
+// ══════════════════════════════════════
+//  IMPORT CURRICULUM
+// ══════════════════════════════════════
+function handleCurriculumFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.version || !Array.isArray(data.units)) throw new Error('Invalid schema: missing version or units');
+      data.units.forEach(u => {
+        if (!u.id || !u.title) throw new Error('Invalid unit: missing id or title');
+        if (!Array.isArray(u.lessons)) throw new Error('Invalid unit: lessons must be an array');
+      });
+      const exCount = data.units.reduce((t, u) => t + u.lessons.reduce((tt, l) => tt + (l.exercises||[]).length, 0), 0);
+      const summary = `${data.units.length} unit${data.units.length===1?'':'s'}, ${exCount} exercise${exCount===1?'':'s'}`;
+
+      if (curriculum) {
+        pendingImport = data;
+        document.getElementById('mergeDialog').classList.add('open');
+      } else {
+        applyCurriculum(data, false);
+        document.getElementById('importStatus').className = 'import-status ok';
+        document.getElementById('importStatus').textContent = `✓ Loaded: ${summary}`;
+        document.getElementById('btnStartApp').style.display = 'flex';
+      }
+    } catch(err) {
+      document.getElementById('importStatus').className = 'import-status err';
+      document.getElementById('importStatus').textContent = `Error: ${err.message}`;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function applyCurriculum(data, merge) {
+  if (merge && curriculum) {
+    // Keep progress for matching exercise IDs, add new exercises
+    const existingIds = new Set(getAllExercises().map(e => e.id));
+    data.units.forEach(u => {
+      u.lessons.forEach(l => {
+        (l.exercises || []).forEach(ex => {
+          if (!existingIds.has(ex.id)) {
+            // New exercise, progress starts fresh (already not in progress)
+          }
+          // Don't touch existing progress entries
+        });
+      });
+    });
+    curriculum = data;
+  } else {
+    curriculum = data;
+    // Keep progress? On replace, clear progress
+    if (!merge) progress = {};
+  }
+  store(LS.curriculum, curriculum);
+  store(LS.progress, progress);
+}
+
+// ══════════════════════════════════════
+//  EXPORT PROGRESS
+// ══════════════════════════════════════
+function exportProgress() {
+  const data = {
+    version: '1.0',
+    exported_at: new Date().toISOString(),
+    student_name: studentName,
+    streak: streak,
+    stats: stats,
+    exercises: progress
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'progress.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('progress.json downloaded ♡');
+}
+
+// ══════════════════════════════════════
+//  EVENT WIRING
+// ══════════════════════════════════════
+
+// Bottom nav
+document.getElementById('tabbar').querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.screen) showScreen(btn.dataset.screen);
+  });
+});
+
+// Back from exercise
+document.getElementById('btnExBack').addEventListener('click', () => {
+  if (session) { session = null; }
+  showScreen('screenHome');
+});
+
+// Continue in exercise
+document.getElementById('continueBtn').addEventListener('click', () => {
+  if (!session) return;
+  if (session.idx < session.queue.length - 1) advanceExercise();
+  else showSessionComplete();
+});
+
+// Home start practice
+document.getElementById('btnStartPractice').addEventListener('click', () => {
+  if (!curriculum) { showToast('Import your curriculum first ♡'); return; }
+  // Find first lesson with due exercises
+  for (const u of curriculum.units) {
+    for (const l of u.lessons) {
+      const hasDue = (l.exercises||[]).some(ex => FSRS.isDue(progress[ex.id]));
+      if (hasDue || (l.exercises||[]).length > 0) {
+        startSession(u.id, l.id, 'fsrs');
+        return;
+      }
+    }
+  }
+  showToast('All caught up! ♡');
+});
+
+// File input
+document.getElementById('fileInput').addEventListener('change', e => {
+  handleCurriculumFile(e.target.files[0]);
+  e.target.value = '';
+});
+
+// Welcome screen
+document.getElementById('btnImportCurr').addEventListener('click', () => {
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('btnStartApp').addEventListener('click', () => {
+  const name = document.getElementById('studentNameInput').value.trim();
+  if (name) {
+    studentName = name;
+    store(LS.studentName, studentName);
+  }
+  if (!curriculum) { showToast('Please import your curriculum first ♡'); return; }
+  document.getElementById('tabbar').style.display = 'flex';
+  showScreen('screenHome');
+});
+
+// If curriculum already loaded, skip welcome
+document.getElementById('studentNameInput').value = studentName;
+
+// Merge dialog
+document.getElementById('btnMerge').addEventListener('click', () => {
+  if (!pendingImport) return;
+  applyCurriculum(pendingImport, true);
+  pendingImport = null;
+  document.getElementById('mergeDialog').classList.remove('open');
+  showToast('Curriculum merged ♡');
+  if (currentScreen === 'screenWelcome') showScreen('screenHome');
+});
+
+document.getElementById('btnReplace').addEventListener('click', () => {
+  if (!pendingImport) return;
+  applyCurriculum(pendingImport, false);
+  pendingImport = null;
+  document.getElementById('mergeDialog').classList.remove('open');
+  showToast('Curriculum replaced ♡');
+  if (currentScreen === 'screenWelcome') showScreen('screenHome');
+});
+
+// Flashcard study all
+document.getElementById('btnStudyAll').addEventListener('click', () => {
+  if (!curriculum) return;
+  // Find first unit with flashcards or use all
+  const uid = fcFilterUnit === 'all' ? curriculum.units[0]?.id : fcFilterUnit;
+  const unit = curriculum.units.find(u => u.id === uid);
+  if (!unit) return;
+  const lesson = unit.lessons.find(l => (l.exercises||[]).some(e => e.type === 'flashcard'));
+  if (!lesson) { showToast('No flashcards found ♡'); return; }
+  startSession(unit.id, lesson.id, 'practice');
+});
+
+// Progress export
+document.getElementById('btnExportProgress').addEventListener('click', exportProgress);
+
+// Celebrate btn (backup handler)
+document.getElementById('celebrateBtn').addEventListener('click', () => {
+  document.getElementById('celebrate').classList.remove('show');
+  clearCelebration();
+  if (session) session = null;
+  showScreen('screenHome');
+});
+
+// ── INIT ──
+if (curriculum && studentName) {
+  document.getElementById('tabbar').style.display = 'flex';
+  showScreen('screenHome');
+} else if (curriculum && !studentName) {
+  document.getElementById('tabbar').style.display = 'flex';
+  document.getElementById('importStatus').className = 'import-status ok';
+  document.getElementById('importStatus').textContent = '✓ Curriculum already loaded ♡';
+  document.getElementById('btnStartApp').style.display = 'flex';
+}
+</script>
+</body>
+</html>
