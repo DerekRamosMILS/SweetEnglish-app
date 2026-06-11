@@ -1,0 +1,3772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#E8638C">
+<title>SweetEnglish — Maestro</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink-soft: #FFB7C5;
+  --cream: #FFF5F7;
+  --rose: #E8638C;
+  --rose-deep: #D24A75;
+  --mauve: #4A2535;
+  --mauve-soft: #8A6472;
+  --white: #FFFFFF;
+  --pink-border: #FFD7E0;
+  --pink-border-strong: #FFB7C5;
+  --track: #FFCDD8;
+  --mint: #BFE3D0;
+  --lemon: #FFE9A8;
+  --shadow-sm: 0 4px 12px rgba(232,99,140,0.12);
+  --shadow-md: 0 10px 26px rgba(232,99,140,0.16);
+  --shadow-lg: 0 22px 50px rgba(232,99,140,0.22);
+  --shadow-pop: 0 14px 34px rgba(210,74,117,0.30);
+  --r-sm: 14px;
+  --r-md: 20px;
+  --r-lg: 28px;
+  --r-xl: 36px;
+  --r-pill: 999px;
+  --font: 'Nunito', system-ui, sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-smoothing:antialiased;background:var(--cream);overflow:hidden}
+
+/* ── APP SHELL ── */
+#app{position:fixed;inset:0;display:flex;flex-direction:column;background:var(--cream);overflow:hidden}
+.screen{display:none;flex:1;overflow:hidden;flex-direction:column}
+.screen.active{display:flex}
+.scroll-area{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.scroll-area::-webkit-scrollbar{display:none}
+
+/* ── PINK GRADIENT BACKGROUND ── */
+.screen-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 80% 6%, rgba(255,183,197,0.45) 0, transparent 40%),
+    radial-gradient(circle at 10% 90%, rgba(255,183,197,0.3) 0, transparent 40%),
+    var(--cream);
+  pointer-events:none;z-index:0
+}
+
+/* ── STATUS BAR AREA ── */
+.status-pad{height:54px;flex-shrink:0}
+
+/* ── BOTTOM NAV ── */
+.tabbar{
+  height:calc(64px + var(--safe-bottom));
+  padding-bottom:var(--safe-bottom);
+  background:var(--white);
+  border-top:2px solid var(--pink-border);
+  display:flex;align-items:stretch;
+  padding-left:8px;padding-right:8px;
+  position:fixed;bottom:0;left:0;right:0;z-index:200
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  cursor:pointer;color:var(--mauve-soft);font-size:10.5px;font-weight:800;
+  border:none;background:none;font-family:var(--font);padding-top:8px
+}
+.nav-item svg{width:22px;height:22px}
+.nav-item.active{color:var(--rose)}
+.nav-item.active .ni-pill{background:#FFE7EE}
+.ni-pill{width:48px;height:30px;border-radius:var(--r-pill);display:grid;place-items:center;transition:background .14s}
+
+/* ── COMMON COMPONENTS ── */
+.btn-pill{
+  font-family:var(--font);font-weight:900;font-size:16px;
+  border:none;border-radius:var(--r-pill);padding:15px 24px;cursor:pointer;
+  background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:transform .12s,background .14s;width:100%
+}
+.btn-pill:active{transform:translateY(2px)}
+.btn-pill:hover{background:var(--rose-deep)}
+.btn-ghost{
+  font-family:var(--font);font-weight:800;font-size:14px;
+  border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:11px 20px;cursor:pointer;
+  background:var(--white);color:var(--mauve);display:inline-flex;align-items:center;gap:7px;
+  transition:all .14s
+}
+.btn-ghost:hover{border-color:var(--pink-border-strong)}
+.card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.pill-chip{
+  font-size:11px;font-weight:800;
+  background:var(--white);border:2px solid var(--pink-border);
+  border-radius:var(--r-pill);padding:5px 12px;color:var(--mauve-soft)
+}
+
+/* ── WELCOME / IMPORT SCREEN ── */
+#screenWelcome{
+  background:
+    radial-gradient(circle at 80% 8%, rgba(255,183,197,0.55) 0, transparent 44%),
+    radial-gradient(circle at 10% 88%, rgba(255,183,197,0.35) 0, transparent 40%),
+    var(--cream);
+  align-items:center;justify-content:center;padding:32px 24px;
+}
+.welcome-box{display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px;max-width:340px;width:100%}
+.welcome-mascot{
+  width:120px;height:120px;border-radius:var(--r-xl);
+  background:linear-gradient(160deg,#FFE7EF,var(--pink-soft));
+  border:3px solid var(--pink-border-strong);
+  display:flex;align-items:center;justify-content:center;
+  font-size:52px;box-shadow:var(--shadow-md)
+}
+.welcome-mascot img{width:100%;height:100%;object-fit:cover;border-radius:var(--r-xl)}
+.welcome-title{font-size:32px;font-weight:900;color:var(--mauve);line-height:1.15}
+.welcome-title span{color:var(--rose)}
+.welcome-sub{font-size:14px;font-weight:700;color:var(--mauve-soft);line-height:1.5}
+.name-row{display:flex;flex-direction:column;gap:8px;width:100%}
+.name-row label{font-size:13px;font-weight:800;color:var(--mauve);text-align:left}
+.name-input{
+  width:100%;font-family:var(--font);font-weight:700;font-size:15px;color:var(--mauve);
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:12px 15px;outline:none;transition:border-color .14s,box-shadow .14s
+}
+.name-input:focus{border-color:var(--rose);box-shadow:0 0 0 4px rgba(232,99,140,0.12)}
+.name-input::placeholder{color:#C9A9B5}
+.import-status{
+  font-size:13px;font-weight:800;color:var(--mauve-soft);
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:12px 14px;width:100%;text-align:left;line-height:1.5
+}
+.import-status.ok{border-color:var(--mint);background:#EBF8F1;color:#3FA06E}
+.import-status.err{border-color:#F0A0A0;background:#FDEDED;color:#C0392B}
+
+/* ── HOME SCREEN ── */
+#screenHome .scroll-area{padding:8px 18px calc(72px + var(--safe-bottom));position:relative;z-index:1}
+.m-hello{display:flex;align-items:center;gap:12px;margin:6px 2px 16px}
+.m-hello .av{
+  width:46px;height:46px;border-radius:16px;
+  background:var(--pink-soft);display:flex;align-items:center;justify-content:center;
+  box-shadow:var(--shadow-sm);overflow:hidden;flex-shrink:0;font-size:20px
+}
+.m-hello .av img{width:100%;height:100%;object-fit:cover}
+.m-hello .txt h2{margin:0;font-size:19px;font-weight:900}
+.m-hello .txt p{margin:1px 0 0;font-size:13px;font-weight:700;color:var(--mauve-soft)}
+.m-hello .streak{
+  margin-left:auto;display:flex;align-items:center;gap:6px;
+  background:var(--white);border:2px solid var(--pink-border);
+  border-radius:var(--r-pill);padding:7px 12px;
+  font-weight:900;font-size:14px;color:var(--rose-deep);
+  box-shadow:var(--shadow-sm);flex-shrink:0
+}
+.unit-card{
+  background:linear-gradient(155deg,#FFFFFF,#FFF1F5);
+  border:2px solid var(--pink-border);border-radius:var(--r-lg);
+  padding:18px;box-shadow:var(--shadow-md);margin-bottom:16px;position:relative;overflow:hidden
+}
+.unit-card .ribbon{
+  position:absolute;top:0;right:0;
+  background:var(--rose);color:var(--white);
+  font-size:11px;font-weight:900;padding:5px 13px;border-radius:0 0 0 var(--r-md)
+}
+.unit-card .u-label{font-size:12px;font-weight:800;color:var(--rose);letter-spacing:0.4px}
+.unit-card .u-title{font-size:20px;font-weight:900;margin:2px 0 13px;line-height:1.2}
+.unit-card .u-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.unit-card .lab{font-size:13px;font-weight:800;color:var(--mauve)}
+.unit-card .val{font-size:13px;font-weight:900;color:var(--rose-deep)}
+.bar{height:14px;border-radius:99px;background:var(--track);overflow:hidden;position:relative}
+.bar>span{
+  position:absolute;left:0;top:0;bottom:0;border-radius:99px;
+  background:linear-gradient(90deg,#F07FA3,var(--rose));
+  box-shadow:0 2px 8px rgba(232,99,140,0.4);transition:width .5s ease
+}
+.bar>span::after{content:"";position:absolute;right:6px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.9)}
+.dots-row{display:flex;align-items:center;gap:6px;margin-top:13px}
+.node{
+  width:36px;height:36px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;
+  font-weight:900;font-size:13px;background:var(--track);color:var(--rose-deep);
+  border:2px solid transparent
+}
+.node.done{background:var(--rose);color:var(--white)}
+.node.now{background:var(--white);border-color:var(--rose);color:var(--rose);box-shadow:var(--shadow-sm)}
+.node.lock{background:#F4E6EB;color:#D6B3C0}
+.dots-row .link{flex:1;height:3px;border-radius:99px;background:var(--track)}
+.dots-row .link.done{background:var(--rose)}
+.unit-card .u-foot{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.home-guide{
+  display:flex;align-items:center;gap:12px;
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);
+  padding:12px 14px;box-shadow:var(--shadow-sm);margin-bottom:16px
+}
+.guide-mascot{
+  width:54px;height:54px;flex-shrink:0;border-radius:16px;
+  background:linear-gradient(160deg,#FFE7EF,var(--pink-soft));
+  border:2px solid var(--pink-border-strong);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  filter:drop-shadow(0 6px 10px rgba(232,99,140,0.22))
+}
+.guide-mascot img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+.guide-bubble{font-size:13px;font-weight:800;color:var(--mauve);line-height:1.4}
+.guide-bubble b{color:var(--rose)}
+.home-deco{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  text-align:center;margin-top:20px;padding-bottom:8px;
+  font-size:12px;font-weight:800;color:var(--mauve-soft);line-height:1.5
+}
+.due-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:#FFE7EE;border:2px solid var(--pink-border-strong);border-radius:var(--r-pill);
+  padding:5px 12px;font-size:12px;font-weight:900;color:var(--rose-deep);margin-bottom:4px
+}
+
+/* ── EXERCISE SCREEN ── */
+#screenExercise{position:relative}
+#screenExercise .scroll-area{padding:0 18px 18px;position:relative;z-index:1}
+.ex-topbar{display:flex;align-items:center;gap:10px;padding:4px 18px 0;position:relative;z-index:1;flex-shrink:0;margin-top:2px}
+.ex-back{
+  width:38px;height:38px;border-radius:12px;flex-shrink:0;
+  background:var(--white);border:2px solid var(--pink-border);
+  display:grid;place-items:center;color:var(--mauve);cursor:pointer;transition:all .12s
+}
+.ex-back:hover{border-color:var(--pink-border-strong)}
+.ex-prog-bar{flex:1;height:12px;border-radius:99px;background:var(--track);overflow:hidden}
+.ex-prog-bar>span{display:block;height:100%;background:linear-gradient(90deg,#F07FA3,var(--rose));border-radius:99px;transition:width .4s ease}
+.ex-hearts{display:inline-flex;align-items:center;gap:4px;flex-shrink:0;font-weight:900;font-size:15px;color:var(--rose-deep)}
+.guide-row{display:flex;align-items:flex-end;gap:10px;margin:12px 0 6px;flex-shrink:0;padding:0 18px}
+.guide-row .guide-mascot{width:74px;height:74px;border-radius:20px}
+.guide-row .bubble{
+  background:var(--white);border:2px solid var(--pink-border);
+  border-radius:var(--r-md) var(--r-md) var(--r-md) 4px;padding:10px 13px;
+  font-size:13px;font-weight:800;color:var(--mauve);box-shadow:var(--shadow-sm);
+  margin-bottom:8px;line-height:1.4;flex:1
+}
+.guide-row .bubble b{color:var(--rose)}
+.ex-card{
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-xl);
+  padding:18px 16px 20px;box-shadow:var(--shadow-md)
+}
+.ex-card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.ex-type-chip{
+  font-size:10.5px;font-weight:900;color:var(--rose);
+  background:#FFE7EE;padding:4px 10px;border-radius:var(--r-pill);
+  display:inline-flex;align-items:center;gap:5px
+}
+.q-count{
+  font-size:12px;font-weight:900;color:var(--mauve-soft);
+  background:var(--cream);border:2px solid var(--pink-border);
+  border-radius:var(--r-pill);padding:4px 11px
+}
+.ex-q{font-size:21px;font-weight:900;line-height:1.25;margin-bottom:5px}
+.ex-sub{font-size:13px;font-weight:700;color:var(--mauve-soft);margin-bottom:16px}
+.ex-sub b{color:var(--rose-deep)}
+
+/* Multiple choice */
+.choices{display:flex;flex-direction:column;gap:10px}
+.choice{
+  display:flex;align-items:center;gap:12px;
+  background:var(--cream);border:2.5px solid var(--pink-border);border-radius:var(--r-md);
+  padding:14px;cursor:pointer;font-weight:800;font-size:15px;color:var(--mauve);
+  transition:transform .1s,border-color .14s,background .14s;text-align:left;
+  font-family:var(--font);width:100%
+}
+.choice:hover{border-color:var(--pink-border-strong);transform:translateY(-1px)}
+.choice .key{
+  width:28px;height:28px;border-radius:9px;background:var(--white);border:2px solid var(--pink-border);
+  display:grid;place-items:center;font-size:13px;font-weight:900;color:var(--rose);flex-shrink:0
+}
+.choice.selected{border-color:var(--rose);background:#FFF0F4}
+.choice.correct{border-color:#5FBF8A;background:#EAF8F0}
+.choice.correct .key{background:#5FBF8A;border-color:#5FBF8A;color:var(--white)}
+.choice.wrong{border-color:#F0A0A0;background:#FDEDED;animation:shake .4s ease}
+.choice.wrong .key{background:#EC8C8C;border-color:#EC8C8C;color:var(--white)}
+.choice .mark{margin-left:auto;flex-shrink:0}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+/* Fill blank */
+.fill-display{
+  font-size:18px;font-weight:800;line-height:1.5;padding:12px 14px;
+  background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  margin-bottom:14px
+}
+.fill-display .gap{
+  display:inline-block;min-width:80px;border-bottom:3px solid var(--rose);
+  margin:0 4px;padding:0 4px;color:var(--rose-deep);font-weight:900
+}
+.blank-input{
+  width:100%;font-family:var(--font);font-weight:800;font-size:16px;color:var(--mauve);
+  background:var(--white);border:2.5px solid var(--pink-border);border-radius:var(--r-md);
+  padding:13px 15px;outline:none;transition:border-color .14s,box-shadow .14s;
+  margin-bottom:8px
+}
+.blank-input:focus{border-color:var(--rose);box-shadow:0 0 0 4px rgba(232,99,140,0.12)}
+.blank-input::placeholder{color:#C9A9B5}
+.blank-input.correct{border-color:#5FBF8A;background:#EAF8F0}
+.blank-input.wrong{border-color:#F0A0A0;background:#FDEDED}
+
+/* Translation */
+.trans-prompt{
+  font-size:20px;font-weight:800;padding:12px 14px;
+  background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  margin-bottom:14px;line-height:1.4;color:var(--mauve)
+}
+.trans-input{
+  width:100%;font-family:var(--font);font-weight:700;font-size:15px;color:var(--mauve);
+  background:var(--white);border:2.5px solid var(--pink-border);border-radius:var(--r-md);
+  padding:13px 15px;outline:none;resize:none;min-height:80px;line-height:1.5;
+  transition:border-color .14s,box-shadow .14s;margin-bottom:8px
+}
+.trans-input:focus{border-color:var(--rose);box-shadow:0 0 0 4px rgba(232,99,140,0.12)}
+.trans-input.correct{border-color:#5FBF8A;background:#EAF8F0}
+.trans-input.wrong{border-color:#F0A0A0;background:#FDEDED}
+.acceptable-answers{
+  font-size:12px;font-weight:700;color:var(--mauve-soft);margin-top:6px;
+  background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:9px 12px
+}
+.acceptable-answers b{color:var(--mauve)}
+
+/* Word order */
+.word-drop-area{
+  min-height:56px;border:2.5px dashed var(--pink-border-strong);border-radius:var(--r-md);
+  padding:10px;display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;
+  background:var(--white);align-content:flex-start;transition:border-color .14s
+}
+.word-drop-area.correct{border-color:#5FBF8A;background:#EAF8F0}
+.word-drop-area.wrong{border-color:#F0A0A0;background:#FDEDED;animation:shake .4s ease}
+.word-drop-area .placeholder-text{
+  font-size:13px;font-weight:700;color:#C9A9B5;
+  display:flex;align-items:center;height:36px
+}
+.word-pool{display:flex;flex-wrap:wrap;gap:7px}
+.word-chip{
+  font-weight:800;font-size:14px;background:var(--white);
+  border:2.5px solid var(--pink-border-strong);color:var(--mauve);border-radius:12px;
+  padding:9px 14px;cursor:pointer;box-shadow:var(--shadow-sm);
+  transition:transform .1s,opacity .14s,border-color .14s;user-select:none
+}
+.word-chip:hover{transform:translateY(-2px);border-color:var(--rose)}
+.word-chip:active{transform:translateY(0)}
+.word-chip.placed{background:#FFE7EE;border-color:var(--rose);color:var(--rose-deep)}
+.word-chip.used{opacity:0.25;pointer-events:none}
+
+/* Flashcard */
+.flashcard-scene{perspective:600px;margin-bottom:16px;height:180px}
+.flashcard-inner{
+  width:100%;height:100%;position:relative;transition:transform 0.55s ease;
+  transform-style:preserve-3d;cursor:pointer
+}
+.flashcard-inner.flipped{transform:rotateY(180deg)}
+.fc-face{
+  position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:linear-gradient(160deg,#FFF6F9,#FFE7EF);
+  border:2.5px solid var(--pink-border-strong);border-radius:var(--r-xl);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:20px;text-align:center;box-shadow:var(--shadow-md)
+}
+.fc-back{transform:rotateY(180deg)}
+.fc-front-word{font-size:32px;font-weight:900;color:var(--rose-deep)}
+.fc-front-phon{font-size:14px;font-weight:700;color:var(--mauve-soft);margin-top:4px}
+.fc-tap-hint{font-size:12px;font-weight:800;color:var(--rose);margin-top:10px}
+.fc-back-word{font-size:22px;font-weight:900;color:var(--mauve);margin-bottom:6px}
+.fc-example{font-size:13px;font-weight:700;color:var(--mauve-soft);font-style:italic}
+.fsrs-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.fsrs-btn{
+  font-family:var(--font);font-weight:900;font-size:13px;
+  border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 6px;
+  cursor:pointer;transition:all .14s;flex-direction:column;
+  display:flex;align-items:center;gap:3px
+}
+.fsrs-btn .rating-label{font-size:10px;font-weight:700;color:var(--mauve-soft)}
+.fsrs-btn[data-rating="1"]{background:#FDEDED;border-color:#F0A0A0;color:#C0392B}
+.fsrs-btn[data-rating="1"]:hover{background:#FFDCDC}
+.fsrs-btn[data-rating="2"]{background:#FFF8DD;border-color:#E0C060;color:#8B6914}
+.fsrs-btn[data-rating="2"]:hover{background:#FFF3C0}
+.fsrs-btn[data-rating="3"]{background:#EAF8F0;border-color:#5FBF8A;color:#3FA06E}
+.fsrs-btn[data-rating="3"]:hover{background:#D6F0E1}
+.fsrs-btn[data-rating="4"]{background:#E8F0FE;border-color:#7FA8E8;color:#3060B8}
+.fsrs-btn[data-rating="4"]:hover{background:#D0E0FC}
+
+/* Feedback bar */
+.feedback-bar{
+  margin-top:12px;padding:12px 14px;border-radius:var(--r-md);
+  font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px;
+  display:none
+}
+.feedback-bar.correct{background:#EAF8F0;border:2px solid #5FBF8A;color:#2A7A4E}
+.feedback-bar.wrong{background:#FDEDED;border:2px solid #F0A0A0;color:#C0392B}
+.feedback-bar.show{display:flex}
+.hint-text{
+  margin-top:6px;font-size:12.5px;font-weight:700;color:var(--mauve-soft);
+  background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:9px 12px;display:none
+}
+.hint-text.show{display:block}
+
+/* Check button */
+.check-btn{
+  width:100%;font-family:var(--font);font-weight:900;font-size:16px;
+  border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;
+  background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);
+  transition:transform .12s,background .14s,opacity .14s;margin-top:14px
+}
+.check-btn:disabled{opacity:0.4;box-shadow:none;cursor:default}
+.check-btn:not(:disabled):active{transform:translateY(2px)}
+.continue-btn{
+  width:100%;font-family:var(--font);font-weight:900;font-size:16px;
+  border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;
+  background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);
+  margin-top:10px;display:none;transition:transform .12s
+}
+.continue-btn.show{display:block}
+.continue-btn:active{transform:translateY(2px)}
+
+/* ── LESSONS SCREEN ── */
+#screenLessons .scroll-area{padding:14px 16px calc(72px + var(--safe-bottom));position:relative;z-index:1}
+.screen-head{font-size:22px;font-weight:900;margin-bottom:14px;padding:0 2px}
+.unit-section{margin-bottom:18px}
+.unit-section-head{
+  display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:4px 2px
+}
+.unit-badge{
+  font-size:11px;font-weight:900;color:var(--white);background:var(--rose);
+  padding:3px 10px;border-radius:var(--r-pill)
+}
+.unit-badge.a2{background:#E89B3C}
+.unit-badge.b1{background:#7BC598}
+.unit-section-head .unit-name{font-size:15px;font-weight:900}
+.lesson-row{
+  display:flex;align-items:center;gap:11px;
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:13px 14px;margin-bottom:7px;cursor:pointer;
+  transition:border-color .14s,box-shadow .14s
+}
+.lesson-row:hover{border-color:var(--pink-border-strong);box-shadow:var(--shadow-sm)}
+.lesson-row.locked{opacity:0.55;cursor:default}
+.lesson-row .l-icon{
+  width:36px;height:36px;border-radius:12px;background:var(--track);
+  display:grid;place-items:center;color:var(--rose);flex-shrink:0;font-size:17px
+}
+.lesson-row.locked .l-icon{background:#F4E6EB;color:#D6B3C0}
+.lesson-row .l-body{flex:1;min-width:0}
+.lesson-row .l-title{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lesson-row .l-meta{font-size:11.5px;font-weight:700;color:var(--mauve-soft)}
+.l-pct{font-size:12px;font-weight:900;color:var(--rose-deep);flex-shrink:0}
+.l-prog{height:5px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:4px}
+.l-prog span{display:block;height:100%;background:var(--rose);border-radius:99px}
+
+/* ── FLASHCARDS SCREEN ── */
+#screenFlashcards .scroll-area{padding:14px 16px calc(72px + var(--safe-bottom));position:relative;z-index:1}
+.fc-unit-filter{
+  display:flex;gap:7px;margin-bottom:16px;overflow-x:auto;padding-bottom:6px;
+  scrollbar-width:none;-ms-overflow-style:none
+}
+.fc-unit-filter::-webkit-scrollbar{display:none}
+.filter-chip{
+  font-family:var(--font);font-weight:800;font-size:12px;
+  border:2px solid var(--pink-border);background:var(--cream);color:var(--mauve-soft);
+  border-radius:var(--r-pill);padding:7px 14px;cursor:pointer;white-space:nowrap;
+  transition:all .14s;flex-shrink:0
+}
+.filter-chip.active{background:var(--rose);color:var(--white);border-color:var(--rose)}
+.fc-grid{display:flex;flex-direction:column;gap:10px}
+.fc-card-item{
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);
+  overflow:hidden;box-shadow:var(--shadow-sm);transition:border-color .14s;cursor:pointer
+}
+.fc-card-item:hover{border-color:var(--pink-border-strong)}
+.fc-card-item .fc-front-row{
+  display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px
+}
+.fc-card-item .fc-word{font-size:18px;font-weight:900;color:var(--mauve)}
+.fc-card-item .fc-phon{font-size:12px;font-weight:700;color:var(--mauve-soft)}
+.fc-card-item .fc-flip-hint{font-size:11px;font-weight:800;color:var(--rose)}
+.fc-card-item .fc-back-row{
+  display:none;padding:0 16px 14px;
+  border-top:2px solid var(--pink-border);padding-top:10px;margin:0 16px
+}
+.fc-card-item.flipped .fc-back-row{display:block}
+.fc-card-item.flipped{border-color:var(--rose)}
+.fc-back-row .fc-translation{font-size:16px;font-weight:800;color:var(--rose-deep)}
+.fc-back-row .fc-ex{font-size:12px;font-weight:700;color:var(--mauve-soft);margin-top:4px;font-style:italic}
+.study-all-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--font);font-weight:900;font-size:14px;
+  background:var(--rose);color:var(--white);border:none;border-radius:var(--r-pill);
+  padding:12px 22px;cursor:pointer;box-shadow:var(--shadow-pop);
+  margin-bottom:14px;transition:background .14s
+}
+.study-all-btn:hover{background:var(--rose-deep)}
+
+/* ── PROGRESS SCREEN ── */
+#screenProgress .scroll-area{padding:14px 16px calc(72px + var(--safe-bottom));position:relative;z-index:1}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:16px}
+.stat-tile{
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:13px 10px;text-align:center;box-shadow:var(--shadow-sm)
+}
+.stat-tile .stv{font-size:26px;font-weight:900;color:var(--rose-deep)}
+.stat-tile .stl{font-size:10.5px;font-weight:800;color:var(--mauve-soft);margin-top:2px}
+.section-title{font-size:15px;font-weight:900;margin-bottom:10px;padding-left:2px}
+.unit-bars{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.unit-bar-row{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:12px 14px;box-shadow:var(--shadow-sm)}
+.unit-bar-row .ubr-head{display:flex;justify-content:space-between;margin-bottom:7px;font-size:13px;font-weight:800}
+.unit-bar-row .ubr-pct{color:var(--rose-deep)}
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px}
+.heat-cell{
+  aspect-ratio:1;border-radius:5px;background:var(--pink-border);
+  transition:background .2s
+}
+.heat-cell.l1{background:var(--track)}
+.heat-cell.l2{background:#F48FAD}
+.heat-cell.l3{background:var(--rose)}
+.heat-cell.l4{background:var(--rose-deep)}
+.heatmap-legend{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--mauve-soft);margin-bottom:14px}
+.hl-cell{width:12px;height:12px;border-radius:3px}
+.export-prog-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--font);font-weight:900;font-size:14px;
+  background:var(--white);color:var(--rose);border:2px solid var(--pink-border-strong);
+  border-radius:var(--r-pill);padding:12px 22px;cursor:pointer;
+  transition:all .14s;width:100%
+}
+.export-prog-btn:hover{background:#FFF0F4;border-color:var(--rose)}
+
+/* ── CELEBRATION OVERLAY ── */
+#celebrate{
+  position:fixed;inset:0;z-index:60;
+  display:none;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding-bottom:calc(30px + var(--safe-bottom));
+  background:radial-gradient(circle at 50% 40%, rgba(255,255,255,0.93), rgba(255,225,235,0.97));
+  text-align:center
+}
+#celebrate.show{display:flex;animation:popIn .3s ease}
+@keyframes popIn{from{opacity:0}to{opacity:1}}
+.celebrate-mascot{
+  width:190px;height:190px;margin-top:auto;border-radius:var(--r-xl);
+  background:linear-gradient(160deg,#FFE7EF,var(--pink-soft));
+  border:3px solid var(--pink-border-strong);
+  display:flex;align-items:center;justify-content:center;font-size:80px;
+  animation:bounceMascot 1.1s ease-in-out infinite;
+  filter:drop-shadow(0 14px 22px rgba(232,99,140,0.3))
+}
+.celebrate-mascot img{width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r-xl) - 3px)}
+@keyframes bounceMascot{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-14px) rotate(2deg)}}
+.celebrate-title{font-size:32px;font-weight:900;color:var(--rose-deep);margin:10px 0 2px;animation:popTitle .4s ease both}
+@keyframes popTitle{from{transform:scale(0.6);opacity:0}to{transform:scale(1);opacity:1}}
+.celebrate-sub{font-size:14px;font-weight:800;color:var(--mauve);margin-bottom:4px;padding:0 24px}
+.celebrate-xp{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-pill);
+  padding:8px 16px;font-weight:900;font-size:14px;color:var(--rose-deep);
+  box-shadow:var(--shadow-sm);margin:8px 0 16px
+}
+.celebrate-btn{
+  width:calc(100% - 48px);font-family:var(--font);font-weight:900;font-size:16px;
+  border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;
+  background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop)
+}
+.celebrate-btn:active{transform:translateY(2px)}
+#confetti{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:61}
+#confetti i{position:absolute;top:-20px;opacity:0;animation:fall linear forwards}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(120vh) rotate(540deg);opacity:1}}
+.spark{position:fixed;z-index:62;animation:twinkle 1.4s ease-in-out infinite;pointer-events:none}
+@keyframes twinkle{0%,100%{transform:scale(0.7);opacity:0.5}50%{transform:scale(1.2);opacity:1}}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:calc(80px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(60px);
+  background:var(--mauve);color:var(--white);padding:11px 18px;border-radius:var(--r-pill);
+  font-size:13px;font-weight:800;box-shadow:var(--shadow-lg);z-index:50;
+  opacity:0;transition:transform .3s ease,opacity .3s ease;white-space:nowrap;pointer-events:none
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* ── GUIDED SESSION ── */
+#screenGuided{position:relative}
+#screenGuided .scroll-area{padding:0 18px calc(20px + var(--safe-bottom));position:relative;z-index:1}
+.guided-topbar{display:flex;align-items:center;gap:10px;padding:4px 18px 0;position:relative;z-index:1;flex-shrink:0;margin-top:2px}
+.view-toggle{display:flex;border:2px solid var(--pink-border);border-radius:var(--r-pill);overflow:hidden;flex-shrink:0}
+.vtb{font-family:var(--font);font-weight:900;font-size:12px;padding:8px 14px;border:none;cursor:pointer;background:var(--cream);color:var(--mauve-soft);transition:all .14s}
+.vtb.active-teacher{background:var(--mauve);color:var(--white)}
+.vtb.active-student{background:var(--rose);color:var(--white)}
+.phase-progress{display:flex;align-items:center;gap:5px;padding:8px 18px 4px;flex-shrink:0;position:relative;z-index:1}
+.phase-dot{width:9px;height:9px;border-radius:50%;background:var(--track);flex-shrink:0;transition:background .2s}
+.phase-dot.done{background:var(--rose)}
+.phase-dot.now{background:var(--rose);box-shadow:0 0 0 3px rgba(232,99,140,0.25)}
+.phase-label{font-size:11.5px;font-weight:900;color:var(--mauve-soft);margin-left:4px;white-space:nowrap}
+.phase-link{flex:1;height:2px;border-radius:99px;background:var(--track)}
+.phase-link.done{background:var(--rose)}
+.phase-card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-xl);padding:20px 18px;box-shadow:var(--shadow-md)}
+.phase-type-chip{font-size:10.5px;font-weight:900;color:var(--white);background:var(--mauve);padding:4px 10px;border-radius:var(--r-pill);display:inline-flex;align-items:center;gap:5px}
+/* Presentation */
+.pres-word{font-size:38px;font-weight:900;color:var(--rose-deep);text-align:center;margin-bottom:4px}
+.pres-phonetic{font-size:15px;font-weight:700;color:var(--mauve-soft);text-align:center;margin-bottom:12px}
+.pres-translation{font-size:22px;font-weight:800;color:var(--mauve);text-align:center;background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 16px;margin-bottom:12px}
+.teacher-notes{background:#FFF8DD;border:2px solid #E0C060;border-radius:var(--r-md);padding:10px 13px;font-size:13px;font-weight:700;color:#6B4E00;line-height:1.45}
+.student-word{font-size:52px;font-weight:900;color:var(--rose-deep);text-align:center;margin-bottom:10px}
+.student-repeat-card{background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:14px 18px;text-align:center;font-size:18px;font-weight:800;color:var(--mauve-soft)}
+/* Verbal drill */
+.drill-prompt{font-size:20px;font-weight:900;color:var(--mauve);line-height:1.3;margin-bottom:10px}
+.drill-answer{background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 14px;font-size:16px;font-weight:800;color:var(--rose-deep);margin-bottom:12px}
+.drill-result-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.drill-btn-c{font-family:var(--font);font-weight:900;font-size:22px;border:2.5px solid #5FBF8A;border-radius:var(--r-md);padding:16px;cursor:pointer;background:#EAF8F0;color:#2A7A4E;transition:all .14s}
+.drill-btn-c:hover{background:#D6F0E1}
+.drill-btn-w{font-family:var(--font);font-weight:900;font-size:22px;border:2.5px solid #F0A0A0;border-radius:var(--r-md);padding:16px;cursor:pointer;background:#FDEDED;color:#C0392B;transition:all .14s}
+.drill-btn-w:hover{background:#FFDCDC}
+.drill-scored{opacity:0.38;pointer-events:none}
+.drill-score-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px}
+.drill-dot{width:13px;height:13px;border-radius:50%;background:var(--track);flex-shrink:0}
+.drill-dot.c{background:#5FBF8A}
+.drill-dot.w{background:#EC8C8C}
+/* Listen card (student view for drill/checkpoint) */
+.listen-card{background:linear-gradient(160deg,#FFF6F9,#FFE7EF);border:2.5px solid var(--pink-border-strong);border-radius:var(--r-xl);padding:36px 20px;text-align:center;box-shadow:var(--shadow-sm)}
+.listen-icon{font-size:52px;margin-bottom:10px}
+.listen-text{font-size:22px;font-weight:900;color:var(--mauve)}
+/* Dialogue */
+.dialogue-setup{font-size:13px;font-weight:700;color:var(--mauve-soft);background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 13px;margin-bottom:12px;font-style:italic}
+.dialogue-lines{display:flex;flex-direction:column;gap:8px}
+.dl{padding:11px 13px;border-radius:var(--r-md);border:2px solid var(--pink-border);background:var(--cream);transition:all .18s}
+.dl.active{border-color:var(--rose);background:#FFF0F4;box-shadow:var(--shadow-sm)}
+.dl.past{opacity:0.45}
+.dl.future{opacity:0.3}
+.dl.teacher-l{border-left:4px solid var(--mauve)}
+.dl.student-l{border-left:4px solid var(--rose)}
+.dl-who{font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;color:var(--mauve-soft);margin-bottom:3px}
+.dl-who.t{color:var(--mauve)}
+.dl-who.s{color:var(--rose)}
+.dl-text{font-size:17px;font-weight:800;color:var(--mauve);line-height:1.3}
+.dl-tr{font-size:13px;font-weight:700;color:var(--mauve-soft);margin-top:2px}
+.student-turn-card{background:linear-gradient(160deg,#FFF6F9,#FFE7EF);border:2.5px solid var(--pink-border-strong);border-radius:var(--r-xl);padding:24px 20px;text-align:center;box-shadow:var(--shadow-md)}
+.st-label{font-size:12px;font-weight:900;color:var(--rose);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.st-text{font-size:28px;font-weight:900;color:var(--mauve);line-height:1.25;margin-bottom:8px}
+.st-tr{font-size:15px;font-weight:700;color:var(--mauve-soft)}
+/* Checkpoint */
+.cp-prompt{font-size:19px;font-weight:900;color:var(--mauve);line-height:1.35;margin-bottom:10px}
+.cp-expected{background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 14px;margin-bottom:12px}
+.cp-expected-label{font-size:11px;font-weight:800;color:var(--mauve-soft);margin-bottom:2px}
+.cp-expected-val{font-size:16px;font-weight:900;color:var(--rose-deep)}
+.cp-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.cp-pass{font-family:var(--font);font-weight:900;font-size:15px;border:2.5px solid #5FBF8A;border-radius:var(--r-md);padding:16px;cursor:pointer;background:#EAF8F0;color:#2A7A4E;transition:all .14s}
+.cp-pass:hover{background:#D6F0E1}
+.cp-review{font-family:var(--font);font-weight:900;font-size:15px;border:2.5px solid #E0C060;border-radius:var(--r-md);padding:16px;cursor:pointer;background:#FFF8DD;color:#8B6914;transition:all .14s}
+.cp-review:hover{background:#FFF3C0}
+.cp-scored{opacity:0.38;pointer-events:none}
+/* Guided next button */
+.guided-next{width:100%;font-family:var(--font);font-weight:900;font-size:16px;border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);transition:transform .12s,background .14s;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.guided-next:active{transform:translateY(2px)}
+.guided-next:hover:not(:disabled){background:var(--rose-deep)}
+.guided-next:disabled{opacity:0.4;box-shadow:none;cursor:default}
+/* Guided summary */
+.gs-title{font-size:26px;font-weight:900;color:var(--rose-deep);text-align:center;margin-bottom:6px}
+.gs-sub{font-size:14px;font-weight:700;color:var(--mauve-soft);text-align:center;margin-bottom:20px}
+.gs-section-title{font-size:12px;font-weight:900;color:var(--mauve);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;padding-left:2px}
+.gs-row{display:flex;align-items:center;justify-content:space-between;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:11px 14px;margin-bottom:6px}
+.gs-row-text{font-size:13px;font-weight:800;color:var(--mauve);flex:1;margin-right:10px}
+.gs-badge{font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:var(--r-pill);flex-shrink:0}
+.gs-badge.c{background:#EAF8F0;color:#2A7A4E}
+.gs-badge.w{background:#FDEDED;color:#C0392B}
+.gs-badge.p{background:#EAF8F0;color:#2A7A4E}
+.gs-badge.r{background:#FFF8DD;color:#8B6914}
+
+/* ── REPEAT COUNTER ── */
+.repeat-btn{font-family:var(--font);font-weight:900;font-size:14px;border:2.5px solid var(--pink-border-strong);border-radius:var(--r-md);padding:10px 16px;cursor:pointer;background:var(--white);color:var(--mauve);transition:all .14s;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px}
+.repeat-btn:hover:not(.done){border-color:var(--rose);background:#FFF0F4}
+.repeat-btn.done{background:#EAF8F0;border-color:#5FBF8A;color:#2A7A4E}
+
+/* ── HINT ── */
+.hint-reveal-btn{font-family:var(--font);font-weight:800;font-size:12.5px;border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:7px 14px;cursor:pointer;background:var(--cream);color:var(--mauve-soft);transition:all .14s;margin-top:8px}
+.hint-reveal-btn:hover{border-color:var(--pink-border-strong)}
+.hint-box{background:#FFF8DD;border:2px solid #E0C060;border-radius:var(--r-md);padding:9px 13px;font-size:13.5px;font-weight:700;color:#6B4E00;margin-top:8px;animation:popIn .18s ease}
+
+/* ── PHASE INTRO ── */
+.intro-card{background:#FFF8DD;border:2px solid #E0C060;border-radius:var(--r-xl);padding:20px 18px;box-shadow:var(--shadow-sm)}
+.intro-label{font-size:11px;font-weight:900;color:#B8860B;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
+.intro-text{font-size:15px;font-weight:700;color:#6B4E00;line-height:1.55;margin-bottom:16px}
+.intro-got-it{font-family:var(--font);font-weight:900;font-size:14px;border:none;border-radius:var(--r-pill);padding:12px 24px;cursor:pointer;background:var(--mauve);color:var(--white);transition:all .14s}
+.intro-got-it:hover{background:#3A1A26}
+
+/* ── TIMER ── */
+.guided-timer{font-size:12px;font-weight:900;color:var(--mauve-soft);background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:4px 10px;letter-spacing:0.5px;flex-shrink:0;font-variant-numeric:tabular-nums}
+
+/* ── HISTORY PANEL ── */
+.history-panel{position:fixed;inset:0;z-index:90;display:none;flex-direction:column;background:var(--cream)}
+.history-panel.open{display:flex;animation:popIn .22s ease}
+.history-topbar{display:flex;align-items:center;gap:10px;padding:54px 18px 14px;background:var(--white);border-bottom:2px solid var(--pink-border);flex-shrink:0}
+.history-topbar h2{font-size:20px;font-weight:900;flex:1;margin:0}
+.history-close{width:36px;height:36px;border-radius:12px;background:var(--cream);border:2px solid var(--pink-border);display:grid;place-items:center;cursor:pointer;font-size:16px;flex-shrink:0}
+.history-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:14px 16px}
+.history-scroll::-webkit-scrollbar{display:none}
+.history-card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.hc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.hc-lesson{font-size:15px;font-weight:900;color:var(--mauve)}
+.hc-unit{font-size:11.5px;font-weight:700;color:var(--mauve-soft);margin-top:2px}
+.hc-date{font-size:11px;font-weight:800;color:var(--mauve-soft);text-align:right;flex-shrink:0;line-height:1.5}
+.hc-stats{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+.hc-stat{background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:4px 10px;font-size:11.5px;font-weight:800;color:var(--mauve-soft)}
+.hc-cp-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:12.5px;font-weight:700;color:var(--mauve)}
+.hc-cp-row+.hc-cp-row{border-top:1px solid var(--pink-border)}
+.hc-cp-badge{font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:var(--r-pill);flex-shrink:0}
+.hc-cp-badge.p{background:#EAF8F0;color:#2A7A4E}
+.hc-cp-badge.r{background:#FFF8DD;color:#8B6914}
+.history-empty{text-align:center;padding:48px 20px;color:var(--mauve-soft);font-weight:800;font-size:14px;line-height:1.6}
+.history-btn{font-family:var(--font);font-weight:800;font-size:12px;border:2px solid var(--pink-border);background:var(--white);color:var(--mauve-soft);border-radius:var(--r-pill);padding:7px 13px;cursor:pointer;transition:all .14s;white-space:nowrap}
+.history-btn:hover{border-color:var(--pink-border-strong);color:var(--mauve)}
+
+/* ── HOMEWORK SCREEN ── */
+#screenHomework{position:relative}
+#screenHomework .scroll-area{padding:0 18px calc(28px + var(--safe-bottom));position:relative;z-index:1}
+.hw-topbar{display:flex;align-items:center;gap:10px;padding:4px 18px 0;position:relative;z-index:1;flex-shrink:0;margin-top:2px}
+.hw-title{flex:1;min-width:0}
+.hw-lesson-name{font-size:12px;font-weight:800;color:var(--mauve-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hw-heading{font-size:18px;font-weight:900;color:var(--rose)}
+.hw-time-chip{font-size:12px;font-weight:800;background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:5px 11px;color:var(--mauve-soft);flex-shrink:0}
+.hw-section{margin-bottom:18px}
+.hw-section-head{font-size:14px;font-weight:900;color:var(--mauve);margin-bottom:9px;padding:0 2px}
+/* vocab_list */
+.vocab-list{display:flex;flex-direction:column;gap:8px}
+.vocab-item{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;box-shadow:var(--shadow-sm);transition:border-color .14s}
+.vocab-item:hover{border-color:var(--pink-border-strong)}
+.vocab-item.flipped{border-color:var(--rose)}
+.vocab-front{display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+.vocab-word{font-size:20px;font-weight:900;color:var(--rose-deep)}
+.vocab-phon{font-size:12px;font-weight:700;color:var(--mauve-soft);margin-top:2px}
+.vocab-flip-hint{font-size:11px;font-weight:800;color:var(--rose)}
+.vocab-back{display:none;padding:0 16px 14px;border-top:2px solid var(--pink-border);margin:0 16px;padding-top:10px}
+.vocab-item.flipped .vocab-back{display:block}
+.vocab-translation{font-size:17px;font-weight:800;color:var(--mauve);margin-bottom:4px}
+.vocab-example{font-size:12.5px;font-weight:700;color:var(--mauve-soft);font-style:italic}
+/* reading */
+.reading-text{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow-sm);font-size:15px;font-weight:700;line-height:1.65;color:var(--mauve)}
+.reading-translation{display:none;background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:13px;font-size:14px;font-weight:700;color:var(--mauve-soft);line-height:1.6;margin-top:8px}
+.reading-translation.visible{display:block;animation:popIn .18s ease}
+.reading-toggle{font-family:var(--font);font-weight:800;font-size:12px;border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:8px 14px;cursor:pointer;background:var(--cream);color:var(--mauve-soft);transition:all .14s;margin-top:8px}
+.reading-toggle:hover{border-color:var(--pink-border-strong)}
+/* writing_prompt */
+.writing-prompts{display:flex;flex-direction:column;gap:9px}
+.writing-prompt-item{display:flex;align-items:flex-start;gap:12px;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:13px 14px;box-shadow:var(--shadow-sm);cursor:pointer;transition:all .14s}
+.writing-prompt-item.done{border-color:#5FBF8A;background:#EAF8F0}
+.wp-check{width:24px;height:24px;border-radius:8px;border:2.5px solid var(--pink-border-strong);background:var(--cream);display:grid;place-items:center;flex-shrink:0;font-size:14px;color:var(--white);transition:all .14s}
+.writing-prompt-item.done .wp-check{background:#5FBF8A;border-color:#5FBF8A}
+.wp-text{font-size:14px;font-weight:700;color:var(--mauve);line-height:1.5}
+.writing-prompt-item.done .wp-text{color:var(--mauve-soft);text-decoration:line-through}
+/* listen_and_repeat */
+.listen-items{display:flex;flex-direction:column;gap:8px}
+.listen-item{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:13px 16px;box-shadow:var(--shadow-sm)}
+.listen-phrase{font-size:17px;font-weight:800;color:var(--mauve);margin-bottom:3px}
+.listen-phon{font-size:12px;font-weight:700;color:var(--mauve-soft)}
+.listen-tr{font-size:13px;font-weight:700;color:var(--rose-deep);margin-top:4px}
+/* challenge */
+.challenge-card{background:linear-gradient(160deg,#FFF8DD,#FFF3C0);border:2px solid #E0C060;border-radius:var(--r-xl);padding:20px 18px;box-shadow:var(--shadow-sm)}
+.challenge-star{font-size:32px;margin-bottom:8px}
+.challenge-text{font-size:14px;font-weight:700;color:#6B4E00;line-height:1.6}
+/* mark complete */
+.hw-mark-complete-btn{width:100%;font-family:var(--font);font-weight:900;font-size:16px;border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;background:#5FBF8A;color:var(--white);box-shadow:0 8px 22px rgba(95,191,138,0.3);transition:all .14s;margin-top:8px}
+.hw-mark-complete-btn:hover{background:#4AA876}
+.hw-mark-complete-btn.completed{background:var(--cream);border:2px solid #5FBF8A;color:#3FA06E;box-shadow:none;cursor:default}
+/* homework badge on lesson rows */
+.hw-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:900;background:#FFF8DD;border:1.5px solid #E0C060;border-radius:var(--r-pill);padding:2px 7px;color:#8B6914;margin-left:4px;vertical-align:middle}
+.hw-badge.done{background:#EAF8F0;border-color:#5FBF8A;color:#2A7A4E}
+/* homework history panel */
+.hw-history-panel{position:fixed;inset:0;z-index:90;display:none;flex-direction:column;background:var(--cream)}
+.hw-history-panel.open{display:flex;animation:popIn .22s ease}
+.hw-history-topbar{display:flex;align-items:center;gap:10px;padding:54px 18px 14px;background:var(--white);border-bottom:2px solid var(--pink-border);flex-shrink:0}
+.hw-history-topbar h2{font-size:20px;font-weight:900;flex:1;margin:0}
+.hw-history-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:14px 16px}
+.hw-history-scroll::-webkit-scrollbar{display:none}
+.hw-history-card{background:var(--white);border:2px solid #5FBF8A;border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.hw-hc-lesson{font-size:15px;font-weight:900;color:var(--mauve)}
+.hw-hc-unit{font-size:11.5px;font-weight:700;color:var(--mauve-soft);margin-top:2px}
+.hw-hc-date{font-size:11px;font-weight:800;color:#3FA06E;text-align:right;line-height:1.5}
+
+/* ── GENERATOR SCREEN ── */
+#screenGenerator{position:relative;display:none;flex-direction:column}
+#screenGenerator.active{display:flex}
+.gen-topbar{display:flex;align-items:center;gap:10px;padding:4px 18px 0;position:relative;z-index:1;flex-shrink:0;margin-top:2px}
+.gen-title{flex:1;font-size:18px;font-weight:900;color:var(--rose)}
+.gen-reset-btn{font-family:var(--font);font-weight:800;font-size:12px;border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:7px 12px;cursor:pointer;background:var(--white);color:var(--mauve-soft);transition:all .14s}
+.gen-reset-btn:hover{border-color:var(--pink-border-strong)}
+.gen-mobile-sel{display:none;width:calc(100% - 36px);margin:8px 18px 0;font-family:var(--font);font-size:14px;font-weight:800;color:var(--mauve);background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 13px;flex-shrink:0}
+.gen-layout{display:flex;flex:1;overflow:hidden;position:relative;z-index:1}
+.gen-sidebar{width:190px;flex-shrink:0;border-right:2px solid var(--pink-border);overflow-y:auto;background:var(--white);padding:6px 0}
+.gen-sidebar::-webkit-scrollbar{display:none}
+.gen-level-head{font-size:10px;font-weight:900;color:var(--mauve-soft);text-transform:uppercase;letter-spacing:.08em;padding:12px 14px 4px}
+.gen-unit-btn{width:100%;text-align:left;font-family:var(--font);font-size:12.5px;font-weight:800;color:var(--mauve);background:none;border:none;padding:8px 14px;cursor:pointer;line-height:1.3;display:block}
+.gen-unit-btn:hover{background:#FFF0F5}
+.gen-unit-btn.active{background:#FFE7EE;color:var(--rose)}
+.gen-unit-id{font-size:10px;font-weight:900;color:var(--mauve-soft);display:block}
+.gen-unit-btn.active .gen-unit-id{color:var(--rose)}
+.gen-panel{flex:1;overflow-y:auto;padding:14px 16px;background:var(--cream)}
+.gen-panel::-webkit-scrollbar{display:none}
+.gen-unit-title{font-size:18px;font-weight:900;color:var(--rose-deep);margin-bottom:3px}
+.gen-unit-meta{font-size:12px;font-weight:700;color:var(--mauve-soft);margin-bottom:10px}
+.gen-grammar-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
+.gen-grammar-pill{font-size:11px;font-weight:800;background:var(--pink-border);border-radius:var(--r-pill);padding:3px 9px;color:var(--mauve)}
+.gen-lessons-head{font-size:12px;font-weight:900;color:var(--mauve-soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.gen-lesson-row{display:flex;align-items:center;gap:8px;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:11px 13px;margin-bottom:7px;cursor:pointer;transition:all .14s}
+.gen-lesson-row:hover{border-color:var(--pink-border-strong)}
+.gen-lesson-row.active{border-color:var(--rose);background:#FFF5F7}
+.gen-lesson-num{font-size:11px;font-weight:900;color:var(--mauve-soft);flex-shrink:0;width:20px}
+.gen-lesson-name{flex:1;font-size:13.5px;font-weight:800;color:var(--mauve);line-height:1.3}
+.gen-lesson-badges{display:flex;gap:4px;flex-shrink:0}
+.gen-badge{font-size:10px;font-weight:900;border-radius:var(--r-pill);padding:2px 6px}
+.gen-badge.review{background:#E8F4FF;color:#2F6FA8;border:1.5px solid #B0D4F5}
+.gen-badge.exam{background:#FFF3E0;color:#B06000;border:1.5px solid #FFD580}
+.gen-badge.copied{background:#EAF8F0;color:#2A7A4E;border:1.5px solid #5FBF8A}
+.gen-bottombar{flex-shrink:0;border-top:2px solid var(--pink-border);background:var(--white);padding:12px 16px;padding-bottom:calc(12px + var(--safe-bottom));display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.gen-copy-btn{font-family:var(--font);font-weight:900;font-size:15px;border:none;border-radius:var(--r-pill);padding:13px 20px;cursor:pointer;background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);transition:all .14s;flex-shrink:0;white-space:nowrap}
+.gen-copy-btn:disabled{background:var(--pink-border);color:var(--mauve-soft);box-shadow:none;cursor:default}
+.gen-copy-btn:not(:disabled):hover{background:var(--rose-deep)}
+.gen-status{flex:1;font-size:12px;font-weight:800;color:var(--mauve-soft);line-height:1.4}
+#navGeneratorBtn{display:none}
+@media(max-width:520px){
+  .gen-sidebar{display:none}
+  .gen-mobile-sel{display:block}
+}
+
+/* ── GENERATOR — STATUS BADGES, PROGRESS BARS, REVIEW CARD ── */
+.gen-badge.status-ip{background:#FFF8E1;color:#8B6000;border:1.5px solid #FFD54F}
+.gen-badge.status-done{background:#E8F5E9;color:#2E7D32;border:1.5px solid #81C784}
+.gen-unit-progress{height:3px;background:var(--track);border-radius:99px;margin-top:5px;overflow:hidden}
+.gen-unit-progress-fill{height:100%;border-radius:99px;transition:width .35s}
+.gen-last-practiced{margin-top:14px;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:12px 14px}
+.gen-last-practiced-title{font-size:10.5px;font-weight:900;color:var(--mauve-soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.gen-lp-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px;font-weight:700;color:var(--mauve-soft);border-bottom:1px solid var(--pink-border)}
+.gen-lp-row:last-child{border-bottom:none;padding-bottom:0}
+.gen-lp-val{font-weight:900;color:var(--mauve)}
+.gen-start-btn{font-family:var(--font);font-weight:900;font-size:14px;border:none;border-radius:var(--r-pill);padding:13px 16px;cursor:pointer;background:#5FBF8A;color:var(--white);box-shadow:0 6px 18px rgba(95,191,138,.28);transition:all .14s;flex-shrink:0;white-space:nowrap}
+.gen-start-btn:disabled{background:var(--pink-border);color:var(--mauve-soft);box-shadow:none;cursor:default}
+.gen-start-btn:not(:disabled):hover{background:#4AA876}
+.gen-review-card{background:#FFFBEE;border:2px solid #FFD54F;border-radius:var(--r-md);padding:12px 14px;margin-bottom:14px}
+.gen-review-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;-webkit-user-select:none;user-select:none;gap:8px}
+.gen-review-title{font-size:12.5px;font-weight:900;color:#7A5700}
+.gen-review-toggle{font-size:12px;color:#B08000;flex-shrink:0}
+.gen-review-body{margin-top:10px}
+.gen-review-sub{font-size:11.5px;font-weight:700;color:#8B6914;margin-bottom:8px;line-height:1.4}
+.gen-review-word{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:1px solid #FFE082;font-size:12px}
+.gen-review-word:last-child{border-bottom:none;padding-bottom:0}
+.gen-review-w{font-weight:900;color:var(--mauve);flex:1;min-width:0}
+.gen-review-tr{color:var(--mauve-soft);font-weight:700;flex:1;min-width:0}
+.gen-review-cnt{font-size:10.5px;font-weight:900;color:var(--rose);flex-shrink:0}
+.gen-review-word.clickable{cursor:pointer;border-radius:6px;margin:0 -4px;padding:5px 4px}
+.gen-review-word.clickable:hover{background:#FFF8DC}
+
+/* ── MERGE DIALOG ── */
+.dialog-overlay{
+  position:fixed;inset:0;background:rgba(74,37,53,0.45);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;z-index:80;padding:20px
+}
+.dialog-overlay.open{display:flex}
+.dialog{
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-xl);
+  box-shadow:var(--shadow-lg);width:340px;padding:24px;animation:modalIn .22s ease
+}
+@keyframes modalIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:none}}
+.dialog h3{font-size:18px;font-weight:900;margin-bottom:8px}
+.dialog p{font-size:13px;font-weight:700;color:var(--mauve-soft);margin-bottom:18px;line-height:1.5}
+.dialog-btns{display:flex;flex-direction:column;gap:8px}
+
+/* ── PASSWORD GATE ── */
+#pwGate{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--cream);
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+}
+.pw-card{
+  background:var(--white);border:2px solid var(--pink-border);
+  border-radius:var(--r-xl);box-shadow:var(--shadow-lg);
+  padding:32px 28px;width:100%;max-width:340px;
+  display:flex;flex-direction:column;align-items:center;gap:16px;
+}
+.pw-logo{font-size:40px;line-height:1}
+.pw-title{font-size:22px;font-weight:900;color:var(--mauve)}
+.pw-sub{font-size:13px;font-weight:700;color:var(--mauve-soft)}
+.pw-input{
+  width:100%;font-family:var(--font);font-size:16px;font-weight:700;
+  border:2px solid var(--pink-border);border-radius:var(--r-pill);
+  padding:13px 18px;outline:none;color:var(--mauve);background:var(--cream);
+  text-align:center;
+}
+.pw-input:focus{border-color:var(--rose)}
+.pw-error{font-size:12px;font-weight:800;color:var(--rose);min-height:16px}
+
+/* ── BACKEND STATUS DOT ── */
+.backend-dot-wrap{position:relative;display:flex;align-items:center;flex-shrink:0}
+.backend-dot{width:9px;height:9px;border-radius:50%;background:#ccc;cursor:pointer;display:inline-block;flex-shrink:0;transition:background .2s}
+.backend-dot.online{background:#4CAF50}
+.backend-dot.offline{background:var(--rose)}
+.backend-tooltip{
+  position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--mauve);color:var(--white);
+  font-size:11px;font-weight:700;line-height:1.4;
+  border-radius:var(--r-sm);padding:7px 11px;
+  white-space:nowrap;z-index:500;display:none;
+  box-shadow:var(--shadow-md)
+}
+.backend-tooltip::before{content:'';position:absolute;top:-5px;right:8px;border:5px solid transparent;border-top:none;border-bottom-color:var(--mauve)}
+
+/* ── PROGRESS — BACKEND SECTIONS ── */
+#navProgressBtn{display:none}
+.prog-section{margin-top:20px}
+.prog-section-title{font-size:11.5px;font-weight:900;color:var(--mauve-soft);letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px}
+.prog-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.prog-stat-card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:14px;text-align:center}
+.prog-stat-val{font-size:26px;font-weight:900;color:var(--rose);line-height:1}
+.prog-stat-label{font-size:11px;font-weight:800;color:var(--mauve-soft);margin-top:4px}
+.be-section-sep{height:1px;background:var(--pink-border);margin:20px 0 0}
+.session-tbl{width:100%;border-collapse:collapse;font-size:12px;font-weight:700}
+.session-tbl th{color:var(--mauve-soft);font-weight:900;font-size:11px;padding:5px 4px;text-align:left;border-bottom:2px solid var(--pink-border)}
+.session-tbl td{padding:8px 4px;border-bottom:1px solid var(--pink-border);vertical-align:middle}
+.session-tbl tbody tr{cursor:pointer}
+.session-tbl tbody tr:hover td{background:var(--cream)}
+.level-badge{font-size:10px;font-weight:900;color:var(--white);background:var(--mauve);border-radius:var(--r-pill);padding:2px 6px}
+.weak-word-list{display:flex;flex-direction:column;gap:6px}
+.weak-word-card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:9px 14px;display:flex;align-items:center;gap:10px}
+.ww-word{font-size:14px;font-weight:900;color:var(--mauve);flex:1;min-width:0}
+.ww-trans{font-size:12px;font-weight:700;color:var(--mauve-soft);flex:1;min-width:0}
+.ww-badge{font-size:11px;font-weight:900;color:var(--white);background:var(--rose);border-radius:var(--r-pill);padding:2px 8px;flex-shrink:0}
+.level-prog-row{margin-bottom:10px}
+.level-prog-head{display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:var(--mauve);margin-bottom:4px}
+.level-prog-bar{height:8px;background:var(--track);border-radius:99px;overflow:hidden}
+.level-prog-fill{height:100%;background:var(--rose);border-radius:99px;transition:width .4s}
+.hw-mini-stats{display:flex;gap:20px;font-size:13px;font-weight:800;color:var(--mauve-soft);padding:10px 0;flex-wrap:wrap}
+.hw-mini-stats strong{color:var(--mauve)}
+.be-offline-note{font-size:13px;font-weight:700;color:var(--mauve-soft);padding:16px 0}
+
+/* ── SESSION DETAIL MODAL ── */
+.sdm-overlay{position:fixed;inset:0;background:rgba(74,37,53,.35);z-index:400;display:none;align-items:center;justify-content:center;padding:16px}
+.sdm-overlay.open{display:flex}
+.sdm-box{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-xl);padding:20px;max-height:80vh;overflow-y:auto;width:100%;max-width:400px;box-shadow:var(--shadow-lg)}
+.sdm-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.sdm-title{font-size:16px;font-weight:900;color:var(--mauve)}
+.sdm-close{background:none;border:none;cursor:pointer;font-size:18px;color:var(--mauve-soft);line-height:1;padding:0;flex-shrink:0}
+.sdm-meta{font-size:12px;font-weight:700;color:var(--mauve-soft);margin-bottom:14px}
+.sdm-item{padding:7px 0;border-bottom:1px solid var(--pink-border);display:flex;align-items:flex-start;gap:8px;font-size:12px}
+.sdm-item:last-child{border-bottom:none}
+.sdm-dot{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:10px;font-weight:900;color:var(--white)}
+.sdm-dot.c{background:var(--mint);color:var(--mauve)}
+.sdm-dot.w{background:var(--rose)}
+</style>
+</head>
+<body>
+
+<div id="pwGate">
+  <div class="pw-card">
+    <div class="pw-logo">🎓</div>
+    <div class="pw-title">Teacher App</div>
+    <div class="pw-sub">Enter the teacher password to continue</div>
+    <form id="pwForm" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:10px">
+      <input id="pwInput" class="pw-input" type="password" placeholder="Password" autocomplete="current-password" required>
+      <div id="pwError" class="pw-error"></div>
+      <button type="submit" class="btn-pill" style="margin-top:4px">Unlock ♡</button>
+    </form>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- ══ WELCOME SCREEN ══ -->
+  <div class="screen active" id="screenWelcome">
+    <div class="welcome-box">
+      <div class="welcome-mascot" id="welcomeMascot">♡</div>
+      <div>
+        <div class="welcome-title"><span>Sweet</span>English</div>
+        <div style="font-size:16px;font-weight:800;color:var(--mauve-soft);margin-top:4px">Your cozy English companion ♪</div>
+      </div>
+      <p class="welcome-sub">Learn at your own pace with personalized spaced-repetition lessons from your teacher.</p>
+      <div class="name-row">
+        <label>Your name</label>
+        <input class="name-input" id="studentNameInput" placeholder="e.g. María" autocomplete="off">
+      </div>
+      <div class="import-status" id="importStatus">Tap below to import your curriculum.json from your teacher ♡</div>
+      <button class="btn-pill" id="btnImportCurr">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 21V9m0 0-4 4m4-4 4 4M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>
+        Import Curriculum
+      </button>
+      <button class="btn-pill" id="btnStartApp" style="display:none">
+        Start Learning ♪
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ HOME SCREEN ══ -->
+  <div class="screen" id="screenHome">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="scroll-area" id="homeScrollArea">
+      <div class="m-hello">
+        <div class="av" id="homeAvatar">♡</div>
+        <div class="txt">
+          <h2 id="helloName">Hi there!</h2>
+          <p>Ready for today's lesson?</p>
+        </div>
+        <div class="streak" id="streakBadge">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 2c1 4-2 5-2 8a4 4 0 0 0 8 0c0-1-.5-2-1-3 2 1 3 3 3 6a8 8 0 0 1-16 0c0-5 5-7 8-11z"/></svg>
+          <span id="streakCount">0</span>
+        </div>
+      </div>
+      <div id="homeUnitCard"></div>
+      <div class="home-guide">
+        <div class="guide-mascot mascot-home" id="homeMascot">♡</div>
+        <div class="guide-bubble" id="homeBubble">Let's practice today! Ready when you are ♪</div>
+      </div>
+      <div id="dueBadgeWrap"></div>
+      <button class="btn-pill" id="btnStartPractice">
+        Start Today's Practice
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+      <div class="home-deco">
+        <svg width="26" height="20" viewBox="0 0 34 26" fill="none"><path d="M17 13c-3-5-8-7-11-4s-1 8 4 8c3 0 5-2 7-4z" fill="#fff" stroke="#E8638C" stroke-width="1.6"/><path d="M17 13c3-5 8-7 11-4s1 8-4 8c-3 0-5-2-7-4z" fill="#fff" stroke="#E8638C" stroke-width="1.6"/><circle cx="17" cy="13" r="3.4" fill="#E8638C"/></svg>
+        <span id="streakMotivation">Keep practicing every day ♡</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ EXERCISE SCREEN ══ -->
+  <div class="screen" id="screenExercise">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="ex-topbar">
+      <button class="ex-back" id="btnExBack">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div class="ex-prog-bar"><span id="exProgFill" style="width:0%"></span></div>
+      <div class="ex-hearts" id="exHearts">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 21s-7-4.5-9.5-8.7C.8 8.6 2.3 5.5 5.3 5.5c1.9 0 3 1 3.7 2.1.7-1.1 1.8-2.1 3.7-2.1 3 0 4.5 3.1 2.8 6.8C19 16.5 12 21 12 21z"/></svg>
+        <span id="heartsCount">♡</span>
+      </div>
+    </div>
+    <div class="guide-row">
+      <div class="guide-mascot mascot-guide" id="exMascot">♡</div>
+      <div class="bubble" id="exBubble">You've got this! ♪</div>
+    </div>
+    <div class="scroll-area" id="exScrollArea">
+      <div class="ex-card" id="exCard">
+        <div class="ex-card-head">
+          <div class="ex-type-chip" id="exTypeChip"></div>
+          <div class="q-count" id="exQCount"></div>
+        </div>
+        <div id="exBody"></div>
+      </div>
+      <div class="feedback-bar" id="feedbackBar"></div>
+      <div class="hint-text" id="hintText"></div>
+      <button class="continue-btn" id="continueBtn">Continue ♪</button>
+    </div>
+  </div>
+
+  <!-- ══ LESSONS SCREEN ══ -->
+  <div class="screen" id="screenLessons">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="scroll-area">
+      <div class="screen-head" style="display:flex;align-items:center;justify-content:space-between">
+        Lessons
+        <div style="display:flex;gap:6px">
+          <button class="history-btn" id="btnOpenHwHistory">📚 HW</button>
+          <button class="history-btn" id="btnOpenHistory">📋 History</button>
+        </div>
+      </div>
+      <div id="lessonsList"></div>
+    </div>
+  </div>
+
+  <!-- ══ FLASHCARDS SCREEN ══ -->
+  <div class="screen" id="screenFlashcards">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="scroll-area">
+      <div class="screen-head">Flashcards</div>
+      <div class="fc-unit-filter" id="fcFilter"></div>
+      <button class="study-all-btn" id="btnStudyAll">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Study All Flashcards
+      </button>
+      <div class="fc-grid" id="fcGrid"></div>
+    </div>
+  </div>
+
+  <!-- ══ PROGRESS SCREEN ══ -->
+  <div class="screen" id="screenProgress">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="scroll-area">
+      <div class="screen-head">My Progress</div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="section-title">Accuracy by Unit</div>
+      <div class="unit-bars" id="unitBars"></div>
+      <div class="section-title">Practice History (last 28 days)</div>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="heatmap-legend">
+        <span>Less</span>
+        <div class="hl-cell" style="background:var(--pink-border)"></div>
+        <div class="hl-cell" style="background:var(--track)"></div>
+        <div class="hl-cell" style="background:#F48FAD"></div>
+        <div class="hl-cell" style="background:var(--rose)"></div>
+        <span>More</span>
+      </div>
+      <button class="export-prog-btn" id="btnExportProgress">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        Export progress.json
+      </button>
+
+      <!-- ── BACKEND STATS (populated by renderBackendProgress) ── -->
+      <div id="backendProgressSection">
+        <div class="be-section-sep"></div>
+
+        <div class="prog-section">
+          <div class="prog-section-title">Session Stats</div>
+          <div class="prog-stat-grid">
+            <div class="prog-stat-card"><div class="prog-stat-val" id="beSessions">—</div><div class="prog-stat-label">Total sessions</div></div>
+            <div class="prog-stat-card"><div class="prog-stat-val" id="beMinutes">—</div><div class="prog-stat-label">Minutes practiced</div></div>
+            <div class="prog-stat-card"><div class="prog-stat-val" id="beCompleted">—</div><div class="prog-stat-label">Lessons completed</div></div>
+            <div class="prog-stat-card"><div class="prog-stat-val" id="beLevel">—</div><div class="prog-stat-label">Current level</div></div>
+          </div>
+        </div>
+
+        <div class="prog-section">
+          <div class="prog-section-title">Recent Sessions</div>
+          <div id="beRecentSessions"></div>
+        </div>
+
+        <div class="prog-section">
+          <div class="prog-section-title">Words to Review</div>
+          <div class="weak-word-list" id="beWeakWords"></div>
+        </div>
+
+        <div class="prog-section">
+          <div class="prog-section-title">Syllabus Progress</div>
+          <div id="beSyllabusProgress"></div>
+        </div>
+
+        <div class="prog-section">
+          <div class="hw-mini-stats">
+            Homework assigned: <strong id="beHwAssigned">—</strong>
+            &nbsp;·&nbsp; Completed: <strong id="beHwCompleted">—</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ GUIDED SESSION SCREEN ══ -->
+  <div class="screen" id="screenGuided">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="guided-topbar">
+      <button class="ex-back" id="btnGuidedBack">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div id="guidedLessonTitle" style="font-size:13px;font-weight:900;color:var(--mauve);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+      </div>
+      <span class="guided-timer" id="guidedTimer">00:00</span>
+      <div class="backend-dot-wrap">
+        <span class="backend-dot" id="backendDot" title="Backend status"></span>
+        <div class="backend-tooltip" id="backendTooltip">Checking backend…</div>
+      </div>
+      <div class="view-toggle">
+        <button class="vtb active-teacher" id="btnViewTeacher">👨‍🏫 Teacher</button>
+        <button class="vtb" id="btnViewStudent">👩‍🎓 Student</button>
+      </div>
+    </div>
+    <div class="phase-progress" id="guidedPhaseProgress"></div>
+    <div class="scroll-area" id="guidedScrollArea">
+      <div id="guidedContent"></div>
+    </div>
+  </div>
+
+  <!-- ══ HOMEWORK SCREEN ══ -->
+  <div class="screen" id="screenHomework">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="hw-topbar">
+      <button class="ex-back" id="btnHwBack">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div class="hw-title">
+        <div class="hw-lesson-name" id="hwLessonName"></div>
+        <div class="hw-heading">Homework</div>
+      </div>
+      <span class="hw-time-chip" id="hwTimeChip"></span>
+    </div>
+    <div class="scroll-area" id="hwScrollArea">
+      <div id="hwContent"></div>
+    </div>
+  </div>
+
+  <!-- ══ GENERATOR SCREEN ══ -->
+  <div class="screen" id="screenGenerator">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="gen-topbar">
+      <button class="ex-back" id="btnGenBack">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div class="gen-title">🎓 Lesson Generator</div>
+      <button class="gen-reset-btn" id="btnGenReset">⚙ Reset marks</button>
+    </div>
+    <select class="gen-mobile-sel" id="genMobileSel"><option value="">— Select a unit —</option></select>
+    <div class="gen-layout">
+      <div class="gen-sidebar" id="genSidebar"></div>
+      <div class="gen-panel" id="genPanel"><div style="text-align:center;padding:40px 20px;color:var(--mauve-soft);font-weight:800;font-size:14px">Select a unit to get started ♡</div></div>
+    </div>
+    <div class="gen-bottombar">
+      <button class="gen-copy-btn" id="btnGenCopy" disabled>📋 Copy prompt</button>
+      <button class="gen-start-btn" id="btnGenStart" disabled>▶ Start</button>
+      <div class="gen-status" id="genStatus">Select a lesson to generate its prompt</div>
+    </div>
+  </div>
+
+  <!-- ══ BOTTOM NAV ══ -->
+  <nav class="tabbar" id="tabbar" style="display:none">
+    <button class="nav-item active" data-screen="screenHome">
+      <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 11l9-7 9 7M5 10v9h14v-9"/></svg></div>
+      Home
+    </button>
+    <button class="nav-item" data-screen="screenLessons">
+      <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 5h16M4 12h16M4 19h10"/></svg></div>
+      Lessons
+    </button>
+    <button class="nav-item" data-screen="screenFlashcards">
+      <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="6" width="13" height="11" rx="2"/><path d="M7 17l5 3 9-4V8l-3 1.2"/></svg></div>
+      Flashcards
+    </button>
+    <button class="nav-item" id="navProgressBtn" data-screen="screenProgress">
+      <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 19V9M10 19V4M16 19v-7M22 19H2"/></svg></div>
+      Progress
+    </button>
+    <button class="nav-item" id="navGeneratorBtn" data-screen="screenGenerator">
+      <div class="ni-pill" style="font-size:20px;line-height:1">🎓</div>
+      Generator
+    </button>
+  </nav>
+
+</div><!-- #app -->
+
+<!-- ══ CELEBRATION OVERLAY ══ -->
+<div id="celebrate">
+  <div id="confetti"></div>
+  <div class="celebrate-mascot mascot-correct" id="celebrateMascot">🎉</div>
+  <div class="celebrate-title" id="celebrateTitle">Correct! ♡</div>
+  <div class="celebrate-sub" id="celebrateSub"></div>
+  <div class="celebrate-xp" id="celebrateXP">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 2l2.6 6.6L21 9.3l-5 4.3 1.6 6.7L12 16.9 6.4 20.3 8 13.6l-5-4.3 6.4-.7z"/></svg>
+    +10 XP earned!
+  </div>
+  <button class="celebrate-btn" id="celebrateBtn">Continue ♪</button>
+</div>
+
+<!-- ══ MERGE DIALOG ══ -->
+<div class="dialog-overlay" id="mergeDialog">
+  <div class="dialog">
+    <h3>Curriculum already loaded</h3>
+    <p>Do you want to replace everything, or merge and keep your progress for existing exercises?</p>
+    <div class="dialog-btns">
+      <button class="btn-pill" id="btnMerge" style="font-size:14px;padding:12px">Merge — keep my progress</button>
+      <button class="btn-ghost" id="btnReplace" style="justify-content:center;width:100%">Replace all</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HOMEWORK HISTORY PANEL ══ -->
+<div class="hw-history-panel" id="hwHistoryPanel">
+  <div class="hw-history-topbar">
+    <h2>Homework History</h2>
+    <button class="history-close" id="btnCloseHwHistory">✕</button>
+  </div>
+  <div class="hw-history-scroll" id="hwHistoryScroll"></div>
+</div>
+
+<!-- ══ HISTORY PANEL ══ -->
+<div class="history-panel" id="historyPanel">
+  <div class="history-topbar">
+    <h2>Session History</h2>
+    <button class="history-close" id="btnCloseHistory">✕</button>
+  </div>
+  <div class="history-scroll" id="historyScroll"></div>
+</div>
+
+<!-- ══ MODE CHOICE DIALOG ══ -->
+<div class="dialog-overlay" id="modeDialog">
+  <div class="dialog">
+    <h3>Choose mode</h3>
+    <p>This lesson supports both solo practice and guided session with a teacher.</p>
+    <div class="dialog-btns">
+      <button class="btn-pill" id="btnModeGuided" style="font-size:14px;padding:12px">👨‍🏫 Guided Session</button>
+      <button class="btn-ghost" id="btnModeSolo" style="justify-content:center;width:100%">📖 Solo Practice</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SESSION DETAIL MODAL ══ -->
+<div class="sdm-overlay" id="sdmOverlay">
+  <div class="sdm-box">
+    <div class="sdm-header">
+      <div class="sdm-title" id="sdmTitle"></div>
+      <button class="sdm-close" id="btnCloseSdm">✕</button>
+    </div>
+    <div class="sdm-meta" id="sdmMeta"></div>
+    <div id="sdmItems"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="fileInput" accept=".json" style="display:none">
+
+<script>
+'use strict';
+
+const TEACHER_PASSWORD = 'teacher123';
+const BACKEND_URL = 'http://localhost:8000';
+
+// ── PASSWORD GATE ──
+(function() {
+  if (sessionStorage.getItem('teacher_auth') === 'true') return;
+  const gate = document.getElementById('pwGate');
+  const app  = document.getElementById('app');
+  gate.style.display = 'flex';
+  app.style.display  = 'none';
+  document.getElementById('pwForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const val = document.getElementById('pwInput').value;
+    if (val === TEACHER_PASSWORD) {
+      sessionStorage.setItem('teacher_auth', 'true');
+      gate.style.display = 'none';
+      app.style.display  = 'flex';
+    } else {
+      document.getElementById('pwError').textContent = 'Incorrect password. Try again.';
+      document.getElementById('pwInput').value = '';
+      document.getElementById('pwInput').focus();
+    }
+  });
+})();
+
+// ══════════════════════════════════════
+//  SERVICE WORKER
+// ══════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+
+// ══════════════════════════════════════
+//  STORAGE KEYS
+// ══════════════════════════════════════
+const LS = {
+  curriculum: 'elm_curriculum',
+  studentName: 'elm_student_name',
+  progress: 'elm_progress',
+  streak: 'elm_streak',
+  stats: 'elm_stats',
+  practiceLog: 'elm_practice_log'
+};
+
+function store(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
+function load(key, fallback) {
+  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : fallback; } catch(e) { return fallback; }
+}
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
+let curriculum = load(LS.curriculum, null);
+let studentName = load(LS.studentName, '');
+let progress = load(LS.progress, {});
+let streak = load(LS.streak, { current: 0, last_date: null });
+let stats = load(LS.stats, { total_done: 0, total_correct: 0, xp: 0 });
+let practiceLog = load(LS.practiceLog, {}); // { 'YYYY-MM-DD': count }
+let homeworkHistory = load('homework_history', []);
+let isTeacher = load('is_teacher', false);
+let genSelectedUnit = null;
+let genSelectedLesson = null;
+let genCopiedLessons = load('generator_copied_lessons', []);
+let genLessonStatuses = null;   // null = not fetched yet; [] = fetched, no data
+let genWeakWords = null;        // same sentinel pattern
+let genReviewExpanded = true;   // collapsed state of the review card
+let teacherTapCount = 0;
+let teacherTapTimer = null;
+
+let SYLLABUS = null;
+
+let currentSessionId = null;   // backend session id for current guided session
+let currentHomeworkId = null;  // backend homework id for current homework
+let backendOnline = false;
+
+let currentScreen = 'screenWelcome';
+let session = null; // { queue, idx, lessonId, mode }
+let pendingImport = null; // parsed JSON waiting for merge decision
+let fcFilterUnit = 'all';
+
+// ══════════════════════════════════════
+//  FSRS ALGORITHM
+// ══════════════════════════════════════
+const FSRS = {
+  S0: { 1: 0.4, 2: 1.18, 3: 3.13, 4: 15.47 },
+  D0: { 1: 7.2, 2: 6.1, 3: 5.0, 4: 3.9 },
+
+  schedule(card, rating) {
+    const now = new Date();
+    let { stability: s, difficulty: d, reps, lapses, state, last_review } = { ...card };
+    s = s || 0.1; d = d || 5; reps = reps || 0; lapses = lapses || 0;
+    const elapsed = last_review ? Math.max(0, (now - new Date(last_review)) / 86400000) : 0;
+
+    if (!reps || state === 'new') {
+      s = this.S0[rating] || 3;
+      d = this.D0[rating] || 5;
+      state = rating === 1 ? 'learning' : 'review';
+      reps = 1; lapses = 0;
+    } else {
+      const r = Math.exp(Math.log(0.9) * elapsed / s);
+      if (rating === 1) {
+        s = Math.max(0.1, 0.3 * Math.pow(d, -0.15) * (Math.pow(s + 1, 0.22) - 1) * Math.exp(0.28 * (1 - r)));
+        lapses++; state = 'relearning';
+      } else {
+        const hm = rating === 2 ? 0.8 : 1;
+        const eb = rating === 4 ? 1.3 : 1;
+        s = Math.max(0.1, s * (1 + Math.exp(0.9) * (11 - d) * Math.pow(s, -0.2) * (Math.exp(0.1 * (1 - r)) - 1) * hm * eb));
+        state = 'review';
+      }
+      d = Math.min(10, Math.max(1, d - 0.206 * (rating - 3) * 0.1 * (10 - d)));
+      reps++;
+    }
+
+    const scheduledDays = Math.max(1, Math.round(s * 9));
+    return {
+      ...card, stability: s, difficulty: d, reps, lapses, state,
+      scheduled_days: scheduledDays, elapsed_days: elapsed,
+      due: new Date(now.getTime() + scheduledDays * 86400000).toISOString(),
+      last_review: now.toISOString()
+    };
+  },
+
+  isDue(card) {
+    if (!card || !card.reps || card.state === 'new') return true;
+    return !card.due || new Date(card.due) <= new Date();
+  },
+
+  newCard(exId) {
+    return {
+      exercise_id: exId, due: new Date().toISOString(),
+      stability: 0, difficulty: 5, elapsed_days: 0, scheduled_days: 0,
+      reps: 0, lapses: 0, state: 'new', last_review: null, correct: 0, incorrect: 0
+    };
+  }
+};
+
+// ══════════════════════════════════════
+//  BACKEND API
+// ══════════════════════════════════════
+async function apiPost(path, body) {
+  try {
+    const res = await fetch(`${BACKEND_URL}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) return await res.json();
+  } catch(e) { console.warn('[API POST]', path, e); }
+  return null;
+}
+
+async function apiGet(path) {
+  try {
+    const res = await fetch(`${BACKEND_URL}${path}`);
+    if (res.ok) return await res.json();
+  } catch(e) { console.warn('[API GET]', path, e); }
+  return null;
+}
+
+async function apiPatch(path, body) {
+  try {
+    const res = await fetch(`${BACKEND_URL}${path}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) return await res.json();
+  } catch(e) { console.warn('[API PATCH]', path, e); }
+  return null;
+}
+
+function updateBackendDot() {
+  const dot = document.getElementById('backendDot');
+  const tip = document.getElementById('backendTooltip');
+  if (!dot) return;
+  dot.className = 'backend-dot ' + (backendOnline ? 'online' : 'offline');
+  if (tip) tip.textContent = backendOnline
+    ? `Backend connected · ${BACKEND_URL}`
+    : `Backend offline · Run: uvicorn main:app --reload`;
+}
+
+function checkBackendStatus() {
+  fetch(`${BACKEND_URL}/progress`, { signal: AbortSignal.timeout(3000) })
+    .then(r => { backendOnline = r.ok; updateBackendDot(); })
+    .catch(() => { backendOnline = false; updateBackendDot(); });
+}
+
+// ══════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function getAllExercises() {
+  if (!curriculum) return [];
+  return curriculum.units.flatMap(u => u.lessons.flatMap(l => (l.exercises || []).map(e => ({ ...e, _unit: u, _lesson: l }))));
+}
+
+function getExerciseProgress(exId) {
+  return progress[exId] || null;
+}
+
+function today() { return new Date().toISOString().slice(0, 10); }
+
+function updateStreak() {
+  if (typeof streak !== 'object' || streak === null) streak = { current: 0, last_date: null };
+  const t = today();
+  if (streak.last_date === t) return;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (streak.last_date === yesterday) {
+    streak.current++;
+  } else if (streak.last_date !== t) {
+    streak.current = 1;
+  }
+  streak.last_date = t;
+  store(LS.streak, streak);
+
+  practiceLog[t] = (practiceLog[t] || 0) + 1;
+  store(LS.practiceLog, practiceLog);
+}
+
+function countDueToday() {
+  if (!curriculum) return 0;
+  return getAllExercises().filter(ex => FSRS.isDue(progress[ex.id])).length;
+}
+
+function lessonCompletion(lesson) {
+  if (!lesson.exercises || !lesson.exercises.length) return 0;
+  const done = lesson.exercises.filter(ex => {
+    const c = progress[ex.id];
+    return c && c.reps > 0;
+  }).length;
+  return Math.round(100 * done / lesson.exercises.length);
+}
+
+function typeLabel(t) {
+  const m = { multiple_choice:'Multiple Choice', fill_blank:'Fill Blank',
+    translation_es_en:'ES → EN', translation_en_es:'EN → ES',
+    word_order:'Word Order', flashcard:'Flashcard' };
+  return m[t] || t;
+}
+
+function typeIcon(t) {
+  if (t === 'multiple_choice') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="6" cy="7" r="2"/><circle cx="6" cy="17" r="2"/><path d="M11 7h9M11 17h9"/></svg>';
+  if (t === 'fill_blank') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 7h16M4 12h7M15 12h5M4 17h16"/></svg>';
+  if (t === 'word_order') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><rect x="3" y="8" width="6" height="8" rx="1.5"/><rect x="11" y="8" width="6" height="8" rx="1.5"/></svg>';
+  if (t === 'flashcard') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><rect x="3" y="6" width="13" height="11" rx="2"/></svg>';
+  return '⇄';
+}
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ══════════════════════════════════════
+//  ROUTER
+// ══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  currentScreen = id;
+
+  const showNav = id !== 'screenWelcome' && id !== 'screenExercise' && id !== 'screenGuided' && id !== 'screenHomework' && id !== 'screenGenerator';
+  document.getElementById('tabbar').style.display = showNav ? 'flex' : 'none';
+
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.dataset.screen === id);
+  });
+
+  if (id === 'screenHome') renderHome();
+  else if (id === 'screenLessons') renderLessons();
+  else if (id === 'screenFlashcards') renderFlashcards();
+  else if (id === 'screenProgress') renderProgress();
+  else if (id === 'screenGenerator') {
+    genLessonStatuses = null; // reset cache on each screen open
+    genWeakWords = null;
+    renderGenerator();
+  }
+}
+
+// ══════════════════════════════════════
+//  HOME SCREEN
+// ══════════════════════════════════════
+function renderHome() {
+  document.getElementById('helloName').textContent = `Hi, ${studentName || 'there'}!`;
+  document.getElementById('streakCount').textContent = streak.current || 0;
+
+  const due = countDueToday();
+  const dueBadge = document.getElementById('dueBadgeWrap');
+  if (due > 0) {
+    dueBadge.innerHTML = `<div class="due-badge"><svg width="14" height="14" viewBox="0 0 24 24" fill="#D24A75"><path d="M12 2l2.6 6.6L21 9.3l-5 4.3 1.6 6.7L12 16.9 6.4 20.3 8 13.6l-5-4.3 6.4-.7z"/></svg>${due} exercise${due === 1 ? '' : 's'} due today</div>`;
+  } else {
+    dueBadge.innerHTML = '';
+  }
+
+  document.getElementById('streakMotivation').textContent =
+    streak.current > 1 ? `Keep your ${streak.current}-day streak alive ♡` : 'Start your streak today! ♡';
+
+  const bubbles = [
+    'Ready to practice? ♪', "Let's learn something new today! ♡",
+    'You can do it! ¡Tú puedes! ♪', 'Every lesson makes you stronger ♡',
+    'Great things take practice ♪'
+  ];
+  document.getElementById('homeBubble').textContent = bubbles[Math.floor(Math.random() * bubbles.length)];
+
+  // Unit card
+  const unitCardEl = document.getElementById('homeUnitCard');
+  if (!curriculum || !curriculum.units.length) {
+    unitCardEl.innerHTML = '<div class="card" style="padding:18px;text-align:center;color:var(--mauve-soft);font-weight:800;font-size:14px">No curriculum loaded ♡<br>Go to your teacher for the curriculum.json</div>';
+    return;
+  }
+
+  // Find the first unit/lesson with incomplete exercises
+  let currentUnit = null, currentLesson = null;
+  outer: for (const u of curriculum.units) {
+    for (const l of u.lessons) {
+      const pct = lessonCompletion(l);
+      if (pct < 100) { currentUnit = u; currentLesson = l; break outer; }
+    }
+  }
+  if (!currentUnit) { currentUnit = curriculum.units[0]; currentLesson = curriculum.units[0].lessons?.[0]; }
+  if (!currentUnit || !currentLesson) { unitCardEl.innerHTML = ''; return; }
+
+  const u = currentUnit;
+  const completedLessons = u.lessons.filter(l => lessonCompletion(l) === 100).length;
+  const totalLessons = u.lessons.length;
+  const unitPct = totalLessons ? Math.round(100 * completedLessons / totalLessons) : 0;
+
+  const dotsHtml = u.lessons.slice(0, 5).map((l, i) => {
+    const pct = lessonCompletion(l);
+    const cls = pct === 100 ? 'done' : (l.id === currentLesson.id ? 'now' : (i <= completedLessons ? '' : 'lock'));
+    const linkCls = i < completedLessons ? 'done' : '';
+    return `<span class="node ${cls}">${pct === 100 ? '✓' : (i + 1)}</span>${i < u.lessons.slice(0, 5).length - 1 ? `<span class="link ${linkCls}"></span>` : ''}`;
+  }).join('');
+
+  unitCardEl.innerHTML = `
+    <div class="unit-card">
+      <div class="ribbon">${esc(u.level)}</div>
+      <div class="u-label">CURRENT UNIT</div>
+      <div class="u-title">${esc(u.title)}</div>
+      <div class="u-row"><span class="lab">Unit progress</span><span class="val">${completedLessons} / ${totalLessons} lessons</span></div>
+      <div class="bar"><span style="width:${unitPct}%"></span></div>
+      <div class="dots-row">${dotsHtml}</div>
+      <div class="u-foot">
+        <span class="pill-chip">♡ ${stats.xp || 0} XP total</span>
+        <span class="pill-chip">${due} due today</span>
+      </div>
+    </div>`;
+
+  // Update start button
+  const btn = document.getElementById('btnStartPractice');
+  const lessonPct = lessonCompletion(currentLesson);
+  btn.innerHTML = `${lessonPct > 0 ? 'Continue' : 'Start'} — ${esc(currentLesson.title)} <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+  btn.onclick = () => handleLessonClick(u.id, currentLesson.id);
+}
+
+// ══════════════════════════════════════
+//  LESSONS SCREEN
+// ══════════════════════════════════════
+function renderLessons() {
+  const el = document.getElementById('lessonsList');
+  if (!curriculum) { el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mauve-soft);font-weight:800">No curriculum loaded</div>'; return; }
+
+  let prevLessonCompleted = true;
+  el.innerHTML = curriculum.units.map(u => {
+    const badgeCls = u.level === 'A2' ? 'a2' : (u.level.startsWith('B') ? 'b1' : '');
+    const lessonsHtml = (u.lessons || []).map(l => {
+      const pct = lessonCompletion(l);
+      const locked = false; // could enforce sequencing
+      const exCount = (l.exercises || []).length;
+      const lMode = l.mode || 'solo';
+      const modeTag = lMode === 'guided' ? ' <span style="font-size:10px;background:var(--mauve);color:var(--white);border-radius:99px;padding:2px 7px;margin-left:4px">guided</span>'
+        : lMode === 'both' ? ' <span style="font-size:10px;background:var(--rose);color:var(--white);border-radius:99px;padding:2px 7px;margin-left:4px">guided+solo</span>' : '';
+      const metaText = lMode === 'guided' ? 'Guided session' : `${exCount} exercise${exCount === 1 ? '' : 's'}`;
+      const hwDone = l.homework && isHomeworkDone(l.id);
+      const hwTag = l.homework ? ` <span class="hw-badge${hwDone ? ' done' : ''}">${hwDone ? '✅' : '📚'}</span>` : '';
+      const html = `
+        <div class="lesson-row${locked ? ' locked' : ''}" data-unit="${u.id}" data-lesson="${l.id}">
+          <div class="l-icon">${pct === 100 ? '✓' : (lMode === 'guided' ? '👨‍🏫' : '📖')}</div>
+          <div class="l-body">
+            <div class="l-title">${esc(l.title)}${modeTag}${hwTag}</div>
+            <div class="l-meta">${metaText}</div>
+            <div class="l-prog"><span style="width:${pct}%"></span></div>
+          </div>
+          <div class="l-pct">${pct}%</div>
+        </div>`;
+      prevLessonCompleted = pct === 100;
+      return html;
+    }).join('');
+    return `
+      <div class="unit-section">
+        <div class="unit-section-head">
+          <span class="unit-badge ${badgeCls}">${esc(u.level)}</span>
+          <span class="unit-name">${esc(u.title)}</span>
+        </div>
+        ${lessonsHtml}
+      </div>`;
+  }).join('');
+
+  el.querySelectorAll('.lesson-row:not(.locked)').forEach(row => {
+    row.addEventListener('click', () => handleLessonClick(row.dataset.unit, row.dataset.lesson));
+  });
+}
+
+// ══════════════════════════════════════
+//  FLASHCARDS SCREEN
+// ══════════════════════════════════════
+function renderFlashcards() {
+  if (!curriculum) {
+    document.getElementById('fcGrid').innerHTML = '<div style="text-align:center;padding:40px;color:var(--mauve-soft);font-weight:800">No curriculum loaded</div>';
+    return;
+  }
+
+  // Build filter chips
+  const filterEl = document.getElementById('fcFilter');
+  filterEl.innerHTML = `<button class="filter-chip${fcFilterUnit === 'all' ? ' active' : ''}" data-fc-unit="all">All</button>` +
+    curriculum.units.map(u => `<button class="filter-chip${fcFilterUnit === u.id ? ' active' : ''}" data-fc-unit="${u.id}">${esc(u.level)} · ${esc(u.title)}</button>`).join('');
+  filterEl.querySelectorAll('.filter-chip').forEach(btn => {
+    btn.addEventListener('click', () => { fcFilterUnit = btn.dataset.fcUnit; renderFlashcards(); });
+  });
+
+  // Gather flashcards
+  const flashcards = [];
+  curriculum.units.forEach(u => {
+    if (fcFilterUnit !== 'all' && u.id !== fcFilterUnit) return;
+    u.lessons.forEach(l => {
+      (l.exercises || []).filter(e => e.type === 'flashcard').forEach(e => {
+        flashcards.push({ ...e, _unit: u, _lesson: l });
+      });
+    });
+  });
+
+  const grid = document.getElementById('fcGrid');
+  if (!flashcards.length) {
+    grid.innerHTML = '<div style="text-align:center;padding:30px;color:var(--mauve-soft);font-weight:800">No flashcards in this unit ♡</div>';
+    return;
+  }
+
+  grid.innerHTML = flashcards.map(fc => `
+    <div class="fc-card-item" data-fc-id="${fc.id}">
+      <div class="fc-front-row">
+        <div>
+          <div class="fc-word">${esc(fc.front)}</div>
+          ${fc.phonetic ? `<div class="fc-phon">${esc(fc.phonetic)}</div>` : ''}
+        </div>
+        <div class="fc-flip-hint">↻ tap</div>
+      </div>
+      <div class="fc-back-row">
+        <div class="fc-translation">${esc(fc.back)}</div>
+        ${fc.example_sentence ? `<div class="fc-ex">"${esc(fc.example_sentence)}"</div>` : ''}
+      </div>
+    </div>`).join('');
+
+  grid.querySelectorAll('.fc-card-item').forEach(card => {
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+  });
+}
+
+// ══════════════════════════════════════
+//  PROGRESS SCREEN
+// ══════════════════════════════════════
+function renderProgress() {
+  const all = getAllExercises();
+  const done = all.filter(e => progress[e.id] && progress[e.id].reps > 0).length;
+  const totalAttempts = Object.values(progress).reduce((t, c) => t + (c.correct || 0) + (c.incorrect || 0), 0);
+  const totalCorrect = Object.values(progress).reduce((t, c) => t + (c.correct || 0), 0);
+  const acc = totalAttempts > 0 ? Math.round(100 * totalCorrect / totalAttempts) : 0;
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-tile"><div class="stv">${done}</div><div class="stl">Exercises done</div></div>
+    <div class="stat-tile"><div class="stv">${acc}%</div><div class="stl">Accuracy</div></div>
+    <div class="stat-tile"><div class="stv">${streak.current || 0}</div><div class="stl">Day streak</div></div>`;
+
+  // Per-unit accuracy bars
+  const ubEl = document.getElementById('unitBars');
+  if (curriculum) {
+    ubEl.innerHTML = curriculum.units.map(u => {
+      const exs = u.lessons.flatMap(l => l.exercises || []);
+      const ua = exs.reduce((t, e) => t + (progress[e.id]?.correct || 0), 0);
+      const ut = exs.reduce((t, e) => t + (progress[e.id]?.correct || 0) + (progress[e.id]?.incorrect || 0), 0);
+      const pct = ut > 0 ? Math.round(100 * ua / ut) : 0;
+      return `
+        <div class="unit-bar-row">
+          <div class="ubr-head"><span>${esc(u.level)} · ${esc(u.title)}</span><span class="ubr-pct">${pct}%</span></div>
+          <div class="bar" style="height:10px"><span style="width:${pct}%"></span></div>
+        </div>`;
+    }).join('');
+  } else {
+    ubEl.innerHTML = '<div style="color:var(--mauve-soft);font-weight:700;font-size:14px">No data yet</div>';
+  }
+
+  // Heatmap (28 days)
+  const heatEl = document.getElementById('heatmap');
+  const cells = [];
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    const count = practiceLog[d] || 0;
+    const level = count === 0 ? '' : count < 3 ? 'l1' : count < 6 ? 'l2' : count < 10 ? 'l3' : 'l4';
+    cells.push(`<div class="heat-cell ${level}" title="${d}: ${count} exercises"></div>`);
+  }
+  heatEl.innerHTML = cells.join('');
+
+  renderBackendProgress();
+}
+
+async function renderBackendProgress() {
+  const section = document.getElementById('backendProgressSection');
+  if (!backendOnline) {
+    section.style.opacity = '0.4';
+    document.getElementById('beSessions').textContent = '—';
+    document.getElementById('beMinutes').textContent = '—';
+    document.getElementById('beCompleted').textContent = '—';
+    document.getElementById('beLevel').textContent = '—';
+    document.getElementById('beRecentSessions').innerHTML =
+      '<div class="be-offline-note">⚠ Backend offline — run <code>uvicorn main:app --reload</code></div>';
+    document.getElementById('beWeakWords').innerHTML = '';
+    document.getElementById('beSyllabusProgress').innerHTML = '';
+    document.getElementById('beHwAssigned').textContent = '—';
+    document.getElementById('beHwCompleted').textContent = '—';
+    return;
+  }
+  section.style.opacity = '1';
+
+  // Fetch all data in parallel
+  const [prog, weakWords, sessions, lessonStatuses] = await Promise.all([
+    apiGet('/progress'),
+    apiGet('/weak_words?limit=10'),
+    apiGet('/sessions?limit=5'),
+    apiGet('/lessons_status')
+  ]);
+
+  // ── Summary cards ──
+  if (prog) {
+    document.getElementById('beSessions').textContent  = prog.total_sessions;
+    document.getElementById('beMinutes').textContent   = prog.total_minutes;
+    document.getElementById('beCompleted').textContent = prog.lessons_completed;
+    document.getElementById('beLevel').textContent     = prog.current_level || '—';
+  }
+
+  // ── Homework mini-stats ──
+  document.getElementById('beHwAssigned').textContent  = homeworkHistory.length;
+  document.getElementById('beHwCompleted').textContent = homeworkHistory.filter(r => r.completed_at).length;
+
+  // ── Recent sessions table ──
+  const sessEl = document.getElementById('beRecentSessions');
+  if (sessions && sessions.length) {
+    const rows = sessions.map(s => {
+      const dt = new Date(s.started_at);
+      const dateStr = dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      const dur = s.duration_secs != null ? `${Math.floor(s.duration_secs / 60)}m` : '—';
+      return `<tr data-sid="${s.id}">
+        <td>${esc(dateStr)}</td>
+        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.lesson_title)}</td>
+        <td><span class="level-badge">${esc(s.level)}</span></td>
+        <td>${esc(dur)}</td>
+      </tr>`;
+    }).join('');
+    sessEl.innerHTML = `<table class="session-tbl">
+      <thead><tr><th>Date</th><th>Lesson</th><th>Level</th><th>Dur.</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+    sessEl.querySelectorAll('tr[data-sid]').forEach(row => {
+      row.addEventListener('click', () => openSessionDetail(+row.dataset.sid));
+    });
+  } else {
+    sessEl.innerHTML = '<div class="be-offline-note">No sessions recorded yet</div>';
+  }
+
+  // ── Weak words ──
+  const wwEl = document.getElementById('beWeakWords');
+  if (weakWords && weakWords.length) {
+    wwEl.innerHTML = weakWords.map(w => `
+      <div class="weak-word-card">
+        <div class="ww-word">${esc(w.word)}</div>
+        <div class="ww-trans">${esc(w.translation || '')}</div>
+        <div class="ww-badge">✗ ${w.wrong_count}</div>
+      </div>`).join('');
+  } else {
+    wwEl.innerHTML = '<div class="be-offline-note">No weak words yet ♡</div>';
+  }
+
+  // ── Syllabus progress by level ──
+  const spEl = document.getElementById('beSyllabusProgress');
+  if (lessonStatuses && lessonStatuses.length) {
+    const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1'];
+    const totals = {}, dones = {};
+    LEVELS.forEach(lv => { totals[lv] = 0; dones[lv] = 0; });
+    lessonStatuses.forEach(ls => {
+      if (totals[ls.level] !== undefined) {
+        totals[ls.level]++;
+        if (ls.status === 'completed') dones[ls.level]++;
+      }
+    });
+    spEl.innerHTML = LEVELS.map(lv => {
+      const t = totals[lv];
+      const d = dones[lv];
+      const pct = t > 0 ? Math.round(100 * d / t) : 0;
+      return `<div class="level-prog-row">
+        <div class="level-prog-head">
+          <span>${lv}</span><span>${d} / ${t} lessons completed</span>
+        </div>
+        <div class="level-prog-bar"><div class="level-prog-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+  } else {
+    spEl.innerHTML = '<div class="be-offline-note">No lesson data yet</div>';
+  }
+}
+
+async function openSessionDetail(sessionId) {
+  const data = await apiGet(`/sessions/${sessionId}`);
+  if (!data) return;
+  const overlay = document.getElementById('sdmOverlay');
+  document.getElementById('sdmTitle').textContent = data.lesson_title;
+  const dt = new Date(data.started_at);
+  const dur = data.duration_secs != null
+    ? ` · ${Math.floor(data.duration_secs / 60)}m ${data.duration_secs % 60}s` : '';
+  document.getElementById('sdmMeta').textContent =
+    `${dt.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' })} ${dt.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' })}` +
+    ` · ${data.level} · ${data.mode}${dur}`;
+  const items = data.items || [];
+  document.getElementById('sdmItems').innerHTML = items.length
+    ? items.map(it => `
+        <div class="sdm-item">
+          <div class="sdm-dot ${it.correct ? 'c' : 'w'}">${it.correct ? '✓' : '✗'}</div>
+          <div>
+            <div style="font-weight:800;color:var(--mauve);font-size:12px">${esc(it.prompt || it.item_type)}</div>
+            ${it.expected_answer ? `<div style="color:var(--mauve-soft);font-size:11px">${esc(it.expected_answer)}</div>` : ''}
+          </div>
+        </div>`).join('')
+    : '<div style="color:var(--mauve-soft);font-size:13px;padding:8px 0">No items recorded for this session</div>';
+  overlay.classList.add('open');
+}
+
+// ══════════════════════════════════════
+//  SESSION MANAGEMENT
+// ══════════════════════════════════════
+function startSession(unitId, lessonId, mode) {
+  const unit = curriculum?.units.find(u => u.id === unitId);
+  const lesson = unit?.lessons.find(l => l.id === lessonId);
+  if (!lesson) { showToast('Lesson not found'); return; }
+  if ((lesson.mode === 'guided') || (!lesson.exercises || !lesson.exercises.length)) {
+    if (lesson.phases && lesson.phases.length) { startGuidedSession(unitId, lessonId); return; }
+    showToast('No exercises in this lesson'); return;
+  }
+
+  let exIds = lesson.exercises.map(e => e.id);
+
+  if (mode === 'fsrs') {
+    const due = exIds.filter(id => FSRS.isDue(progress[id]));
+    const notDue = exIds.filter(id => !FSRS.isDue(progress[id]));
+    exIds = [...due, ...notDue].slice(0, 20);
+  }
+
+  const queue = exIds.map(id => ({
+    exercise: lesson.exercises.find(e => e.id === id),
+    card: progress[id] || FSRS.newCard(id)
+  })).filter(item => item.exercise);
+
+  if (!queue.length) { showToast('All exercises up to date ♡'); return; }
+
+  session = { queue, idx: 0, unitId, lessonId, mode, xp: 0, correct: 0, total: 0, answered: false };
+  showScreen('screenExercise');
+  renderExercise();
+}
+
+// ══════════════════════════════════════
+//  EXERCISE PLAYER
+// ══════════════════════════════════════
+const CORRECT_MSGS = ['Correct! ♡', '¡Muy bien! ♡', 'Perfect! ♪', 'That\'s right! ♡', 'Excellent! ♡'];
+const WRONG_MSGS = ['Not quite — try again', 'Almost! ♡', 'Keep going!', 'Good effort! Try once more'];
+
+function renderExercise() {
+  if (!session) return;
+  const { queue, idx } = session;
+  const item = queue[idx];
+  const ex = item.exercise;
+  session.answered = false;
+
+  // Progress bar
+  document.getElementById('exProgFill').style.width = `${Math.round(100 * idx / queue.length)}%`;
+  document.getElementById('exQCount').textContent = `${idx + 1} / ${queue.length}`;
+  document.getElementById('exTypeChip').innerHTML = `${typeIcon(ex.type)} ${typeLabel(ex.type)}`;
+
+  // Reset state
+  document.getElementById('feedbackBar').className = 'feedback-bar';
+  document.getElementById('feedbackBar').textContent = '';
+  document.getElementById('hintText').className = 'hint-text';
+  document.getElementById('hintText').textContent = '';
+  document.getElementById('continueBtn').className = 'continue-btn';
+
+  // Bubble tip
+  const tips = {
+    multiple_choice: 'Tap the correct answer, then check ♪',
+    fill_blank: 'Fill in the blank, then check ♪',
+    translation_es_en: 'Translate to English ♡',
+    translation_en_es: 'Traduce al español ♡',
+    word_order: 'Tap the words to build the sentence ♪',
+    flashcard: 'Tap the card to flip it ♡'
+  };
+  document.getElementById('exBubble').innerHTML = `<b>${tips[ex.type] || 'Good luck! ♡'}</b>`;
+
+  // Render by type
+  const body = document.getElementById('exBody');
+  const type = ex.type;
+
+  if (type === 'multiple_choice') renderMC(ex, body);
+  else if (type === 'fill_blank') renderFillBlank(ex, body);
+  else if (type === 'translation_es_en' || type === 'translation_en_es') renderTranslation(ex, body);
+  else if (type === 'word_order') renderWordOrder(ex, body);
+  else if (type === 'flashcard') renderFlashcard(ex, body);
+}
+
+function renderMC(ex, body) {
+  const opts = ex.options || [];
+  const letters = ['A','B','C','D','E'];
+  body.innerHTML = `
+    <div class="ex-q">${esc(ex.prompt || '')}</div>
+    ${ex.hint ? '' : ''}
+    <div class="choices" id="mcChoices">
+      ${opts.map((opt, i) => `
+        <button class="choice" data-opt="${esc(opt)}" data-correct="${opt === ex.answer}">
+          <div class="key">${letters[i]}</div>
+          ${esc(opt)}
+          <span class="mark"></span>
+        </button>`).join('')}
+    </div>
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+
+  let selected = null;
+  body.querySelectorAll('.choice').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (session.answered) return;
+      body.querySelectorAll('.choice').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selected = btn;
+      document.getElementById('checkBtn').disabled = false;
+    });
+  });
+
+  document.getElementById('checkBtn').addEventListener('click', () => {
+    if (!selected || session.answered) return;
+    session.answered = true;
+    const isCorrect = selected.dataset.correct === 'true';
+    const tick = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FBF8A" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-11"/></svg>';
+    const cross = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EC8C8C" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+
+    selected.classList.remove('selected');
+    selected.classList.add(isCorrect ? 'correct' : 'wrong');
+    selected.querySelector('.mark').innerHTML = isCorrect ? tick : cross;
+
+    if (!isCorrect) {
+      body.querySelectorAll('.choice').forEach(b => {
+        if (b.dataset.correct === 'true') { b.classList.add('correct'); b.querySelector('.mark').innerHTML = tick; }
+      });
+    }
+    document.getElementById('checkBtn').style.display = 'none';
+    onAnswered(isCorrect, ex);
+  });
+}
+
+function renderFillBlank(ex, body) {
+  const prompt = (ex.prompt || '').replace(/___/g, `<span class="gap">___</span>`);
+  body.innerHTML = `
+    <div class="fill-display">${prompt}</div>
+    <input class="blank-input" id="blankInput" placeholder="Type your answer…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+
+  const inp = document.getElementById('blankInput');
+  inp.addEventListener('input', () => {
+    document.getElementById('checkBtn').disabled = !inp.value.trim();
+  });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !document.getElementById('checkBtn').disabled) document.getElementById('checkBtn').click(); });
+  inp.focus();
+
+  document.getElementById('checkBtn').addEventListener('click', () => {
+    if (session.answered) return;
+    const val = inp.value.trim().toLowerCase();
+    const acceptable = [ex.answer, ...(ex.acceptable_answers || [])].map(a => a.toLowerCase().trim());
+    const isCorrect = acceptable.includes(val);
+    session.answered = true;
+    inp.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.getElementById('checkBtn').style.display = 'none';
+    if (!isCorrect) {
+      const corrEl = document.createElement('div');
+      corrEl.innerHTML = `<div style="font-size:13px;font-weight:800;color:var(--mauve-soft);margin-top:6px">Correct: <b style="color:var(--rose-deep)">${esc(ex.answer)}</b></div>`;
+      inp.after(corrEl);
+    }
+    onAnswered(isCorrect, ex);
+  });
+}
+
+function renderTranslation(ex, body) {
+  const dir = ex.type === 'translation_es_en' ? 'Translate to English:' : 'Traduce al español:';
+  body.innerHTML = `
+    <div class="trans-prompt">${esc(ex.prompt || '')}</div>
+    <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:6px">${dir}</div>
+    <textarea class="trans-input" id="transInput" placeholder="Your translation…" rows="3" autocorrect="off" spellcheck="false"></textarea>
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+
+  const inp = document.getElementById('transInput');
+  inp.addEventListener('input', () => {
+    document.getElementById('checkBtn').disabled = !inp.value.trim();
+  });
+  inp.focus();
+
+  document.getElementById('checkBtn').addEventListener('click', () => {
+    if (session.answered) return;
+    const val = inp.value.trim().toLowerCase().replace(/[¡!¿?.]/g, '').trim();
+    const acceptable = [ex.answer, ...(ex.acceptable_answers || [])].map(a =>
+      a.toLowerCase().trim().replace(/[¡!¿?.]/g, '').trim()
+    );
+    const isCorrect = acceptable.includes(val) || acceptable.some(a => similarity(val, a) > 0.85);
+    session.answered = true;
+    inp.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.getElementById('checkBtn').style.display = 'none';
+    if (!isCorrect) {
+      const all = [ex.answer, ...(ex.acceptable_answers || [])].filter(Boolean);
+      const acceptableEl = document.createElement('div');
+      acceptableEl.className = 'acceptable-answers';
+      acceptableEl.innerHTML = `<b>Accepted:</b> ${all.map(a => esc(a)).join(' · ')}`;
+      inp.after(acceptableEl);
+    }
+    onAnswered(isCorrect, ex);
+  });
+}
+
+function similarity(a, b) {
+  if (a === b) return 1;
+  const longer = a.length > b.length ? a : b;
+  const shorter = a.length > b.length ? b : a;
+  if (!longer.length) return 1;
+  let matches = 0;
+  for (let i = 0; i < shorter.length; i++) { if (longer.includes(shorter[i])) matches++; }
+  return matches / longer.length;
+}
+
+function renderWordOrder(ex, body) {
+  const words = (ex.words || ex.answer?.split(' ') || []).filter(Boolean);
+  const distractors = ex.distractors || [];
+  const pool = [...words, ...distractors].sort(() => Math.random() - 0.5);
+  let placed = [];
+  let poolState = [...pool];
+
+  const render = () => {
+    const dropArea = document.getElementById('woDrop');
+    const poolArea = document.getElementById('woPool');
+    if (!dropArea || !poolArea) return;
+    dropArea.innerHTML = placed.length
+      ? placed.map((w, i) => `<span class="word-chip placed" data-placed="${i}">${esc(w)}</span>`).join('')
+      : '<span class="placeholder-text">Tap words below to build your answer</span>';
+    poolArea.innerHTML = poolState.map((w, i) =>
+      `<span class="word-chip${placed.includes(w) && !poolState.includes(w) ? ' used' : ''}" data-pool="${i}">${esc(w)}</span>`
+    ).join('');
+
+    dropArea.querySelectorAll('[data-placed]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const idx = parseInt(chip.dataset.placed);
+        const word = placed[idx];
+        placed.splice(idx, 1);
+        poolState.push(word);
+        document.getElementById('checkBtn').disabled = placed.length < words.length;
+        render();
+      });
+    });
+    poolArea.querySelectorAll('[data-pool]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const idx = parseInt(chip.dataset.pool);
+        const word = poolState.splice(idx, 1)[0];
+        placed.push(word);
+        document.getElementById('checkBtn').disabled = false;
+        render();
+      });
+    });
+  };
+
+  body.innerHTML = `
+    <div class="ex-q" style="font-size:15px;margin-bottom:10px">Arrange the words in the correct order:</div>
+    <div class="word-drop-area" id="woDrop"><span class="placeholder-text">Tap words below to build your answer</span></div>
+    <div class="word-pool" id="woPool"></div>
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+  render();
+
+  document.getElementById('checkBtn').addEventListener('click', () => {
+    if (session.answered) return;
+    const built = placed.join(' ');
+    const correct = ex.answer || words.join(' ');
+    const isCorrect = built.toLowerCase() === correct.toLowerCase();
+    session.answered = true;
+    const drop = document.getElementById('woDrop');
+    drop.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.getElementById('checkBtn').style.display = 'none';
+    if (!isCorrect) {
+      const corrEl = document.createElement('div');
+      corrEl.innerHTML = `<div style="font-size:13px;font-weight:800;color:var(--mauve-soft);margin-top:8px">Correct: <b style="color:var(--rose-deep)">${esc(correct)}</b></div>`;
+      drop.after(corrEl);
+    }
+    onAnswered(isCorrect, ex);
+  });
+}
+
+function renderFlashcard(ex, body) {
+  body.innerHTML = `
+    <div class="flashcard-scene" id="fcScene">
+      <div class="flashcard-inner" id="fcInner">
+        <div class="fc-face fc-front">
+          <div class="fc-front-word">${esc(ex.front || '')}</div>
+          ${ex.phonetic ? `<div class="fc-front-phon">${esc(ex.phonetic)}</div>` : ''}
+          <div class="fc-tap-hint">↻ tap to flip</div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-back-word">${esc(ex.back || '')}</div>
+          ${ex.example_sentence ? `<div class="fc-example">"${esc(ex.example_sentence)}"</div>` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="fsrs-buttons" id="fsrsBtns" style="display:none">
+      <button class="fsrs-btn" data-rating="1">Again<div class="rating-label">&lt;1d</div></button>
+      <button class="fsrs-btn" data-rating="2">Hard<div class="rating-label">~3d</div></button>
+      <button class="fsrs-btn" data-rating="3">Good<div class="rating-label">~9d</div></button>
+      <button class="fsrs-btn" data-rating="4">Easy<div class="rating-label">~15d</div></button>
+    </div>`;
+
+  let flipped = false;
+  document.getElementById('fcInner').addEventListener('click', () => {
+    if (session.answered) return;
+    flipped = !flipped;
+    document.getElementById('fcInner').classList.toggle('flipped', flipped);
+    if (flipped) {
+      document.getElementById('fsrsBtns').style.display = 'grid';
+    }
+  });
+
+  document.querySelectorAll('#fsrsBtns .fsrs-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (session.answered) return;
+      session.answered = true;
+      const rating = parseInt(btn.dataset.rating);
+      onFlashcardRated(rating, ex);
+    });
+  });
+}
+
+// ══════════════════════════════════════
+//  ANSWER HANDLING
+// ══════════════════════════════════════
+function onAnswered(isCorrect, ex) {
+  if (!session) return;
+  session.total++;
+
+  const card = session.queue[session.idx].card;
+  const rating = isCorrect ? 3 : 1;
+  const newCard = FSRS.schedule({ ...card }, rating);
+  newCard.correct = (card.correct || 0) + (isCorrect ? 1 : 0);
+  newCard.incorrect = (card.incorrect || 0) + (isCorrect ? 0 : 1);
+  progress[ex.id] = newCard;
+  store(LS.progress, progress);
+  session.queue[session.idx].card = newCard;
+
+  if (isCorrect) {
+    session.correct++;
+    session.xp += 10;
+    stats.total_done++;
+    stats.total_correct++;
+    stats.xp += 10;
+  } else {
+    stats.total_done++;
+  }
+  store(LS.stats, stats);
+  updateStreak();
+
+  // Update practice log
+  practiceLog[today()] = (practiceLog[today()] || 0) + 1;
+  store(LS.practiceLog, practiceLog);
+
+  // Show feedback
+  showFeedback(isCorrect, ex);
+
+  if (isCorrect) {
+    // Auto-advance after celebration
+    setTimeout(() => {
+      if (session.idx < session.queue.length - 1) {
+        advanceExercise();
+      } else {
+        showSessionComplete();
+      }
+    }, 1400);
+  }
+}
+
+function onFlashcardRated(rating, ex) {
+  if (!session) return;
+  session.total++;
+  const card = session.queue[session.idx].card;
+  const newCard = FSRS.schedule({ ...card }, rating);
+  newCard.correct = (card.correct || 0) + (rating >= 3 ? 1 : 0);
+  newCard.incorrect = (card.incorrect || 0) + (rating <= 2 ? 1 : 0);
+  progress[ex.id] = newCard;
+  store(LS.progress, progress);
+  session.queue[session.idx].card = newCard;
+  if (rating >= 3) { session.correct++; session.xp += 10; stats.xp += 10; }
+  stats.total_done++;
+  store(LS.stats, stats);
+  updateStreak();
+  practiceLog[today()] = (practiceLog[today()] || 0) + 1;
+  store(LS.practiceLog, practiceLog);
+
+  showFeedback(rating >= 3, ex);
+
+  setTimeout(() => {
+    if (session.idx < session.queue.length - 1) {
+      advanceExercise();
+    } else {
+      showSessionComplete();
+    }
+  }, 1000);
+}
+
+function showFeedback(isCorrect, ex) {
+  const fb = document.getElementById('feedbackBar');
+  const cont = document.getElementById('continueBtn');
+  const hint = document.getElementById('hintText');
+
+  if (isCorrect) {
+    fb.className = 'feedback-bar correct show';
+    fb.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5FBF8A" stroke-width="3" stroke-linecap="round"><path d="M5 12l5 5 9-11"/></svg> ${CORRECT_MSGS[Math.floor(Math.random() * CORRECT_MSGS.length)]}`;
+    document.getElementById('exMascot').textContent = '😊';
+    showMiniCelebration();
+  } else {
+    fb.className = 'feedback-bar wrong show';
+    fb.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EC8C8C" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg> ${WRONG_MSGS[Math.floor(Math.random() * WRONG_MSGS.length)]}`;
+    document.getElementById('exMascot').textContent = '😔';
+    if (ex.hint) {
+      hint.className = 'hint-text show';
+      hint.innerHTML = `💡 Hint: ${esc(ex.hint)}`;
+    }
+    cont.className = 'continue-btn show';
+    cont.onclick = () => {
+      if (session.idx < session.queue.length - 1) advanceExercise();
+      else showSessionComplete();
+    };
+  }
+}
+
+function advanceExercise() {
+  session.idx++;
+  session.answered = false;
+  document.getElementById('exMascot').textContent = '♡';
+  renderExercise();
+  document.getElementById('exScrollArea').scrollTop = 0;
+}
+
+// ══════════════════════════════════════
+//  CELEBRATION
+// ══════════════════════════════════════
+function showMiniCelebration() {
+  if (session.idx === session.queue.length - 1) return; // don't show mini for last one
+  // just let the feedback bar handle it
+}
+
+function showSessionComplete() {
+  const cel = document.getElementById('celebrate');
+  document.getElementById('celebrateTitle').textContent = session.correct === session.total ? 'Perfect Session! ♡' : `Session Complete! ♡`;
+  document.getElementById('celebrateSub').textContent = `${session.correct} / ${session.total} correct · ${session.xp} XP earned`;
+  document.getElementById('celebrateXP').innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 2l2.6 6.6L21 9.3l-5 4.3 1.6 6.7L12 16.9 6.4 20.3 8 13.6l-5-4.3 6.4-.7z"/></svg>+${session.xp} XP earned!`;
+  cel.classList.add('show');
+  burstConfetti();
+  addSparkles();
+
+  document.getElementById('celebrateBtn').onclick = () => {
+    cel.classList.remove('show');
+    clearCelebration();
+    session = null;
+    showScreen('screenHome');
+  };
+}
+
+function showBigCelebration(title, sub) {
+  document.getElementById('celebrateTitle').textContent = title;
+  document.getElementById('celebrateSub').textContent = sub;
+  document.getElementById('celebrate').classList.add('show');
+  burstConfetti(); addSparkles();
+}
+
+const CONFETTI_COLORS = ['#E8638C','#FFB7C5','#FFCDD8','#FFE9A8','#BFE3D0','#D9C9F0','#FFFFFF'];
+
+function burstConfetti() {
+  const wrap = document.getElementById('confetti');
+  wrap.innerHTML = '';
+  for (let i = 0; i < 90; i++) {
+    const c = document.createElement('i');
+    const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+    const size = 7 + Math.random() * 9;
+    const round = Math.random() > 0.5;
+    c.style.cssText = `left:${Math.random()*100}%;width:${size}px;height:${round?size:size*0.6}px;background:${color};border-radius:${round?'50%':'2px'};animation-duration:${1.6+Math.random()*1.8}s;animation-delay:${Math.random()*0.4}s`;
+    wrap.appendChild(c);
+  }
+  setTimeout(() => { if (!document.getElementById('celebrate').classList.contains('show')) wrap.innerHTML = ''; }, 5000);
+}
+
+function addSparkles() {
+  document.getElementById('celebrate').querySelectorAll('.spark').forEach(s => s.remove());
+  [[18,30],[78,26],[30,52],[72,55],[50,20],[12,62],[86,48]].forEach((p, i) => {
+    const s = document.createElement('div');
+    s.className = 'spark';
+    const sz = 14 + Math.random() * 12;
+    s.style.cssText = `left:${p[0]}%;top:${p[1]}%;animation-delay:${i*0.12}s`;
+    s.innerHTML = `<svg width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="#FFD86B"><path d="M12 2l1.8 6.4L20 10l-6.2 1.6L12 22l-1.8-10.4L4 10l6.2-1.6z"/></svg>`;
+    document.getElementById('celebrate').appendChild(s);
+  });
+}
+
+function clearCelebration() {
+  document.getElementById('confetti').innerHTML = '';
+  document.getElementById('celebrate').querySelectorAll('.spark').forEach(s => s.remove());
+}
+
+// ══════════════════════════════════════
+//  IMPORT CURRICULUM
+// ══════════════════════════════════════
+function handleCurriculumFile(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.version || !Array.isArray(data.units)) throw new Error('Invalid schema: missing version or units');
+      data.units.forEach(u => {
+        if (!u.id || !u.title) throw new Error('Invalid unit: missing id or title');
+        if (!Array.isArray(u.lessons)) throw new Error('Invalid unit: lessons must be an array');
+      });
+      const exCount = data.units.reduce((t, u) => t + u.lessons.reduce((tt, l) => tt + (l.exercises||[]).length, 0), 0);
+      const summary = `${data.units.length} unit${data.units.length===1?'':'s'}, ${exCount} exercise${exCount===1?'':'s'}`;
+
+      if (curriculum) {
+        pendingImport = data;
+        document.getElementById('mergeDialog').classList.add('open');
+      } else {
+        applyCurriculum(data, false);
+        document.getElementById('importStatus').className = 'import-status ok';
+        document.getElementById('importStatus').textContent = `✓ Loaded: ${summary}`;
+        document.getElementById('btnStartApp').style.display = 'flex';
+      }
+    } catch(err) {
+      document.getElementById('importStatus').className = 'import-status err';
+      document.getElementById('importStatus').textContent = `Error: ${err.message}`;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function applyCurriculum(data, merge) {
+  if (merge && curriculum) {
+    // Keep progress for matching exercise IDs, add new exercises
+    const existingIds = new Set(getAllExercises().map(e => e.id));
+    data.units.forEach(u => {
+      u.lessons.forEach(l => {
+        (l.exercises || []).forEach(ex => {
+          if (!existingIds.has(ex.id)) {
+            // New exercise, progress starts fresh (already not in progress)
+          }
+          // Don't touch existing progress entries
+        });
+      });
+    });
+    curriculum = data;
+  } else {
+    curriculum = data;
+    // Keep progress? On replace, clear progress
+    if (!merge) progress = {};
+  }
+  store(LS.curriculum, curriculum);
+  store(LS.progress, progress);
+}
+
+// ══════════════════════════════════════
+//  EXPORT PROGRESS
+// ══════════════════════════════════════
+function exportProgress() {
+  const data = {
+    version: '1.0',
+    exported_at: new Date().toISOString(),
+    student_name: studentName,
+    streak: streak,
+    stats: stats,
+    exercises: progress
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'progress.json'; a.click();
+  URL.revokeObjectURL(url);
+  showToast('progress.json downloaded ♡');
+}
+
+// ══════════════════════════════════════
+//  LESSON MODE ROUTER
+// ══════════════════════════════════════
+let pendingModeLesson = null;
+
+function handleLessonClick(unitId, lessonId) {
+  const unit = curriculum?.units.find(u => u.id === unitId);
+  const lesson = unit?.lessons.find(l => l.id === lessonId);
+  if (!lesson) return;
+  const mode = lesson.mode || 'solo';
+  if (mode === 'guided') {
+    startGuidedSession(unitId, lessonId);
+  } else if (mode === 'both') {
+    pendingModeLesson = { unitId, lessonId };
+    document.getElementById('modeDialog').classList.add('open');
+  } else {
+    startSession(unitId, lessonId, 'practice');
+  }
+}
+
+// ══════════════════════════════════════
+//  GUIDED SESSION
+// ══════════════════════════════════════
+let guidedSession = null;
+
+function startGuidedSession(unitId, lessonId) {
+  const unit = curriculum?.units.find(u => u.id === unitId);
+  const lesson = unit?.lessons.find(l => l.id === lessonId);
+  if (!lesson || !lesson.phases || !lesson.phases.length) {
+    showToast('No guided phases in this lesson'); return;
+  }
+  guidedSession = {
+    lesson, unit, unitId, lessonId,
+    phases: lesson.phases,
+    phaseIdx: 0, itemIdx: 0, lineIdx: 0,
+    view: 'teacher',
+    drillResults: [], checkpointResults: [],
+    drillAnswered: false, checkpointAnswered: false,
+    repeatCount: 0, hintShown: false,
+    showingIntro: !!(lesson.phases[0]?.intro_notes),
+    startTime: Date.now(), timerInterval: null
+  };
+  document.getElementById('guidedLessonTitle').textContent = lesson.title;
+  document.getElementById('btnViewTeacher').className = 'vtb active-teacher';
+  document.getElementById('btnViewStudent').className = 'vtb';
+  showScreen('screenGuided');
+  startGuidedTimer();
+  renderGuidedSession();
+
+  // Backend: start session (non-blocking)
+  currentSessionId = null;
+  apiPost('/sessions/start', {
+    lesson_id: lesson.id,
+    lesson_title: lesson.title,
+    unit_id: unitId,
+    unit_title: unit?.title || '',
+    level: unit?.level || '',
+    mode: 'guided'
+  }).then(data => { if (data?.session_id) currentSessionId = data.session_id; });
+}
+
+function gPhase() { return guidedSession.phases[guidedSession.phaseIdx]; }
+function gItem()  { return gPhase()?.items[guidedSession.itemIdx]; }
+
+function renderGuidedSession() {
+  renderGuidedPhaseProgress();
+  renderGuidedContent();
+}
+
+function renderGuidedPhaseProgress() {
+  const { phases, phaseIdx } = guidedSession;
+  const el = document.getElementById('guidedPhaseProgress');
+  let html = '';
+  phases.forEach((p, i) => {
+    if (i > 0) html += `<div class="phase-link ${i <= phaseIdx ? 'done' : ''}"></div>`;
+    const cls = i < phaseIdx ? 'done' : i === phaseIdx ? 'now' : '';
+    html += `<div class="phase-dot ${cls}" title="${esc(p.title || p.type)}"></div>`;
+  });
+  html += `<span class="phase-label">Phase ${phaseIdx + 1} / ${phases.length}</span>`;
+  el.innerHTML = html;
+}
+
+function renderGuidedContent() {
+  if (!guidedSession) return;
+  const { view, drillResults, drillAnswered, checkpointAnswered,
+          repeatCount, hintShown, showingIntro } = guidedSession;
+  const phase = gPhase();
+  const item = gItem();
+  if (!phase || !item) { showGuidedSummary(); return; }
+
+  const phaseLabels = { presentation:'Presentation', verbal_drill:'Verbal Drill', dialogue:'Dialogue', checkpoint:'Checkpoint' };
+  const phaseIcons  = { presentation:'📚', verbal_drill:'🎯', dialogue:'💬', checkpoint:'✅' };
+  const itemNum = guidedSession.itemIdx + 1;
+  const itemTotal = phase.items.length;
+  const el = document.getElementById('guidedContent');
+
+  // ── INTRO CARD ──────────────────────────────────────────────
+  if (showingIntro && view === 'teacher') {
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 10px">
+        <div class="phase-type-chip">${phaseIcons[phase.type]||'📝'} ${esc(phase.title||phaseLabels[phase.type]||phase.type)}</div>
+      </div>
+      <div class="intro-card">
+        <div class="intro-label">📋 Teacher notes for this phase</div>
+        <div class="intro-text">${esc(phase.intro_notes)}</div>
+        <button class="intro-got-it" id="introGotIt">Got it →</button>
+      </div>`;
+    document.getElementById('introGotIt').addEventListener('click', dismissGuidedIntro);
+    document.getElementById('guidedScrollArea').scrollTop = 0;
+    return;
+  }
+
+  let inner = '', actions = '';
+
+  // ── PRESENTATION ─────────────────────────────────────────────
+  if (item.type === 'presentation') {
+    if (view === 'teacher') {
+      const target = item.repeat_target ?? 2;
+      const done = repeatCount >= target;
+      inner = `
+        <div class="pres-word">${esc(item.word||'')}</div>
+        ${item.phonetic ? `<div class="pres-phonetic">${esc(item.phonetic)}</div>` : ''}
+        <div class="pres-translation">${esc(item.translation||'')}</div>
+        ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
+        <button class="repeat-btn${done?' done':''}" id="repeatBtn">
+          ${done ? `✅ Done (${repeatCount} / ${target})` : `🔁 Repeat (${repeatCount} / ${target})`}
+        </button>`;
+    } else {
+      inner = `
+        <div class="student-word">${esc(item.word||'')}</div>
+        ${item.phonetic ? `<div class="pres-phonetic" style="text-align:center">${esc(item.phonetic)}</div>` : ''}
+        <div class="student-repeat-card" style="margin-top:14px">🗣️ Repeat after me ♪</div>`;
+    }
+    actions = nextBtn();
+
+  // ── VERBAL DRILL ─────────────────────────────────────────────
+  } else if (item.type === 'verbal_drill') {
+    if (view === 'teacher') {
+      const scoreDots = drillResults.map(r => `<div class="drill-dot ${r.correct?'c':'w'}"></div>`).join('');
+      const altAnswers = (item.acceptable_answers||[]).length > 1
+        ? ` <span style="font-weight:700;color:var(--mauve-soft);font-size:13px">/ ${item.acceptable_answers.slice(1).map(esc).join(' / ')}</span>` : '';
+      inner = `
+        <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:8px">Ask aloud:</div>
+        <div class="drill-prompt">${esc(item.prompt||'')}</div>
+        <div class="drill-answer">${esc(item.answer||'')}${altAnswers}</div>
+        ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
+        ${item.hint ? (hintShown
+          ? `<div class="hint-box">💡 ${esc(item.hint)}</div>`
+          : `<button class="hint-reveal-btn" id="hintRevealBtn">💡 Show Hint</button>`)
+          : ''}
+        <div class="drill-result-btns">
+          <button class="drill-btn-c${drillAnswered?' drill-scored':''}" id="drillC">✓</button>
+          <button class="drill-btn-w${drillAnswered?' drill-scored':''}" id="drillW">✗</button>
+        </div>
+        <div class="drill-score-row">${scoreDots}</div>`;
+      actions = nextBtn(!drillAnswered);
+    } else {
+      inner = `<div class="listen-card"><div class="listen-icon">👂</div><div class="listen-text">Listen and answer</div></div>`;
+    }
+
+  // ── DIALOGUE ─────────────────────────────────────────────────
+  } else if (item.type === 'dialogue') {
+    const lines = item.lines || [];
+    const { lineIdx } = guidedSession;
+    if (view === 'teacher') {
+      const linesHtml = lines.map((ln, i) => {
+        const cls = i < lineIdx ? 'past' : i === lineIdx ? 'active' : 'future';
+        const side = ln.speaker === 'teacher' ? 'teacher-l' : 'student-l';
+        return `<div class="dl ${cls} ${side}">
+          <div class="dl-who ${ln.speaker==='teacher'?'t':'s'}">${ln.speaker==='teacher'?'👨‍🏫 Teacher':'👩‍🎓 Student'}</div>
+          <div class="dl-text">${esc(ln.text||'')}</div>
+          ${ln.translation?`<div class="dl-tr">${esc(ln.translation)}</div>`:''}
+          ${i===lineIdx&&ln.teacher_notes?`<div class="teacher-notes" style="margin-top:8px">📝 ${esc(ln.teacher_notes)}</div>`:''}
+        </div>`;
+      }).join('');
+      inner = `${item.setup?`<div class="dialogue-setup">💭 ${esc(item.setup)}</div>`:''}
+        <div class="dialogue-lines">${linesHtml}</div>`;
+    } else {
+      const ln = lines[lineIdx];
+      if (ln && ln.speaker === 'student') {
+        inner = `<div class="student-turn-card">
+          <div class="st-label">Your turn ♪</div>
+          <div class="st-text">${esc(ln.text||'')}</div>
+          ${ln.translation?`<div class="st-tr">${esc(ln.translation)}</div>`:''}
+        </div>`;
+      } else {
+        inner = `<div class="listen-card"><div class="listen-icon">👂</div><div class="listen-text">Listen…</div></div>`;
+      }
+    }
+    const isLastLine = lineIdx >= lines.length - 1;
+    actions = `<button class="guided-next" id="guidedNextBtn">${isLastLine ? 'Next Item' : 'Next Line'} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`;
+
+  // ── CHECKPOINT ───────────────────────────────────────────────
+  } else if (item.type === 'checkpoint') {
+    if (view === 'teacher') {
+      inner = `
+        <div class="cp-prompt">${esc(item.prompt||'')}</div>
+        <div class="cp-expected">
+          <div class="cp-expected-label">Expected answer</div>
+          <div class="cp-expected-val">${esc(item.expected||'')}</div>
+        </div>
+        ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
+        <div class="cp-btns">
+          <button class="cp-pass${checkpointAnswered?' cp-scored':''}" id="cpPass">✓ PASS</button>
+          <button class="cp-review${checkpointAnswered?' cp-scored':''}" id="cpReview">↺ NEEDS REVIEW</button>
+        </div>`;
+      actions = nextBtn(!checkpointAnswered);
+    } else {
+      inner = `<div class="listen-card"><div class="listen-icon">🌟</div><div class="listen-text">Answer the question</div></div>`;
+    }
+  }
+
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 10px">
+      <div class="phase-type-chip">${phaseIcons[phase.type]||'📝'} ${esc(phase.title||phaseLabels[phase.type]||phase.type)}</div>
+      <div class="q-count">${itemNum} / ${itemTotal}</div>
+    </div>
+    <div class="phase-card">${inner}</div>
+    ${actions}`;
+
+  // Wire buttons
+  document.getElementById('guidedNextBtn')?.addEventListener('click', advanceGuidedItem);
+  document.getElementById('repeatBtn')?.addEventListener('click', tapRepeat);
+  document.getElementById('hintRevealBtn')?.addEventListener('click', showDrillHint);
+  if (item.type === 'verbal_drill' && view === 'teacher' && !drillAnswered) {
+    document.getElementById('drillC')?.addEventListener('click', () => recordDrill(true));
+    document.getElementById('drillW')?.addEventListener('click', () => recordDrill(false));
+  }
+  if (item.type === 'checkpoint' && view === 'teacher' && !checkpointAnswered) {
+    document.getElementById('cpPass')?.addEventListener('click', () => recordCheckpoint(true));
+    document.getElementById('cpReview')?.addEventListener('click', () => recordCheckpoint(false));
+  }
+  document.getElementById('guidedScrollArea').scrollTop = 0;
+}
+
+function nextBtn(disabled) {
+  return `<button class="guided-next" id="guidedNextBtn"${disabled?' disabled':''}>Next <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`;
+}
+
+function recordDrill(correct) {
+  const item = gItem();
+  const phase = gPhase();
+  const answer = item.answer || item.expected || '';
+  guidedSession.drillResults.push({ prompt: item.prompt, answer, correct });
+  guidedSession.drillAnswered = true;
+  if (currentSessionId) {
+    apiPost(`/sessions/${currentSessionId}/items`, {
+      item_id: item.id || `${phase.type}_${guidedSession.itemIdx}`,
+      item_type: 'verbal_drill',
+      phase: phase.id || phase.type,
+      prompt: item.prompt || '',
+      expected_answer: answer,
+      correct: correct ? 1 : 0
+    });
+  }
+  renderGuidedContent();
+}
+
+function recordCheckpoint(passed) {
+  const item = gItem();
+  const phase = gPhase();
+  guidedSession.checkpointResults.push({ prompt: item.prompt, passed });
+  guidedSession.checkpointAnswered = true;
+  if (currentSessionId) {
+    apiPost(`/sessions/${currentSessionId}/items`, {
+      item_id: item.id || `${phase.type}_${guidedSession.itemIdx}`,
+      item_type: 'checkpoint',
+      phase: phase.id || phase.type,
+      prompt: item.prompt || '',
+      expected_answer: item.expected || '',
+      correct: passed ? 1 : 0
+    });
+  }
+  renderGuidedContent();
+}
+
+function advanceGuidedItem() {
+  const phase = gPhase();
+  const item = gItem();
+  // Advance through dialogue lines first
+  if (item.type === 'dialogue') {
+    const lines = item.lines || [];
+    if (guidedSession.lineIdx < lines.length - 1) {
+      guidedSession.lineIdx++;
+      renderGuidedContent();
+      return;
+    }
+  }
+  // Reset per-item state
+  guidedSession.lineIdx = 0;
+  guidedSession.drillAnswered = false;
+  guidedSession.checkpointAnswered = false;
+  guidedSession.repeatCount = 0;
+  guidedSession.hintShown = false;
+  // Advance within phase or to next phase
+  if (guidedSession.itemIdx < phase.items.length - 1) {
+    guidedSession.itemIdx++;
+    guidedSession.showingIntro = false;
+    renderGuidedContent();
+  } else if (guidedSession.phaseIdx < guidedSession.phases.length - 1) {
+    guidedSession.phaseIdx++;
+    guidedSession.itemIdx = 0;
+    const nextPhase = gPhase();
+    guidedSession.showingIntro = !!(nextPhase?.intro_notes);
+    renderGuidedSession();
+  } else {
+    showGuidedSummary();
+  }
+}
+
+function dismissGuidedIntro() {
+  guidedSession.showingIntro = false;
+  renderGuidedContent();
+}
+
+function tapRepeat() {
+  const item = gItem();
+  const target = item.repeat_target ?? 2;
+  if (guidedSession.repeatCount < target) guidedSession.repeatCount++;
+  renderGuidedContent();
+}
+
+function showDrillHint() {
+  guidedSession.hintShown = true;
+  renderGuidedContent();
+}
+
+function showGuidedSummary() {
+  const { drillResults, checkpointResults, lesson, unit, unitId, lessonId, startTime, phases } = guidedSession;
+  const dCorrect = drillResults.filter(r => r.correct).length;
+  const cpPassed = checkpointResults.filter(r => r.passed).length;
+  const durationSec = Math.floor((Date.now() - startTime) / 1000);
+
+  // Stop timer
+  clearInterval(guidedSession.timerInterval);
+  guidedSession.timerInterval = null;
+
+  // Backend: end session + update lesson status
+  if (currentSessionId) {
+    const sid = currentSessionId;
+    currentSessionId = null;
+    apiPost(`/sessions/${sid}/end`, { duration_secs: durationSec });
+    const drillScore = drillResults.length > 0 ? dCorrect / drillResults.length : 1;
+    apiPatch(`/lessons_status/${lesson.id}`, {
+      status: drillScore >= 0.8 ? 'completed' : 'in_progress',
+      best_score: Math.round(drillScore * 100) / 100
+    });
+  }
+
+  // Save to history
+  saveSessionHistory({
+    date: new Date().toISOString(),
+    lesson_id: lesson.id,
+    lesson_title: lesson.title,
+    unit_title: unit?.title || '',
+    duration_seconds: durationSec,
+    drill_score: { correct: dCorrect, total: drillResults.length },
+    checkpoint_results: checkpointResults.map((r, i) => {
+      const ph = phases.find(p => p.type === 'checkpoint') || phases[i] || {};
+      return { phase_id: ph.id || '', phase_title: ph.title || 'Checkpoint', result: r.passed ? 'pass' : 'review' };
+    })
+  });
+
+  document.getElementById('guidedPhaseProgress').innerHTML = '';
+
+  let drillHtml = '', cpHtml = '';
+  if (drillResults.length) {
+    drillHtml = `<div style="margin-bottom:16px">
+      <div class="gs-section-title">Verbal Drills — ${dCorrect}/${drillResults.length}</div>
+      ${drillResults.map(r => `<div class="gs-row"><div class="gs-row-text">${esc(r.prompt)}</div><div class="gs-badge ${r.correct?'c':'w'}">${r.correct?'✓ Correct':'✗ Wrong'}</div></div>`).join('')}
+    </div>`;
+  }
+  if (checkpointResults.length) {
+    cpHtml = `<div style="margin-bottom:16px">
+      <div class="gs-section-title">Checkpoints — ${cpPassed}/${checkpointResults.length} passed</div>
+      ${checkpointResults.map(r => `<div class="gs-row"><div class="gs-row-text">${esc(r.prompt)}</div><div class="gs-badge ${r.passed?'p':'r'}">${r.passed?'✓ Pass':'↺ Review'}</div></div>`).join('')}
+    </div>`;
+  }
+
+  const mm = String(Math.floor(durationSec / 60)).padStart(2, '0');
+  const ss = String(durationSec % 60).padStart(2, '0');
+  const allGood = drillResults.every(r => r.correct) && checkpointResults.every(r => r.passed);
+  document.getElementById('guidedContent').innerHTML = `
+    <div style="padding:8px 2px 24px">
+      <div style="text-align:center;font-size:64px;margin-bottom:10px">${allGood?'🎉':'⭐'}</div>
+      <div class="gs-title">${allGood?'Perfect Session! ♡':'Session Complete! ♡'}</div>
+      <div class="gs-sub">${esc(lesson.title)}</div>
+      <div style="text-align:center;margin-bottom:16px">
+        <span class="guided-timer" style="font-size:14px">${mm}:${ss}</span>
+      </div>
+      ${drillHtml}${cpHtml}
+      ${!drillHtml&&!cpHtml?'<div style="text-align:center;padding:20px;color:var(--mauve-soft);font-weight:800">Great work! ♡</div>':''}
+      ${lesson.homework ? `
+        <button class="btn-ghost" id="guidedViewHwBtn" style="justify-content:center;width:100%;margin-top:8px">📚 View Homework</button>
+        <button class="btn-ghost" id="guidedExportHwBtn" style="justify-content:center;width:100%;margin-top:8px">📤 Exportar tarea</button>
+      ` : ''}
+      <button class="btn-pill" id="guidedDoneBtn" style="margin-top:8px">Done ♪</button>
+    </div>`;
+
+  if (lesson.homework) {
+    document.getElementById('guidedViewHwBtn').addEventListener('click', () => {
+      // Backend: log homework assignment (non-blocking)
+      apiPost('/homework', { lesson_id: lessonId })
+        .then(data => { currentHomeworkId = data?.homework_id ?? null; });
+      guidedSession = null;
+      startHomework(unitId, lessonId);
+    });
+    document.getElementById('guidedExportHwBtn').addEventListener('click', () => {
+      const payload = {
+        lesson_id: lesson.id,
+        lesson_title: lesson.title || '',
+        unit_title: unit?.title || '',
+        level: unit?.level || '',
+        homework: {
+          estimated_minutes: lesson.homework.estimated_minutes || null,
+          sections: lesson.homework.sections || []
+        }
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `homework_${lesson.id}.json`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+      showToast('Tarea exportada ♡');
+    });
+  }
+  document.getElementById('guidedDoneBtn').addEventListener('click', () => {
+    guidedSession = null;
+    showScreen('screenHome');
+  });
+}
+
+// ══════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════
+function startGuidedTimer() {
+  clearInterval(guidedSession.timerInterval);
+  guidedSession.timerInterval = setInterval(updateTimerDisplay, 1000);
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('guidedTimer');
+  if (!el || !guidedSession) return;
+  el.style.display = guidedSession.view === 'teacher' ? '' : 'none';
+  const elapsed = Math.floor((Date.now() - guidedSession.startTime) / 1000);
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const ss = String(elapsed % 60).padStart(2, '0');
+  el.textContent = `${mm}:${ss}`;
+}
+
+// ══════════════════════════════════════
+//  SESSION HISTORY
+// ══════════════════════════════════════
+function saveSessionHistory(record) {
+  const hist = load('session_history', []);
+  hist.unshift(record);
+  store('session_history', hist);
+}
+
+function openHistoryPanel() {
+  const hist = load('session_history', []);
+  const scroll = document.getElementById('historyScroll');
+
+  if (!hist.length) {
+    scroll.innerHTML = `<div class="history-empty">📋 No sessions yet.<br>Start your first guided lesson!</div>`;
+  } else {
+    scroll.innerHTML = hist.map(r => {
+      const d = new Date(r.date);
+      const dateStr = d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+      const timeStr = d.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
+      const durM = Math.floor(r.duration_seconds / 60);
+      const durS = r.duration_seconds % 60;
+      const durStr = durM > 0 ? `${durM}m ${durS}s` : `${durS}s`;
+      const drillStr = r.drill_score.total > 0 ? `${r.drill_score.correct} / ${r.drill_score.total} correct` : null;
+      const cpHtml = (r.checkpoint_results || []).map(cp =>
+        `<div class="hc-cp-row"><span>${esc(cp.phase_title)}</span><span class="hc-cp-badge ${cp.result==='pass'?'p':'r'}">${cp.result==='pass'?'✓ Pass':'↺ Review'}</span></div>`
+      ).join('');
+      return `<div class="history-card">
+        <div class="hc-top">
+          <div><div class="hc-lesson">${esc(r.lesson_title)}</div><div class="hc-unit">${esc(r.unit_title)}</div></div>
+          <div class="hc-date">${dateStr}<br>${timeStr}</div>
+        </div>
+        <div class="hc-stats">
+          <span class="hc-stat">⏱ ${durStr}</span>
+          ${drillStr ? `<span class="hc-stat">🎯 ${drillStr}</span>` : ''}
+        </div>
+        ${cpHtml ? `<div>${cpHtml}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('historyPanel').classList.add('open');
+}
+
+function closeHistoryPanel() {
+  document.getElementById('historyPanel').classList.remove('open');
+}
+
+// ══════════════════════════════════════
+//  HOMEWORK
+// ══════════════════════════════════════
+function isHomeworkDone(lessonId) {
+  return homeworkHistory.some(r => r.lesson_id === lessonId);
+}
+
+function startHomework(unitId, lessonId) {
+  const unit = curriculum?.units.find(u => u.id === unitId);
+  const lesson = unit?.lessons.find(l => l.id === lessonId);
+  if (!lesson?.homework) { showToast('No homework in this lesson'); return; }
+  document.getElementById('hwLessonName').textContent = lesson.title;
+  const est = lesson.homework.estimated_minutes;
+  const chip = document.getElementById('hwTimeChip');
+  chip.textContent = est ? `~${est} min` : '';
+  chip.style.display = est ? '' : 'none';
+  showScreen('screenHomework');
+  renderHomework(lesson, unitId, lessonId, unit);
+}
+
+function renderHomework(lesson, unitId, lessonId, unit) {
+  const hw = lesson.homework;
+  const done = isHomeworkDone(lessonId);
+  const el = document.getElementById('hwContent');
+
+  const sectionsHtml = (hw.sections || []).map(sec => {
+    let body = '';
+    if (sec.type === 'vocabulary_list')    body = renderHwVocabList(sec);
+    else if (sec.type === 'reading')       body = renderHwReading(sec);
+    else if (sec.type === 'writing_prompt') body = renderHwWritingPrompt(sec);
+    else if (sec.type === 'listen_and_repeat') body = renderHwListenRepeat(sec);
+    else if (sec.type === 'challenge')     body = renderHwChallenge(sec);
+    return `<div class="hw-section"><div class="hw-section-head">${esc(sec.title || '')}</div>${body}</div>`;
+  }).join('');
+
+  const markBtn = done
+    ? `<button class="hw-mark-complete-btn completed" disabled>✅ Homework Completed</button>`
+    : `<button class="hw-mark-complete-btn" id="hwMarkCompleteBtn">✅ Mark as Complete</button>`;
+
+  el.innerHTML = `<div style="padding:8px 0 28px">${sectionsHtml}${markBtn}</div>`;
+
+  el.querySelectorAll('.vocab-item').forEach(card => {
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+  });
+
+  el.querySelectorAll('.reading-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tr = btn.previousElementSibling;
+      const showing = tr.classList.contains('visible');
+      tr.classList.toggle('visible', !showing);
+      btn.textContent = showing ? 'Ver en español' : 'Ocultar traducción';
+    });
+  });
+
+  el.querySelectorAll('.writing-prompt-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('done');
+      item.querySelector('.wp-check').textContent = item.classList.contains('done') ? '✓' : '';
+    });
+  });
+
+  if (!done) {
+    document.getElementById('hwMarkCompleteBtn')?.addEventListener('click', () => {
+      markHomeworkComplete(unitId, lessonId, lesson, unit);
+    });
+  }
+
+  document.getElementById('hwScrollArea').scrollTop = 0;
+}
+
+function renderHwVocabList(sec) {
+  const items = (sec.items || []).map(item => `
+    <div class="vocab-item">
+      <div class="vocab-front">
+        <div>
+          <div class="vocab-word">${esc(item.word)}</div>
+          ${item.phonetic ? `<div class="vocab-phon">${esc(item.phonetic)}</div>` : ''}
+        </div>
+        <div class="vocab-flip-hint">↻ tap</div>
+      </div>
+      <div class="vocab-back">
+        <div class="vocab-translation">${esc(item.translation)}</div>
+        ${item.example ? `<div class="vocab-example">"${esc(item.example)}"</div>` : ''}
+      </div>
+    </div>`).join('');
+  return `<div class="vocab-list">${items}</div>`;
+}
+
+function renderHwReading(sec) {
+  const hasTr = !!sec.translation;
+  return `
+    <div class="reading-text">${esc(sec.text || '')}</div>
+    ${hasTr ? `<div class="reading-translation">${esc(sec.translation)}</div><button class="reading-toggle">Ver en español</button>` : ''}`;
+}
+
+function renderHwWritingPrompt(sec) {
+  const items = (sec.prompts || []).map(prompt => `
+    <div class="writing-prompt-item">
+      <div class="wp-check"></div>
+      <div class="wp-text">${esc(prompt)}</div>
+    </div>`).join('');
+  return `<div class="writing-prompts">${items}</div>`;
+}
+
+function renderHwListenRepeat(sec) {
+  const items = (sec.items || []).map(item => `
+    <div class="listen-item">
+      <div class="listen-phrase">${esc(item.phrase)}</div>
+      ${item.phonetic ? `<div class="listen-phon">${esc(item.phonetic)}</div>` : ''}
+      ${item.translation ? `<div class="listen-tr">${esc(item.translation)}</div>` : ''}
+    </div>`).join('');
+  return `<div class="listen-items">${items}</div>`;
+}
+
+function renderHwChallenge(sec) {
+  return `
+    <div class="challenge-card">
+      <div class="challenge-star">⭐</div>
+      <div class="challenge-text">${esc(sec.description || '')}</div>
+    </div>`;
+}
+
+function markHomeworkComplete(unitId, lessonId, lesson, unit) {
+  // Backend: mark homework complete
+  if (currentHomeworkId) {
+    apiPatch(`/homework/${currentHomeworkId}/complete`, {});
+    currentHomeworkId = null;
+  }
+  homeworkHistory.unshift({
+    lesson_id: lessonId,
+    lesson_title: lesson.title,
+    unit_title: unit?.title || '',
+    completed_at: new Date().toISOString()
+  });
+  store('homework_history', homeworkHistory);
+  const btn = document.getElementById('hwMarkCompleteBtn');
+  if (btn) {
+    btn.textContent = '✅ Homework Completed';
+    btn.className = 'hw-mark-complete-btn completed';
+    btn.disabled = true;
+  }
+  showToast('Homework marked as complete ♡');
+}
+
+function openHwHistoryPanel() {
+  const scroll = document.getElementById('hwHistoryScroll');
+  if (!homeworkHistory.length) {
+    scroll.innerHTML = `<div class="history-empty">📚 No homework completed yet.<br>Complete your first lesson's homework!</div>`;
+  } else {
+    scroll.innerHTML = homeworkHistory.map(r => {
+      const d = new Date(r.completed_at);
+      const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      const timeStr = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+      return `<div class="hw-history-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div>
+            <div class="hw-hc-lesson">${esc(r.lesson_title)}</div>
+            <div class="hw-hc-unit">${esc(r.unit_title)}</div>
+          </div>
+          <div class="hw-hc-date">${dateStr}<br>${timeStr}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('hwHistoryPanel').classList.add('open');
+}
+
+function closeHwHistoryPanel() {
+  document.getElementById('hwHistoryPanel').classList.remove('open');
+}
+
+// ══════════════════════════════════════
+//  TEACHER MODE
+// ══════════════════════════════════════
+function updateTeacherModeUI() {
+  const show = isTeacher ? 'flex' : 'none';
+  document.getElementById('navGeneratorBtn').style.display = show;
+  document.getElementById('navProgressBtn').style.display  = show;
+}
+
+function toggleTeacherMode() {
+  isTeacher = !isTeacher;
+  store('is_teacher', isTeacher);
+  updateTeacherModeUI();
+  showToast(isTeacher ? '🎓 Teacher mode ON' : 'Teacher mode OFF');
+}
+
+// ══════════════════════════════════════
+//  LESSON GENERATOR
+// ══════════════════════════════════════
+const GEN_LEVEL_COLORS = { A1:'#5FBF8A', A2:'#4A90D9', B1:'#F5A623', B2:'#E86B5C', C1:'#E8638C' };
+
+function renderGenerator() {
+  const sidebar = document.getElementById('genSidebar');
+  const sel = document.getElementById('genMobileSel');
+
+  if (!SYLLABUS) {
+    sidebar.innerHTML = '<div style="padding:16px;color:var(--mauve-soft);font-size:13px;font-weight:700">Loading syllabus…</div>';
+    document.getElementById('genPanel').innerHTML = '<div style="padding:40px 20px;text-align:center;color:var(--mauve-soft);font-weight:800;font-size:14px">Loading…</div>';
+    fetch('./syllabus.json')
+      .then(r => r.json())
+      .then(data => { SYLLABUS = data; renderGenerator(); })
+      .catch(() => { sidebar.innerHTML = '<div style="padding:16px;color:var(--rose);font-size:13px;font-weight:700">⚠ Could not load syllabus.json</div>'; });
+    return;
+  }
+
+  // Kick off backend fetch once per screen open (sentinel: null → [] means loading/done)
+  if (genLessonStatuses === null) {
+    genLessonStatuses = [];
+    genWeakWords = [];
+    Promise.all([
+      apiGet('/lessons_status'),
+      apiGet('/weak_words?limit=5')
+    ]).then(([statuses, words]) => {
+      genLessonStatuses = statuses || [];
+      genWeakWords = words || [];
+      if (document.getElementById('screenGenerator').classList.contains('active')) {
+        renderGenerator();
+      }
+    }).catch(() => {
+      genLessonStatuses = [];
+      genWeakWords = [];
+    });
+  }
+
+  let sHtml = '';
+  let selHtml = '<option value="">— Select a unit —</option>';
+
+  for (const level of SYLLABUS.levels) {
+    sHtml += `<div class="gen-level-head">${level.id} — ${esc(level.title)}</div>`;
+    for (const uid of level.units) {
+      const u = SYLLABUS.units.find(x => x.id === uid);
+      if (!u) continue;
+      const active = genSelectedUnit?.id === uid ? ' active' : '';
+
+      // Unit progress bar (Feature 2)
+      let barHtml = '';
+      if (genLessonStatuses.length) {
+        const unitSt = genLessonStatuses.filter(s => s.unit_id === uid);
+        if (unitSt.length) {
+          const done = unitSt.filter(s => s.status === 'completed').length;
+          const total = u.lessons.length;
+          const pct = Math.round(100 * done / total);
+          const color = GEN_LEVEL_COLORS[u.level] || 'var(--rose)';
+          barHtml = `<div class="gen-unit-progress"><div class="gen-unit-progress-fill" style="width:${pct}%;background:${color}"></div></div>`;
+        }
+      }
+
+      sHtml += `<button class="gen-unit-btn${active}" data-unit="${uid}"><span class="gen-unit-id">${uid}</span>${esc(u.title)}${barHtml}</button>`;
+      selHtml += `<option value="${uid}"${genSelectedUnit?.id === uid ? ' selected' : ''}>${uid} — ${esc(u.title)}</option>`;
+    }
+  }
+
+  sidebar.innerHTML = sHtml;
+  sel.innerHTML = selHtml;
+
+  sidebar.querySelectorAll('.gen-unit-btn').forEach(b => {
+    b.addEventListener('click', () => selectGeneratorUnit(b.dataset.unit));
+  });
+  sel.addEventListener('change', () => { if (sel.value) selectGeneratorUnit(sel.value); });
+
+  if (genSelectedUnit) renderGeneratorPanel();
+  else document.getElementById('genPanel').innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--mauve-soft);font-weight:800;font-size:14px">Select a unit to get started ♡</div>';
+
+  updateGenBottomBar();
+}
+
+function selectGeneratorUnit(unitId) {
+  genSelectedUnit = SYLLABUS.units.find(u => u.id === unitId) || null;
+  genSelectedLesson = null;
+  renderGenerator();
+}
+
+function genStatusBadge(lessonId) {
+  const st = genLessonStatuses.find(s => s.lesson_id === lessonId);
+  if (!st) return '';
+  const score = st.best_score != null ? ` ${Math.round(st.best_score * 100)}%` : '';
+  if (st.status === 'completed')  return `<span class="gen-badge status-done">✅${score}</span>`;
+  if (st.status === 'in_progress') return `<span class="gen-badge status-ip">🔄${score}</span>`;
+  return '';
+}
+
+function renderGeneratorPanel() {
+  const unit = genSelectedUnit;
+  if (!unit) return;
+  const panel = document.getElementById('genPanel');
+
+  const grammarPills = (unit.grammar || []).map(g => `<span class="gen-grammar-pill">${esc(g)}</span>`).join('');
+
+  // ── Weak words review card (Feature 5) ──
+  let reviewCardHtml = '';
+  if (genWeakWords && genWeakWords.length) {
+    const bodyStyle = genReviewExpanded ? '' : 'display:none';
+    const wordsHtml = genWeakWords.map(w => {
+      const canNav = !!(w.lesson_id);
+      return `<div class="gen-review-word${canNav ? ' clickable' : ''}" ${canNav ? `data-wl="${esc(w.lesson_id)}" data-wu="${esc(w.unit_id || '')}"` : ''}>
+        <span class="gen-review-w">${esc(w.word)}</span>
+        <span class="gen-review-tr">${esc(w.translation || '')}</span>
+        <span class="gen-review-cnt">✗ ${w.wrong_count}</span>
+      </div>`;
+    }).join('');
+    reviewCardHtml = `
+      <div class="gen-review-card" id="genReviewCard">
+        <div class="gen-review-head" id="genReviewHead">
+          <span class="gen-review-title">📌 Suggested review</span>
+          <span class="gen-review-toggle">${genReviewExpanded ? '▲' : '▼'}</span>
+        </div>
+        <div class="gen-review-body" id="genReviewBody" style="${bodyStyle}">
+          <div class="gen-review-sub">These words had the most errors — consider reviewing them today:</div>
+          ${wordsHtml}
+        </div>
+      </div>`;
+  }
+
+  // ── Lesson rows with status badges (Feature 1) ──
+  const lessonsHtml = (unit.lessons || []).map(l => {
+    const active = genSelectedLesson?.id === l.id ? ' active' : '';
+    const badges = [
+      l.is_level_exam ? '<span class="gen-badge exam">Exam</span>' : (l.is_review ? '<span class="gen-badge review">Review</span>' : ''),
+      genCopiedLessons.includes(l.id) ? '<span class="gen-badge copied">📋</span>' : '',
+      genStatusBadge(l.id)
+    ].join('');
+    return `<div class="gen-lesson-row${active}" data-lesson="${l.id}">
+      <span class="gen-lesson-num">${l.order}</span>
+      <span class="gen-lesson-name">${esc(l.title)}</span>
+      <span class="gen-lesson-badges">${badges}</span>
+    </div>`;
+  }).join('');
+
+  // ── Last practiced section for selected lesson (Feature 3) ──
+  let lastPracticedHtml = '';
+  if (genSelectedLesson) {
+    const st = genLessonStatuses.find(s => s.lesson_id === genSelectedLesson.id);
+    if (st && (st.last_practiced || st.times_practiced > 0)) {
+      const dateStr = st.last_practiced
+        ? new Date(st.last_practiced).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })
+        : '—';
+      const scoreStr = st.best_score != null ? `${Math.round(st.best_score * 100)}%` : '—';
+      const statusBadge = genStatusBadge(genSelectedLesson.id);
+      lastPracticedHtml = `
+        <div class="gen-last-practiced">
+          <div class="gen-last-practiced-title">Last session</div>
+          <div class="gen-lp-row"><span>Last practiced</span><span class="gen-lp-val">${dateStr}</span></div>
+          <div class="gen-lp-row"><span>Times practiced</span><span class="gen-lp-val">${st.times_practiced || 0}</span></div>
+          <div class="gen-lp-row"><span>Best score</span><span class="gen-lp-val">${scoreStr}</span></div>
+          <div class="gen-lp-row"><span>Status</span><span>${statusBadge || '<span style="color:var(--mauve-soft);font-size:12px;font-weight:800">Not started</span>'}</span></div>
+        </div>`;
+    }
+  }
+
+  panel.innerHTML = `
+    <div class="gen-unit-title">${esc(unit.id)} — ${esc(unit.title)}</div>
+    <div class="gen-unit-meta">CEFR ${unit.level} · ~${unit.vocabulary_target} vocab words</div>
+    <div class="gen-grammar-pills">${grammarPills}</div>
+    ${reviewCardHtml}
+    <div class="gen-lessons-head">Lessons</div>
+    ${lessonsHtml}
+    ${lastPracticedHtml}
+  `;
+
+  // Wire lesson row clicks
+  panel.querySelectorAll('.gen-lesson-row').forEach(row => {
+    row.addEventListener('click', () => selectGeneratorLesson(row.dataset.lesson));
+  });
+
+  // Wire review card toggle
+  document.getElementById('genReviewHead')?.addEventListener('click', () => {
+    genReviewExpanded = !genReviewExpanded;
+    renderGeneratorPanel();
+  });
+
+  // Wire weak word navigation clicks
+  panel.querySelectorAll('.gen-review-word.clickable').forEach(el => {
+    el.addEventListener('click', () => jumpToWeakWordLesson(el.dataset.wl, el.dataset.wu));
+  });
+}
+
+function selectGeneratorLesson(lessonId) {
+  genSelectedLesson = genSelectedUnit?.lessons.find(l => l.id === lessonId) || null;
+  renderGeneratorPanel();
+  updateGenBottomBar();
+}
+
+function updateGenBottomBar() {
+  const copyBtn  = document.getElementById('btnGenCopy');
+  const startBtn = document.getElementById('btnGenStart');
+  const status   = document.getElementById('genStatus');
+  if (!genSelectedLesson) {
+    copyBtn.disabled  = true;
+    startBtn.disabled = true;
+    status.textContent = genSelectedUnit ? 'Select a lesson to generate its prompt' : 'Select a unit to get started ♡';
+  } else {
+    copyBtn.disabled  = false;
+    startBtn.disabled = false;
+    const copied = genCopiedLessons.includes(genSelectedLesson.id);
+    status.textContent = copied
+      ? `📋 Already copied — paste into Claude and generate`
+      : `${genSelectedLesson.id} — ${genSelectedLesson.title}`;
+  }
+}
+
+function startSessionFromGenerator() {
+  if (!genSelectedLesson || !genSelectedUnit) return;
+  if (!curriculum) {
+    showToast('Import your curriculum.json first ♡');
+    return;
+  }
+  // Find matching lesson across all curriculum units
+  let foundUnit = null, foundLesson = null;
+  for (const u of curriculum.units) {
+    const l = u.lessons.find(les => les.id === genSelectedLesson.id);
+    if (l) { foundUnit = u; foundLesson = l; break; }
+  }
+  if (!foundLesson) {
+    showToast(`${genSelectedLesson.id} not in curriculum — upload its JSON first`);
+    return;
+  }
+  if (!foundLesson.phases || !foundLesson.phases.length) {
+    showToast('This lesson has no guided phases yet');
+    return;
+  }
+  startGuidedSession(foundUnit.id, foundLesson.id);
+}
+
+function jumpToWeakWordLesson(lessonId, unitId) {
+  if (!SYLLABUS || !lessonId) return;
+  let targetUnit = unitId
+    ? SYLLABUS.units.find(u => u.id === unitId)
+    : SYLLABUS.units.find(u => u.lessons.some(l => l.id === lessonId));
+  if (!targetUnit) return;
+  genSelectedUnit = targetUnit;
+  genSelectedLesson = targetUnit.lessons.find(l => l.id === lessonId) || null;
+  renderGenerator();
+  updateGenBottomBar();
+}
+
+function buildLessonPrompt(unit, lesson) {
+  const level = unit.level;
+  const lessonSnake = lesson.id.replace(/-/g, '_').toLowerCase();
+  const grammarStr = (unit.grammar || []).join(' | ');
+  const topicsStr = (lesson.topics || []).join(', ');
+  const promptLang = ['A1','A2'].includes(level) ? 'español' : 'English';
+  let notes = '';
+  if (lesson.is_level_exam) notes = `\nNOTA: Esta es la lección de examen de nivel — evalúa todo el nivel ${level}.`;
+  else if (lesson.is_review) notes = `\nNOTA: Esta es una lección de repaso — refuerza todo lo de la unidad.`;
+
+  return `Eres un generador de contenido para una app de aprendizaje de inglés.
+Responde ÚNICAMENTE con JSON válido. Sin explicaciones, sin texto extra, sin bloques de código markdown, solo el JSON puro.
+
+Genera la lección ${lesson.id} — "${lesson.title}"
+Unidad: ${unit.id} — ${unit.title}
+Nivel CEFR: ${level}
+Mode: "both" (incluye exercises + phases + homework)
+
+GRAMÁTICA OBJETIVO: ${grammarStr}
+VOCABULARIO OBJETIVO: ~${unit.vocabulary_target} palabras
+TEMAS DE LA LECCIÓN: ${topicsStr}${notes}
+
+ESTRUCTURA REQUERIDA (clase de 1 hora):
+- ~10 min · Presentation (phase type: "presentation") — vocabulario nuevo con fonética
+- ~15 min · Verbal Drills (phase type: "verbal_drill") — práctica guiada con el profesor
+- ~15 min · Dialogue (phase type: "dialogue") — conversación real aplicada al contexto
+- ~10 min · Written Practice (exercises array) — ejercicios estilo Duolingo
+- ~5 min  · Checkpoint (phase type: "checkpoint") — 3 preguntas de evaluación final
+- ~5 min  · Homework (homework object) — contenido de estudio autónomo en casa
+
+SCHEMA EXERCISE TYPES (array "exercises"):
+{"type":"multiple_choice","prompt":"...","choices":["A","B","C","D"],"answer":"A","hint":"..."}
+{"type":"fill_blank","prompt":"She ___ a teacher.","answer":"is","hint":"..."}
+{"type":"translate","prompt":"...","answer":"...","hint":"..."}
+{"type":"word_order","prompt":"Ordena las palabras:","words":["am","I","María"],"answer":"I am María","hint":"..."}
+{"type":"flashcard","front":"hello","back":"hola","phonetic":"/həˈloʊ/"}
+
+SCHEMA PHASE ITEMS:
+Presentation: {"type":"presentation","word":"hello","phonetic":"/həˈloʊ/","translation":"hola","example":"Hello! My name is María.","teacher_notes":"..."}
+Verbal drill: {"type":"verbal_drill","prompt":"How do you say 'hola'?","expected":"Hello!","hint":"Empieza con H...","teacher_notes":"..."}
+Dialogue line: {"speaker":"teacher"|"student","text":"...","translation":"...","teacher_notes":"..."}
+Checkpoint: {"type":"checkpoint","prompt":"...","expected":"...","teacher_notes":"..."}
+
+SCHEMA HOMEWORK SECTIONS (array "homework.sections"):
+{"type":"vocabulary_list","title":"...","items":[{"word":"...","phonetic":"...","translation":"...","example":"..."}]}
+{"type":"reading","title":"...","text":"...","translation":"..."}
+{"type":"writing_prompt","title":"...","prompts":["Escribe 3 oraciones sobre ti misma.","..."]}
+{"type":"listen_and_repeat","title":"...","items":[{"phrase":"...","phonetic":"...","translation":"..."}]}
+{"type":"challenge","title":"...","task":"..."}
+
+SCHEMA TOP LEVEL:
+{
+  "id": "${lessonSnake}",
+  "units": [{
+    "id": "u1",
+    "title": "${unit.title}",
+    "lessons": [{
+      "id": "l1",
+      "title": "${lesson.title}",
+      "exercises": [],
+      "phases": [
+        {"type":"presentation","title":"Presentation","items":[]},
+        {"type":"verbal_drill","title":"Verbal Drills","items":[]},
+        {"type":"dialogue","title":"Dialogue","lines":[]},
+        {"type":"checkpoint","title":"Checkpoint","items":[]}
+      ],
+      "homework": {"estimated_minutes":15,"sections":[]}
+    }]
+  }]
+}
+
+REGLAS:
+- IDs únicos con prefijo de lección: ${lessonSnake}_e1, p1_i1, hw_s1
+- Prompts de ejercicios en ${promptLang} para nivel ${level}
+- La estudiante es hispanohablante, meta: vivir en un país anglohablante
+- Vocabulario y gramática deben corresponder exactamente al nivel CEFR ${level}
+- Mínimo: 6 exercises, 3 presentation items, 4 verbal drills, 6 dialogue lines, 3 checkpoint items, 2 homework sections (incluye vocabulary_list)`;
+}
+
+async function copyLessonPrompt() {
+  if (!genSelectedLesson || !genSelectedUnit) return;
+  const text = buildLessonPrompt(genSelectedUnit, genSelectedLesson);
+  let ok = false;
+  try {
+    await navigator.clipboard.writeText(text);
+    ok = true;
+  } catch(_) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;font-size:16px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.setSelectionRange(0, text.length);
+      ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch(_2) { ok = false; }
+  }
+  if (ok) {
+    if (!genCopiedLessons.includes(genSelectedLesson.id)) {
+      genCopiedLessons.push(genSelectedLesson.id);
+      store('generator_copied_lessons', genCopiedLessons);
+    }
+    showToast('✓ Prompt copied — paste it into Claude');
+    renderGeneratorPanel();
+    updateGenBottomBar();
+  } else {
+    showToast('Copy failed — please try again');
+  }
+}
+
+// ══════════════════════════════════════
+//  EVENT WIRING
+// ══════════════════════════════════════
+
+// Bottom nav
+document.getElementById('tabbar').querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.screen) showScreen(btn.dataset.screen);
+  });
+});
+
+// Back from exercise
+document.getElementById('btnExBack').addEventListener('click', () => {
+  if (session) { session = null; }
+  showScreen('screenHome');
+});
+
+// Continue in exercise
+document.getElementById('continueBtn').addEventListener('click', () => {
+  if (!session) return;
+  if (session.idx < session.queue.length - 1) advanceExercise();
+  else showSessionComplete();
+});
+
+// Home start practice — handled via btn.onclick set in renderHome()
+
+// File input
+document.getElementById('fileInput').addEventListener('change', e => {
+  handleCurriculumFile(e.target.files[0]);
+  e.target.value = '';
+});
+
+// Welcome screen
+document.getElementById('btnImportCurr').addEventListener('click', () => {
+  document.getElementById('fileInput').click();
+});
+
+document.getElementById('btnStartApp').addEventListener('click', () => {
+  const name = document.getElementById('studentNameInput').value.trim();
+  if (name) {
+    studentName = name;
+    store(LS.studentName, studentName);
+  }
+  if (!curriculum) { showToast('Please import your curriculum first ♡'); return; }
+  document.getElementById('tabbar').style.display = 'flex';
+  showScreen('screenHome');
+});
+
+// If curriculum already loaded, skip welcome
+document.getElementById('studentNameInput').value = studentName;
+
+// Merge dialog
+document.getElementById('btnMerge').addEventListener('click', () => {
+  if (!pendingImport) return;
+  applyCurriculum(pendingImport, true);
+  pendingImport = null;
+  document.getElementById('mergeDialog').classList.remove('open');
+  showToast('Curriculum merged ♡');
+  if (currentScreen === 'screenWelcome') showScreen('screenHome');
+});
+
+document.getElementById('btnReplace').addEventListener('click', () => {
+  if (!pendingImport) return;
+  applyCurriculum(pendingImport, false);
+  pendingImport = null;
+  document.getElementById('mergeDialog').classList.remove('open');
+  showToast('Curriculum replaced ♡');
+  if (currentScreen === 'screenWelcome') showScreen('screenHome');
+});
+
+// Flashcard study all
+document.getElementById('btnStudyAll').addEventListener('click', () => {
+  if (!curriculum) return;
+  // Find first unit with flashcards or use all
+  const uid = fcFilterUnit === 'all' ? curriculum.units[0]?.id : fcFilterUnit;
+  const unit = curriculum.units.find(u => u.id === uid);
+  if (!unit) return;
+  const lesson = unit.lessons.find(l => (l.exercises||[]).some(e => e.type === 'flashcard'));
+  if (!lesson) { showToast('No flashcards found ♡'); return; }
+  startSession(unit.id, lesson.id, 'practice');
+});
+
+// Progress export
+document.getElementById('btnExportProgress').addEventListener('click', exportProgress);
+
+// Celebrate btn (backup handler)
+document.getElementById('celebrateBtn').addEventListener('click', () => {
+  document.getElementById('celebrate').classList.remove('show');
+  clearCelebration();
+  if (session) session = null;
+  showScreen('screenHome');
+});
+
+// Guided session back
+document.getElementById('btnGuidedBack').addEventListener('click', () => {
+  if (guidedSession) { clearInterval(guidedSession.timerInterval); guidedSession = null; }
+  showScreen('screenHome');
+});
+
+// View toggle
+document.getElementById('btnViewTeacher').addEventListener('click', () => {
+  if (!guidedSession) return;
+  guidedSession.view = 'teacher';
+  document.getElementById('btnViewTeacher').className = 'vtb active-teacher';
+  document.getElementById('btnViewStudent').className = 'vtb';
+  updateTimerDisplay();
+  renderGuidedContent();
+});
+document.getElementById('btnViewStudent').addEventListener('click', () => {
+  if (!guidedSession) return;
+  guidedSession.view = 'student';
+  document.getElementById('btnViewTeacher').className = 'vtb';
+  document.getElementById('btnViewStudent').className = 'vtb active-student';
+  updateTimerDisplay();
+  renderGuidedContent();
+});
+
+// Session history panel
+document.getElementById('btnOpenHistory').addEventListener('click', openHistoryPanel);
+document.getElementById('btnCloseHistory').addEventListener('click', closeHistoryPanel);
+
+// Homework back button
+document.getElementById('btnHwBack').addEventListener('click', () => showScreen('screenLessons'));
+
+// Homework history panel
+document.getElementById('btnOpenHwHistory').addEventListener('click', openHwHistoryPanel);
+document.getElementById('btnCloseHwHistory').addEventListener('click', closeHwHistoryPanel);
+
+// Backend status dot toggle
+document.getElementById('backendDot').addEventListener('click', () => {
+  const tip = document.getElementById('backendTooltip');
+  const visible = tip.style.display === 'block';
+  tip.style.display = visible ? 'none' : 'block';
+  if (!visible) setTimeout(() => { tip.style.display = 'none'; }, 4000);
+});
+
+// Session detail close
+document.getElementById('btnCloseSdm').addEventListener('click', () => {
+  document.getElementById('sdmOverlay').classList.remove('open');
+});
+document.getElementById('sdmOverlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) e.currentTarget.classList.remove('open');
+});
+
+// Generator buttons
+document.getElementById('btnGenBack').addEventListener('click', () => showScreen('screenHome'));
+document.getElementById('btnGenCopy').addEventListener('click', copyLessonPrompt);
+document.getElementById('btnGenStart').addEventListener('click', startSessionFromGenerator);
+document.getElementById('btnGenReset').addEventListener('click', () => {
+  genCopiedLessons = [];
+  store('generator_copied_lessons', genCopiedLessons);
+  if (genSelectedUnit) renderGeneratorPanel();
+  updateGenBottomBar();
+  showToast('Marks reset ♡');
+});
+
+// Teacher mode: tap home avatar 5 times
+document.getElementById('homeAvatar').addEventListener('click', () => {
+  teacherTapCount++;
+  clearTimeout(teacherTapTimer);
+  if (teacherTapCount >= 5) {
+    teacherTapCount = 0;
+    toggleTeacherMode();
+  } else {
+    teacherTapTimer = setTimeout(() => { teacherTapCount = 0; }, 1500);
+  }
+});
+
+// Mode choice dialog
+document.getElementById('btnModeGuided').addEventListener('click', () => {
+  if (!pendingModeLesson) return;
+  const { unitId, lessonId } = pendingModeLesson;
+  pendingModeLesson = null;
+  document.getElementById('modeDialog').classList.remove('open');
+  startGuidedSession(unitId, lessonId);
+});
+document.getElementById('btnModeSolo').addEventListener('click', () => {
+  if (!pendingModeLesson) return;
+  const { unitId, lessonId } = pendingModeLesson;
+  pendingModeLesson = null;
+  document.getElementById('modeDialog').classList.remove('open');
+  startSession(unitId, lessonId, 'practice');
+});
+
+// ── INIT ──
+checkBackendStatus();
+setInterval(checkBackendStatus, 30000);
+updateTeacherModeUI();
+if (curriculum && studentName) {
+  document.getElementById('tabbar').style.display = 'flex';
+  showScreen('screenHome');
+} else if (curriculum && !studentName) {
+  document.getElementById('tabbar').style.display = 'flex';
+  document.getElementById('importStatus').className = 'import-status ok';
+  document.getElementById('importStatus').textContent = '✓ Curriculum already loaded ♡';
+  document.getElementById('btnStartApp').style.display = 'flex';
+}
+</script>
+</body>
+</html>

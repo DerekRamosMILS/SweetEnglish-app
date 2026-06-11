@@ -1,0 +1,18 @@
+{
+  "name": "SweetEnglish — Estudiante",
+  "short_name": "SweetEnglish",
+  "description": "Practica inglés con tu profesora",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF5F7",
+  "theme_color": "#E8638C",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='40' fill='%23FFB7C5'/%3E%3Cpath d='M96 148s-44-28-60-56C28 74 36 56 52 56c10 0 17 6 22 13 5-7 12-13 22-13 16 0 24 18 16 36C119 120 96 148 96 148z' fill='%23E8638C'/%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

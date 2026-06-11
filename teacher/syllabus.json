@@ -1,0 +1,434 @@
+{
+  "version": 1,
+  "meta": {
+    "title": "English A1 to C1 — Full Syllabus",
+    "goal": "Functional English for living in an English-speaking country",
+    "schedule": "5 classes/week · 1 hour per class",
+    "estimated_months": 18,
+    "total_units": 32,
+    "total_lessons": 128
+  },
+  "levels": [
+    {
+      "id": "A1",
+      "title": "Survival English",
+      "description": "Can introduce herself, understand basic questions, handle simple daily interactions.",
+      "estimated_weeks": 10,
+      "units": ["U01","U02","U03","U04","U05","U06","U07","U08"]
+    },
+    {
+      "id": "A2",
+      "title": "Basic Communication",
+      "description": "Can handle most everyday situations, express opinions simply, describe past events.",
+      "estimated_weeks": 12,
+      "units": ["U09","U10","U11","U12","U13","U14","U15","U16"]
+    },
+    {
+      "id": "B1",
+      "title": "Independent Communication",
+      "description": "Can handle most situations in daily life, express ideas clearly, understand main points of standard topics.",
+      "estimated_weeks": 16,
+      "units": ["U17","U18","U19","U20","U21","U22","U23","U24"]
+    },
+    {
+      "id": "B2",
+      "title": "Upper Intermediate",
+      "description": "Can interact fluently with native speakers, understand complex texts, express ideas with precision.",
+      "estimated_weeks": 16,
+      "units": ["U25","U26","U27","U28"]
+    },
+    {
+      "id": "C1",
+      "title": "Advanced Mastery",
+      "description": "Can express herself spontaneously, flexibly, and effectively for complex social and professional purposes.",
+      "estimated_weeks": 12,
+      "units": ["U29","U30","U31","U32"]
+    }
+  ],
+  "units": [
+    {
+      "id": "U01", "level": "A1", "order": 1,
+      "title": "Greetings & Introductions",
+      "grammar": ["Verb 'to be' (I am, you are)", "Subject pronouns", "Basic word order"],
+      "vocabulary_target": 30,
+      "lessons": [
+        { "id": "U01-L1", "order": 1, "title": "Hello! Basic Greetings", "topics": ["good morning", "hi", "goodbye", "how are you"] },
+        { "id": "U01-L2", "order": 2, "title": "My Name Is...", "topics": ["name", "age", "where are you from"] },
+        { "id": "U01-L3", "order": 3, "title": "Meeting People", "topics": ["nice to meet you", "this is my friend", "pleased to meet you"] },
+        { "id": "U01-L4", "order": 4, "title": "Review & Real Dialogue", "topics": ["full intro conversation", "checkpoint"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U02", "level": "A1", "order": 2,
+      "title": "Numbers, Dates & Time",
+      "grammar": ["Cardinal/ordinal numbers", "Questions with 'what'", "Telling time"],
+      "vocabulary_target": 45,
+      "lessons": [
+        { "id": "U02-L1", "order": 1, "title": "Numbers 1–20", "topics": ["counting", "ages", "phone numbers"] },
+        { "id": "U02-L2", "order": 2, "title": "Numbers 21–100 & Money", "topics": ["prices", "how much", "I want"] },
+        { "id": "U02-L3", "order": 3, "title": "Days, Months & Dates", "topics": ["Monday", "January", "birthday"] },
+        { "id": "U02-L4", "order": 4, "title": "Telling Time", "topics": ["what time is it", "o'clock", "half past", "AM/PM"] }
+      ]
+    },
+    {
+      "id": "U03", "level": "A1", "order": 3,
+      "title": "Family & People",
+      "grammar": ["Possessives (my, your, his, her)", "Plural nouns", "'have' vs 'be'"],
+      "vocabulary_target": 35,
+      "lessons": [
+        { "id": "U03-L1", "order": 1, "title": "My Family", "topics": ["mother", "father", "sister", "brother", "grandparents"] },
+        { "id": "U03-L2", "order": 2, "title": "Describing People", "topics": ["tall", "short", "young", "old", "hair color"] },
+        { "id": "U03-L3", "order": 3, "title": "Relationships", "topics": ["friend", "neighbor", "colleague", "partner"] },
+        { "id": "U03-L4", "order": 4, "title": "Talking About Your Family", "topics": ["full conversation", "photos activity"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U04", "level": "A1", "order": 4,
+      "title": "Colors, Shapes & Objects",
+      "grammar": ["Adjective order", "'this/that/these/those'", "Articles (a, an, the)"],
+      "vocabulary_target": 40,
+      "lessons": [
+        { "id": "U04-L1", "order": 1, "title": "Colors & Basic Adjectives", "topics": ["red", "big", "beautiful", "new"] },
+        { "id": "U04-L2", "order": 2, "title": "Common Objects", "topics": ["table", "chair", "phone", "bag", "book"] },
+        { "id": "U04-L3", "order": 3, "title": "In the House", "topics": ["bedroom", "kitchen", "bathroom", "living room"] },
+        { "id": "U04-L4", "order": 4, "title": "Describing Your Space", "topics": ["full description dialogue", "checkpoint"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U05", "level": "A1", "order": 5,
+      "title": "Daily Routines",
+      "grammar": ["Simple Present tense", "Frequency adverbs (always, sometimes, never)"],
+      "vocabulary_target": 40,
+      "lessons": [
+        { "id": "U05-L1", "order": 1, "title": "Morning Routines", "topics": ["wake up", "brush teeth", "get dressed", "eat breakfast"] },
+        { "id": "U05-L2", "order": 2, "title": "Work & School Day", "topics": ["go to work", "study", "take a break", "finish"] },
+        { "id": "U05-L3", "order": 3, "title": "Evening & Weekend", "topics": ["cook dinner", "watch TV", "go out", "relax"] },
+        { "id": "U05-L4", "order": 4, "title": "My Typical Day", "topics": ["full routine narration", "time expressions"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U06", "level": "A1", "order": 6,
+      "title": "Food & Eating",
+      "grammar": ["Countable vs uncountable nouns", "'some/any'", "Ordering expressions"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U06-L1", "order": 1, "title": "Food I Like", "topics": ["fruits", "vegetables", "meat", "dairy", "like/don't like"] },
+        { "id": "U06-L2", "order": 2, "title": "At the Supermarket", "topics": ["shopping list", "how much", "I need"] },
+        { "id": "U06-L3", "order": 3, "title": "At a Restaurant", "topics": ["ordering", "asking for the menu", "the bill"] },
+        { "id": "U06-L4", "order": 4, "title": "Cooking at Home", "topics": ["recipe vocabulary", "measurements", "instructions"] }
+      ]
+    },
+    {
+      "id": "U07", "level": "A1", "order": 7,
+      "title": "Getting Around",
+      "grammar": ["Imperatives", "Prepositions of place (next to, in front of, behind)"],
+      "vocabulary_target": 40,
+      "lessons": [
+        { "id": "U07-L1", "order": 1, "title": "Transport", "topics": ["bus", "train", "taxi", "walk", "drive"] },
+        { "id": "U07-L2", "order": 2, "title": "Asking for Directions", "topics": ["turn left", "go straight", "how far"] },
+        { "id": "U07-L3", "order": 3, "title": "At the Airport / Station", "topics": ["ticket", "passport", "gate", "platform"] },
+        { "id": "U07-L4", "order": 4, "title": "Getting Around Town", "topics": ["full navigation dialogue", "map activity"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U08", "level": "A1", "order": 8,
+      "title": "Shopping & Services",
+      "grammar": ["Can/can't for ability and requests", "'I'd like'", "How much/many"],
+      "vocabulary_target": 40,
+      "lessons": [
+        { "id": "U08-L1", "order": 1, "title": "Buying Clothes", "topics": ["size", "color", "try on", "too big/small"] },
+        { "id": "U08-L2", "order": 2, "title": "At the Bank / Post Office", "topics": ["account", "send", "receive", "exchange"] },
+        { "id": "U08-L3", "order": 3, "title": "Asking for Help", "topics": ["excuse me", "could you help me", "I'm looking for"] },
+        { "id": "U08-L4", "order": 4, "title": "A1 Final Review", "topics": ["comprehensive checkpoint", "all A1 topics"], "is_review": true, "is_level_exam": true }
+      ]
+    },
+    {
+      "id": "U09", "level": "A2", "order": 9,
+      "title": "Past Experiences",
+      "grammar": ["Simple Past (regular & irregular verbs)", "Time expressions (yesterday, last week, ago)"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U09-L1", "order": 1, "title": "Regular Past Verbs", "topics": ["worked", "walked", "cooked", "visited"] },
+        { "id": "U09-L2", "order": 2, "title": "Irregular Past Verbs — Group 1", "topics": ["went", "had", "saw", "ate", "came"] },
+        { "id": "U09-L3", "order": 3, "title": "Irregular Past Verbs — Group 2", "topics": ["said", "made", "got", "took", "knew"] },
+        { "id": "U09-L4", "order": 4, "title": "Telling Stories", "topics": ["what did you do?", "narrating a past day"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U10", "level": "A2", "order": 10,
+      "title": "Future Plans",
+      "grammar": ["'going to' for plans", "'will' for spontaneous decisions", "Present continuous for future"],
+      "vocabulary_target": 35,
+      "lessons": [
+        { "id": "U10-L1", "order": 1, "title": "My Plans", "topics": ["I'm going to", "next week", "this summer"] },
+        { "id": "U10-L2", "order": 2, "title": "Making Decisions", "topics": ["I'll have", "I think I'll", "maybe I will"] },
+        { "id": "U10-L3", "order": 3, "title": "Invitations & Arrangements", "topics": ["do you want to", "let's", "shall we"] },
+        { "id": "U10-L4", "order": 4, "title": "Planning a Trip", "topics": ["full future planning dialogue"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U11", "level": "A2", "order": 11,
+      "title": "Health & Body",
+      "grammar": ["'feel' + adjective", "Should/shouldn't", "Imperatives for advice"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U11-L1", "order": 1, "title": "The Body", "topics": ["head", "shoulders", "knees", "organs", "senses"] },
+        { "id": "U11-L2", "order": 2, "title": "Feeling Sick", "topics": ["I have a headache", "I feel tired", "symptoms"] },
+        { "id": "U11-L3", "order": 3, "title": "At the Doctor", "topics": ["appointment", "prescription", "how long"] },
+        { "id": "U11-L4", "order": 4, "title": "Healthy Habits", "topics": ["exercise", "sleep", "diet", "mental health basics"] }
+      ]
+    },
+    {
+      "id": "U12", "level": "A2", "order": 12,
+      "title": "Home & Living",
+      "grammar": ["There is/are", "Prepositions of place (advanced)", "Possessive pronouns"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U12-L1", "order": 1, "title": "Describing Your Home", "topics": ["rooms", "furniture", "layout"] },
+        { "id": "U12-L2", "order": 2, "title": "Finding a Place to Live", "topics": ["rent", "deposit", "landlord", "lease"] },
+        { "id": "U12-L3", "order": 3, "title": "Neighborhood & Community", "topics": ["neighbors", "nearby", "local services"] },
+        { "id": "U12-L4", "order": 4, "title": "Household Problems", "topics": ["broken", "fix", "call the repairman"] }
+      ]
+    },
+    {
+      "id": "U13", "level": "A2", "order": 13,
+      "title": "Work & Study",
+      "grammar": ["Present Perfect introduction", "Have you ever...?", "For/since"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U13-L1", "order": 1, "title": "Jobs & Professions", "topics": ["what do you do", "I work as", "I study"] },
+        { "id": "U13-L2", "order": 2, "title": "At Work / School", "topics": ["meeting", "deadline", "assignment", "class"] },
+        { "id": "U13-L3", "order": 3, "title": "Skills & Experience", "topics": ["I can", "I know how to", "I have experience"] },
+        { "id": "U13-L4", "order": 4, "title": "Job Interview Basics", "topics": ["tell me about yourself", "why do you want"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U14", "level": "A2", "order": 14,
+      "title": "Travel & Tourism",
+      "grammar": ["Past continuous", "When/while clauses", "Question tags"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U14-L1", "order": 1, "title": "Planning a Holiday", "topics": ["destination", "budget", "accommodation"] },
+        { "id": "U14-L2", "order": 2, "title": "At the Hotel", "topics": ["check in", "room service", "complaint", "checkout"] },
+        { "id": "U14-L3", "order": 3, "title": "Sightseeing", "topics": ["museum", "tour", "local food", "souvenir"] },
+        { "id": "U14-L4", "order": 4, "title": "Travel Stories", "topics": ["narrating a past trip", "travel mishaps"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U15", "level": "A2", "order": 15,
+      "title": "Opinions & Preferences",
+      "grammar": ["Like/love/hate + gerund", "Think/believe/feel", "Comparatives & superlatives"],
+      "vocabulary_target": 40,
+      "lessons": [
+        { "id": "U15-L1", "order": 1, "title": "What I Like and Dislike", "topics": ["I enjoy", "I can't stand", "I prefer"] },
+        { "id": "U15-L2", "order": 2, "title": "Comparing Things", "topics": ["better than", "the best", "not as good as"] },
+        { "id": "U15-L3", "order": 3, "title": "Giving Opinions", "topics": ["I think", "in my opinion", "I agree/disagree"] },
+        { "id": "U15-L4", "order": 4, "title": "Discussing Movies, Music & Books", "topics": ["recommendations", "reviews"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U16", "level": "A2", "order": 16,
+      "title": "Social Life & Relationships",
+      "grammar": ["Used to", "Modal verbs review", "Reported speech basics"],
+      "vocabulary_target": 45,
+      "lessons": [
+        { "id": "U16-L1", "order": 1, "title": "Friendships", "topics": ["close friend", "get along", "fall out", "make up"] },
+        { "id": "U16-L2", "order": 2, "title": "Social Events", "topics": ["party", "invitation", "RSVP", "what to bring"] },
+        { "id": "U16-L3", "order": 3, "title": "Emotions & Feelings", "topics": ["happy", "frustrated", "nervous", "proud"] },
+        { "id": "U16-L4", "order": 4, "title": "A2 Final Review", "topics": ["comprehensive checkpoint", "real-life scenario"], "is_review": true, "is_level_exam": true }
+      ]
+    },
+    {
+      "id": "U17", "level": "B1", "order": 17,
+      "title": "News & Current Events",
+      "grammar": ["Passive voice (present & past)", "Reported speech", "Linking words (however, although)"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U17-L1", "order": 1, "title": "Reading Headlines", "topics": ["news vocabulary", "key topics"] },
+        { "id": "U17-L2", "order": 2, "title": "Talking About the News", "topics": ["apparently", "it is said that", "according to"] },
+        { "id": "U17-L3", "order": 3, "title": "Social Media & Information", "topics": ["fake news", "share", "trending", "viral"] },
+        { "id": "U17-L4", "order": 4, "title": "Giving Your Opinion on Current Events", "topics": ["debate structure"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U18", "level": "B1", "order": 18,
+      "title": "Work & Career (Advanced)",
+      "grammar": ["Conditionals (zero & first)", "Future perfect", "Professional register"],
+      "vocabulary_target": 60,
+      "lessons": [
+        { "id": "U18-L1", "order": 1, "title": "The Workplace", "topics": ["colleague", "manager", "HR", "department", "promotion"] },
+        { "id": "U18-L2", "order": 2, "title": "Meetings & Presentations", "topics": ["agenda", "point", "summarize", "I'd like to add"] },
+        { "id": "U18-L3", "order": 3, "title": "Emails & Written Communication", "topics": ["formal tone", "greetings", "sign-off"] },
+        { "id": "U18-L4", "order": 4, "title": "Career Development", "topics": ["goals", "performance review", "feedback"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U19", "level": "B1", "order": 19,
+      "title": "Culture & Customs",
+      "grammar": ["Modals for obligation/prohibition (must, mustn't, have to)", "Gerunds as subjects"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U19-L1", "order": 1, "title": "Cultural Differences", "topics": ["customs", "traditions", "taboos", "etiquette"] },
+        { "id": "U19-L2", "order": 2, "title": "English-Speaking Countries", "topics": ["US", "UK", "Australia", "Canada key facts"] },
+        { "id": "U19-L3", "order": 3, "title": "Holidays & Celebrations", "topics": ["Christmas", "Thanksgiving", "Easter", "local"] },
+        { "id": "U19-L4", "order": 4, "title": "Living Abroad", "topics": ["culture shock", "adapting", "fitting in", "homesickness"] }
+      ]
+    },
+    {
+      "id": "U20", "level": "B1", "order": 20,
+      "title": "Arguments & Debate",
+      "grammar": ["Second conditional", "Concession (even though, despite)", "Emphatic structures"],
+      "vocabulary_target": 45,
+      "lessons": [
+        { "id": "U20-L1", "order": 1, "title": "Agreeing & Disagreeing", "topics": ["I see your point but", "on the other hand"] },
+        { "id": "U20-L2", "order": 2, "title": "Making Arguments", "topics": ["firstly", "furthermore", "to sum up"] },
+        { "id": "U20-L3", "order": 3, "title": "Discussing Controversial Topics", "topics": ["politely", "without offending"] },
+        { "id": "U20-L4", "order": 4, "title": "Formal Debate Practice", "topics": ["structured debate", "real topics"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U21", "level": "B1", "order": 21,
+      "title": "Technology & Daily Life",
+      "grammar": ["Relative clauses (who, which, that)", "Defining vs non-defining"],
+      "vocabulary_target": 60,
+      "lessons": [
+        { "id": "U21-L1", "order": 1, "title": "Devices & Apps", "topics": ["smartphone", "laptop", "download", "update", "crash"] },
+        { "id": "U21-L2", "order": 2, "title": "The Internet", "topics": ["search", "browse", "stream", "account", "password"] },
+        { "id": "U21-L3", "order": 3, "title": "Technology Problems", "topics": ["troubleshooting", "customer support"] },
+        { "id": "U21-L4", "order": 4, "title": "Technology & Society", "topics": ["pros and cons", "screen time", "privacy"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U22", "level": "B1", "order": 22,
+      "title": "Environment & Society",
+      "grammar": ["Passive voice (advanced)", "Modal perfect (should have, could have)"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U22-L1", "order": 1, "title": "The Environment", "topics": ["climate change", "recycle", "pollution", "renewable"] },
+        { "id": "U22-L2", "order": 2, "title": "Social Issues", "topics": ["equality", "poverty", "community", "volunteer"] },
+        { "id": "U22-L3", "order": 3, "title": "Taking Action", "topics": ["what can we do", "it's important to", "we should"] },
+        { "id": "U22-L4", "order": 4, "title": "Presenting a Problem and Solution", "topics": ["structured spoken essay"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U23", "level": "B1", "order": 23,
+      "title": "Emotions & Mental Health",
+      "grammar": ["Wish + past simple", "If only", "Expressing regret"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U23-L1", "order": 1, "title": "Complex Emotions", "topics": ["overwhelmed", "anxious", "relieved", "content"] },
+        { "id": "U23-L2", "order": 2, "title": "Talking About Stress", "topics": ["pressure", "coping", "support", "self-care"] },
+        { "id": "U23-L3", "order": 3, "title": "Mental Health Conversations", "topics": ["reducing stigma", "asking for help"] },
+        { "id": "U23-L4", "order": 4, "title": "Expressing Regret & Wishes", "topics": ["I wish I had", "if only I could"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U24", "level": "B1", "order": 24,
+      "title": "Storytelling & Narrative",
+      "grammar": ["Narrative tenses (past perfect, past continuous + simple past)", "Time linkers"],
+      "vocabulary_target": 50,
+      "lessons": [
+        { "id": "U24-L1", "order": 1, "title": "Telling a Good Story", "topics": ["setting the scene", "building tension"] },
+        { "id": "U24-L2", "order": 2, "title": "Anecdotes", "topics": ["you won't believe this", "so anyway", "in the end"] },
+        { "id": "U24-L3", "order": 3, "title": "Describing Events", "topics": ["suddenly", "just then", "at that moment"] },
+        { "id": "U24-L4", "order": 4, "title": "B1 Final Review", "topics": ["long spoken narrative", "comprehensive checkpoint"], "is_review": true, "is_level_exam": true }
+      ]
+    },
+    {
+      "id": "U25", "level": "B2", "order": 25,
+      "title": "Nuance & Register",
+      "grammar": ["Advanced modals", "Inversion for emphasis", "Cleft sentences"],
+      "vocabulary_target": 60,
+      "lessons": [
+        { "id": "U25-L1", "order": 1, "title": "Formal vs Informal English", "topics": ["register shifts", "when to use which"] },
+        { "id": "U25-L2", "order": 2, "title": "Hedging & Softening", "topics": ["apparently", "tend to", "might", "somewhat"] },
+        { "id": "U25-L3", "order": 3, "title": "Emphasizing & Focusing", "topics": ["what I mean is", "the thing is", "it's X that"] },
+        { "id": "U25-L4", "order": 4, "title": "Reading Real Articles", "topics": ["newspaper", "blog", "letter comprehension"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U26", "level": "B2", "order": 26,
+      "title": "Abstract Ideas",
+      "grammar": ["Nominalization", "Complex noun phrases", "Fronting"],
+      "vocabulary_target": 60,
+      "lessons": [
+        { "id": "U26-L1", "order": 1, "title": "Concepts & Ideas", "topics": ["notion", "perspective", "implication", "framework"] },
+        { "id": "U26-L2", "order": 2, "title": "Philosophy & Ethics", "topics": ["right/wrong", "moral", "dilemma", "value"] },
+        { "id": "U26-L3", "order": 3, "title": "Discussing Abstract Topics", "topics": ["consciousness", "justice", "beauty"] },
+        { "id": "U26-L4", "order": 4, "title": "Academic-Style Discussion", "topics": ["structured", "referenced opinions"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U27", "level": "B2", "order": 27,
+      "title": "Formal Writing",
+      "grammar": ["Discourse markers", "Parallel structure", "Complex subordination"],
+      "vocabulary_target": 55,
+      "lessons": [
+        { "id": "U27-L1", "order": 1, "title": "Formal Emails & Letters", "topics": ["structure", "tone", "key phrases"] },
+        { "id": "U27-L2", "order": 2, "title": "Essays & Reports", "topics": ["introduction", "argument", "conclusion"] },
+        { "id": "U27-L3", "order": 3, "title": "Summarizing & Paraphrasing", "topics": ["in other words", "to put it differently"] },
+        { "id": "U27-L4", "order": 4, "title": "Writing Workshop", "topics": ["write a full formal email", "review together"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U28", "level": "B2", "order": 28,
+      "title": "Advanced Comprehension",
+      "grammar": ["Mixed conditionals", "Ellipsis & substitution", "Cohesion devices"],
+      "vocabulary_target": 60,
+      "lessons": [
+        { "id": "U28-L1", "order": 1, "title": "Understanding Fast Speech", "topics": ["contractions", "linking", "weak forms"] },
+        { "id": "U28-L2", "order": 2, "title": "Accents & Varieties", "topics": ["American", "British", "Australian differences"] },
+        { "id": "U28-L3", "order": 3, "title": "Movies, Podcasts & TV Without Subtitles", "topics": ["strategies"] },
+        { "id": "U28-L4", "order": 4, "title": "B2 Final Review", "topics": ["full comprehension", "production checkpoint"], "is_review": true, "is_level_exam": true }
+      ]
+    },
+    {
+      "id": "U29", "level": "C1", "order": 29,
+      "title": "Native-Like Expression",
+      "grammar": ["Advanced discourse", "Pragmatics", "Implicature"],
+      "vocabulary_target": 60,
+      "lessons": [
+        { "id": "U29-L1", "order": 1, "title": "Natural Spoken English", "topics": ["reductions", "rhythm", "stress patterns"] },
+        { "id": "U29-L2", "order": 2, "title": "Sounding Natural", "topics": ["fillers", "discourse markers", "hesitation devices"] },
+        { "id": "U29-L3", "order": 3, "title": "Humor & Sarcasm", "topics": ["how English humor works", "irony", "understatement"] },
+        { "id": "U29-L4", "order": 4, "title": "Real Conversations", "topics": ["unscripted extended conversation practice"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U30", "level": "C1", "order": 30,
+      "title": "Idioms & Phrasal Verbs",
+      "grammar": ["Collocation", "Lexical chunks", "Pragmatic meaning"],
+      "vocabulary_target": 80,
+      "lessons": [
+        { "id": "U30-L1", "order": 1, "title": "Everyday Idioms", "topics": ["break a leg", "hit the nail", "piece of cake"] },
+        { "id": "U30-L2", "order": 2, "title": "Phrasal Verbs in Context", "topics": ["give up", "take on", "bring up", "carry out"] },
+        { "id": "U30-L3", "order": 3, "title": "Idioms for Emotions & Situations", "topics": ["over the moon", "under pressure"] },
+        { "id": "U30-L4", "order": 4, "title": "Using Idioms Naturally", "topics": ["when and how to use them", "not overusing"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U31", "level": "C1", "order": 31,
+      "title": "Professional English",
+      "grammar": ["Advanced conditionals in professional contexts", "Diplomatic language"],
+      "vocabulary_target": 65,
+      "lessons": [
+        { "id": "U31-L1", "order": 1, "title": "Presentations & Public Speaking", "topics": ["structure", "signposting", "impact"] },
+        { "id": "U31-L2", "order": 2, "title": "Negotiation & Persuasion", "topics": ["making proposals", "conceding", "closing"] },
+        { "id": "U31-L3", "order": 3, "title": "Networking", "topics": ["small talk", "follow-up", "building rapport"] },
+        { "id": "U31-L4", "order": 4, "title": "Job Interview — Advanced", "topics": ["behavioral questions", "selling yourself"], "is_review": true }
+      ]
+    },
+    {
+      "id": "U32", "level": "C1", "order": 32,
+      "title": "Full Mastery",
+      "grammar": ["Complete review of all structures", "Error correction focus"],
+      "vocabulary_target": 100,
+      "lessons": [
+        { "id": "U32-L1", "order": 1, "title": "Error Correction Workshop", "topics": ["identify and fix common mistakes"] },
+        { "id": "U32-L2", "order": 2, "title": "Fluency & Speed", "topics": ["rapid-fire conversation", "no pausing"] },
+        { "id": "U32-L3", "order": 3, "title": "Real World Simulation", "topics": ["phone call", "formal meeting", "social event"] },
+        { "id": "U32-L4", "order": 4, "title": "C1 Final Exam", "topics": ["comprehensive spoken + written evaluation"], "is_review": true, "is_level_exam": true }
+      ]
+    }
+  ]
+}

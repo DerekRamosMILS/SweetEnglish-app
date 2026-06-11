@@ -1,14 +1,5 @@
-const CACHE = 'sweet-v5';
-const ASSETS = [
-  './app.html',
-  './admin.html',
-  './manifest.json',
-  './student/index.html',
-  './student/manifest.json',
-  './teacher/index.html',
-  './teacher/manifest.json',
-  './teacher/syllabus.json'
-];
+const CACHE = 'sweet-teacher-v1';
+const ASSETS = ['./index.html', './manifest.json', './syllabus.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
