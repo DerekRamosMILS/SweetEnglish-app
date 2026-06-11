@@ -1,0 +1,47 @@
+{
+  "name": "sweetenglish",
+  "version": "1.0.0",
+  "description": "SweetEnglish Teacher App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac --arm64",
+    "pack": "electron-builder --dir"
+  },
+  "build": {
+    "appId": "com.sweetenglish.teacher",
+    "productName": "SweetEnglish",
+    "mac": {
+      "target": [{ "target": "dmg", "arch": ["arm64"] }],
+      "icon": "assets/icon.icns",
+      "category": "public.app-category.education"
+    },
+    "dmg": {
+      "title": "SweetEnglish",
+      "background": null,
+      "window": { "width": 540, "height": 380 }
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "splash.html",
+      "assets/**"
+    ],
+    "extraResources": [
+      {
+        "from": "../teacher",
+        "to": "teacher",
+        "filter": ["**/*"]
+      },
+      {
+        "from": "../backend",
+        "to": "backend",
+        "filter": ["**/*", "!english_teacher.db*", "!**/__pycache__/**", "!**/*.pyc"]
+      }
+    ]
+  },
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.0.0"
+  }
+}

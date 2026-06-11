@@ -1,7 +1,11 @@
+import os
 import sqlite3
 from pathlib import Path
 
-DB_PATH = Path(__file__).parent / "english_teacher.db"
+# Allow the Electron app to redirect the database to Application Support.
+# Falls back to the directory next to this file for local development.
+_env_path = os.environ.get("DB_PATH")
+DB_PATH = Path(_env_path) if _env_path else Path(__file__).parent / "english_teacher.db"
 
 DDL = """
 CREATE TABLE IF NOT EXISTS sessions (

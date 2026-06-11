@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#FFF0F5"/>
+      <stop offset="100%" stop-color="#FFE0EC"/>
+    </linearGradient>
+    <linearGradient id="heart" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#FF6B9D"/>
+      <stop offset="100%" stop-color="#E8638C"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="112" ry="112" fill="url(#bg)"/>
+
+  <!-- Heart shape (centred, ~340px wide) -->
+  <path fill="url(#heart)"
+    d="M256 400
+       C256 400 88 295 88 178
+       C88 123 130 80 180 80
+       C210 80 236 95 256 118
+       C276 95 302 80 332 80
+       C382 80 424 123 424 178
+       C424 295 256 400 256 400Z"/>
+</svg>
