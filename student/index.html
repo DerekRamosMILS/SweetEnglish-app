@@ -68,10 +68,15 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 .w-action-btn.primary:hover{background:var(--rose-deep)}
 
 /* Empty state */
-.w-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:16px;padding:40px 28px;flex:1}
-.w-empty-emoji{font-size:64px;line-height:1}
-.w-empty-title{font-size:20px;font-weight:900;color:var(--mauve)}
-.w-empty-sub{font-size:15px;font-weight:700;color:var(--mauve-soft);line-height:1.5;max-width:280px}
+.w-empty{display:flex;flex-direction:column;gap:16px;padding:20px 20px calc(20px + var(--safe-bottom));flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;position:relative;z-index:1}
+.w-empty::-webkit-scrollbar{display:none}
+.w-how-card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-xl);padding:20px 18px;box-shadow:var(--shadow-sm)}
+.w-how-title{font-size:17px;font-weight:900;color:var(--mauve);margin-bottom:14px}
+.w-how-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.w-how-step:last-child{margin-bottom:0}
+.w-how-num{width:28px;height:28px;border-radius:50%;background:var(--rose);color:var(--white);font-size:14px;font-weight:900;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+.w-how-text{font-size:15px;font-weight:700;color:var(--mauve);line-height:1.5}
+.w-help-tip{font-size:13px;font-weight:700;color:var(--mauve-soft);line-height:1.6;background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:13px 15px}
 
 /* Lesson cards */
 .library-list{display:flex;flex-direction:column;gap:12px;padding:14px 20px calc(20px + var(--safe-bottom));overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex:1;position:relative;z-index:1}
@@ -273,6 +278,26 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 .challenge-star{font-size:36px;margin-bottom:10px}
 .challenge-text{font-size:16px;font-weight:700;color:#6B4E00;line-height:1.6}
 
+/* ── PROGRESS SCREEN ── */
+#screenProgress{position:relative}
+.prog-topbar{display:flex;align-items:center;gap:12px;padding:12px 18px 0;position:relative;z-index:1;flex-shrink:0}
+.prog-topbar-title{font-size:20px;font-weight:900;color:var(--rose);flex:1}
+.prog-content{position:relative;z-index:1;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 20px calc(20px + var(--safe-bottom));scrollbar-width:none}
+.prog-content::-webkit-scrollbar{display:none}
+.prog-stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.prog-stat-card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:14px 8px;text-align:center;box-shadow:var(--shadow-sm)}
+.prog-stat-val{font-size:26px;font-weight:900;color:var(--rose-deep);line-height:1}
+.prog-stat-lbl{font-size:11px;font-weight:800;color:var(--mauve-soft);margin-top:5px;line-height:1.3}
+.prog-streak{background:linear-gradient(135deg,#FFF8DD,#FFF0B2);border:2px solid #E0C060;border-radius:var(--r-lg);padding:16px 18px;text-align:center;margin-bottom:18px;box-shadow:var(--shadow-sm)}
+.prog-streak-val{font-size:22px;font-weight:900;color:#7A5A00}
+.prog-streak-sub{font-size:13px;font-weight:700;color:#A0850A;margin-top:4px}
+.prog-section-head{font-size:16px;font-weight:900;color:var(--mauve);margin-bottom:12px}
+.prog-lesson-row{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:12px}
+.prog-lesson-info{flex:1;min-width:0}
+.prog-lesson-title{font-size:15px;font-weight:900;color:var(--mauve);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog-lesson-meta{font-size:12px;font-weight:700;color:var(--mauve-soft)}
+.prog-footer{text-align:center;font-size:15px;font-weight:700;color:var(--mauve-soft);line-height:1.6;padding:8px 0 4px;margin-top:4px}
+
 /* Name change modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(74,37,53,.5);z-index:900;display:none;align-items:flex-end;justify-content:center;padding:0 0 calc(20px + var(--safe-bottom))}
 .modal-overlay.open{display:flex}
@@ -319,11 +344,14 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
   <div class="w-action-row">
     <button class="w-action-btn primary" id="btnImportLesson">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-      Importar lección
+      Abrir archivo de lecciones
     </button>
     <button class="w-action-btn" id="btnOpenHwLibrary">
       📚 Mi tarea
     </button>
+  </div>
+  <div class="w-action-row" id="progressBtnRow" style="display:none;padding-top:8px">
+    <button class="w-action-btn" id="btnOpenProgress" style="flex:1">📊 Mi progreso</button>
   </div>
   <div id="welcomeBody"></div>
 </div>
@@ -418,6 +446,18 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 </div>
 
 </div><!-- #app -->
+
+<!-- PROGRESS -->
+<div class="screen" id="screenProgress">
+  <div class="screen-bg"></div>
+  <div class="prog-topbar">
+    <button class="btn-back" id="btnProgBack">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+    </button>
+    <div class="prog-topbar-title" id="progTitle">Tu progreso</div>
+  </div>
+  <div class="prog-content" id="progContent"></div>
+</div>
 
 <!-- Name change modal -->
 <div class="modal-overlay" id="nameModal">
@@ -569,6 +609,92 @@ function getBestScore(lessonId) {
   return entry ? entry.best_score : null;
 }
 
+// ── PROGRESS SCREEN ───────────────────────────────────────────────────────
+function calcStreak() {
+  const prog = load('student_progress', []);
+  if (!prog.length) return 0;
+  const dates = new Set(prog.map(p => p.practiced_at.slice(0, 10)));
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const startOffset = dates.has(todayStr) ? 0 : 1;
+  let streak = 0;
+  for (let i = startOffset; i < 365; i++) {
+    const d = new Date(Date.now() - i * 86400000).toISOString().slice(0, 10);
+    if (dates.has(d)) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function renderProgressScreen() {
+  const profile = getProfile();
+  const name = profile ? profile.name : '';
+  document.getElementById('progTitle').textContent = `Tu progreso, ${name}`;
+
+  const prog = load('student_progress', []);
+  const lib  = getLibrary();
+
+  const uniqueLessons = new Set(prog.map(p => p.lesson_id)).size;
+  const totalSessions = prog.length;
+  const avgScore = totalSessions > 0
+    ? Math.round(prog.reduce((s, p) => s + p.score, 0) / totalSessions)
+    : 0;
+
+  const streak = calcStreak();
+  const streakHtml = streak > 0
+    ? `<div class="prog-streak-val">🔥 ${streak} día${streak !== 1 ? 's' : ''} seguido${streak !== 1 ? 's' : ''}</div>`
+    : `<div class="prog-streak-val" style="font-size:17px">Practica hoy para empezar una racha</div>`;
+
+  // Practiced lessons sorted by last_practiced DESC
+  const practiced = lib
+    .filter(l => l.last_practiced)
+    .sort((a, b) => b.last_practiced.localeCompare(a.last_practiced));
+
+  const lessonsHtml = practiced.length ? practiced.map(l => {
+    const lvl = (l.level || '').toUpperCase();
+    const cls = levelClass(lvl);
+    const score = l.best_score !== null
+      ? `<span class="lc-score" style="font-size:11px">⭐ ${l.best_score}%</span>` : '';
+    const last = fmtDate(l.last_practiced) || '—';
+    return `
+      <div class="prog-lesson-row">
+        <div class="prog-lesson-info">
+          ${lvl ? `<div class="lc-level ${cls}" style="margin-bottom:5px">${esc(lvl)}</div>` : ''}
+          <div class="prog-lesson-title">${esc(l.lesson_title)}</div>
+          <div class="prog-lesson-meta">Última práctica: ${last}</div>
+        </div>
+        ${score}
+      </div>`;
+  }).join('') : '<div style="color:var(--mauve-soft);font-weight:700;font-size:15px;text-align:center;padding:20px">Aún no has practicado ninguna lección</div>';
+
+  const footerMsg = totalSessions < 5
+    ? '¡Vas muy bien! Sigue practicando. 🌸'
+    : totalSessions < 20
+      ? '¡Excelente constancia! ♡'
+      : '¡Eres increíble! Sigue así. 🌟';
+
+  document.getElementById('progContent').innerHTML = `
+    <div class="prog-stats-row">
+      <div class="prog-stat-card">
+        <div class="prog-stat-val">${uniqueLessons}</div>
+        <div class="prog-stat-lbl">Lecciones practicadas</div>
+      </div>
+      <div class="prog-stat-card">
+        <div class="prog-stat-val">${totalSessions}</div>
+        <div class="prog-stat-lbl">Sesiones totales</div>
+      </div>
+      <div class="prog-stat-card">
+        <div class="prog-stat-val">${avgScore}%</div>
+        <div class="prog-stat-lbl">Promedio general</div>
+      </div>
+    </div>
+    <div class="prog-streak">
+      ${streakHtml}
+    </div>
+    <div class="prog-section-head">Mis lecciones</div>
+    ${lessonsHtml}
+    <div class="prog-footer">${footerMsg}</div>`;
+}
+
 // ── HOMEWORK LIBRARY ──────────────────────────────────────────────────────
 function getHwLibrary() { return load('student_homework_library', []); }
 
@@ -606,14 +732,34 @@ function markHwComplete(id) {
 function renderWelcome() {
   const profile = getProfile();
   document.getElementById('wName').textContent = profile ? profile.name : '…';
+
+  // Show progress button only when there is practice history
+  const hasProg = load('student_progress', []).length > 0;
+  document.getElementById('progressBtnRow').style.display = hasProg ? 'flex' : 'none';
+
   const lib = getLibrary();
   const body = document.getElementById('welcomeBody');
   if (!lib.length) {
     body.innerHTML = `
       <div class="w-empty">
-        <div class="w-empty-emoji">📂</div>
-        <div class="w-empty-title">Aún no tienes lecciones</div>
-        <div class="w-empty-sub">Importa el archivo curriculum.json que te dio tu profesora para empezar a practicar. ♡</div>
+        <div class="w-how-card">
+          <div class="w-how-title">¿Cómo empezar?</div>
+          <div class="w-how-step">
+            <div class="w-how-num">1</div>
+            <div class="w-how-text">Tu maestro te mandará un <b>archivo de lecciones</b></div>
+          </div>
+          <div class="w-how-step">
+            <div class="w-how-num">2</div>
+            <div class="w-how-text">Guarda ese archivo en tu teléfono</div>
+          </div>
+          <div class="w-how-step">
+            <div class="w-how-num">3</div>
+            <div class="w-how-text">Toca el botón <b>"Abrir archivo de lecciones"</b> de arriba para abrirlo</div>
+          </div>
+        </div>
+        <div class="w-help-tip">
+          💡 <b>¿No encuentras el archivo?</b> En iPhone: abre el archivo desde WhatsApp o correo, toca el ícono de compartir ⬆, y elige "Guardar en Archivos". Luego regresa aquí y tócalo.
+        </div>
       </div>`;
     return;
   }
@@ -660,7 +806,7 @@ function loadLessonFile(file) {
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      if (!data.units || !Array.isArray(data.units)) throw new Error('Archivo inválido');
+      if (!data.units || !Array.isArray(data.units)) throw new Error('Archivo inválido — pídele a tu maestro el archivo correcto');
       const { added, updated } = importCurriculum(data);
       renderWelcome();
       showToast(`✓ ${added} lecciones nuevas, ${updated} actualizadas`);
@@ -854,7 +1000,7 @@ function renderTranslation(ex, body) {
     if (session.answered) return;
     const val = inp.value.trim().toLowerCase().replace(/[¡!¿?.]/g,'').trim();
     const acceptable = [ex.answer, ...(ex.acceptable_answers || [])].map(a => a.toLowerCase().trim().replace(/[¡!¿?.]/g,'').trim());
-    const ok = acceptable.includes(val) || acceptable.some(a => similarity(val, a) > 0.85);
+    const ok = acceptable.includes(val) || acceptable.some(a => similarity(val, a) > 0.75);
     session.answered = true;
     inp.classList.add(ok ? 'correct' : 'wrong');
     document.getElementById('checkBtn').style.display = 'none';
@@ -869,9 +1015,20 @@ function renderTranslation(ex, body) {
   });
 }
 
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function renderWordOrder(ex, body) {
   const words = (ex.words || ex.answer?.split(' ') || []).filter(Boolean);
-  const pool = [...words].sort(() => Math.random() - 0.5);
+  let pool = shuffle(words);
+  // Guarantee the exercise is not pre-solved
+  if (pool.join(' ') === words.join(' ') && words.length > 1) pool = shuffle(words);
   let placed = [], poolState = [...pool];
   const render = () => {
     const drop = document.getElementById('woDrop');
@@ -1208,6 +1365,10 @@ document.getElementById('btnOpenHwLibrary').addEventListener('click', () => {
   renderHwLibrary();
   showScreen('screenHwLibrary');
 });
+document.getElementById('btnOpenProgress').addEventListener('click', () => {
+  renderProgressScreen();
+  showScreen('screenProgress');
+});
 
 // ── EXERCISE EVENTS ───────────────────────────────────────────────────────
 document.getElementById('btnExBack').addEventListener('click', () => {
@@ -1220,6 +1381,11 @@ document.getElementById('btnExBack').addEventListener('click', () => {
 document.getElementById('btnBackHome').addEventListener('click', () => {
   session = null;
   renderWelcome();
+  showScreen('screenWelcome');
+});
+
+// ── PROGRESS EVENTS ───────────────────────────────────────────────────────
+document.getElementById('btnProgBack').addEventListener('click', () => {
   showScreen('screenWelcome');
 });
 

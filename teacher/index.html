@@ -1108,6 +1108,10 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
         Export progress.json
       </button>
+      <button class="export-prog-btn" id="btnExportBackup" style="margin-top:8px;background:#EAF8F0;color:#2A7A4E;border-color:#B8EDD1" title="Requiere backend en línea">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        💾 Exportar backup
+      </button>
 
       <!-- ── BACKEND STATS (populated by renderBackendProgress) ── -->
       <div id="backendProgressSection">
@@ -2902,8 +2906,14 @@ function showGuidedSummary() {
   const mm = String(Math.floor(durationSec / 60)).padStart(2, '0');
   const ss = String(durationSec % 60).padStart(2, '0');
   const allGood = drillResults.every(r => r.correct) && checkpointResults.every(r => r.passed);
+  const offlineBanner = !backendOnline
+    ? `<div style="background:#FFF3CD;border:2px solid #E0C060;border-radius:14px;padding:12px 16px;margin-bottom:16px;font-size:14px;font-weight:800;color:#7A5A00;display:flex;align-items:flex-start;gap:8px">
+        <span style="flex-shrink:0">⚠</span>
+        <span>Backend offline — esta sesión no fue guardada. Inicia el backend y recarga para guardar el historial.</span>
+       </div>` : '';
   document.getElementById('guidedContent').innerHTML = `
     <div style="padding:8px 2px 24px">
+      ${offlineBanner}
       <div style="text-align:center;font-size:64px;margin-bottom:10px">${allGood?'🎉':'⭐'}</div>
       <div class="gs-title">${allGood?'Perfect Session! ♡':'Session Complete! ♡'}</div>
       <div class="gs-sub">${esc(lesson.title)}</div>
@@ -3654,6 +3664,21 @@ document.getElementById('btnStudyAll').addEventListener('click', () => {
 
 // Progress export
 document.getElementById('btnExportProgress').addEventListener('click', exportProgress);
+
+// Backend backup export
+document.getElementById('btnExportBackup').addEventListener('click', async () => {
+  if (!backendOnline) { showToast('⚠ Backend offline — inicia el servidor primero'); return; }
+  const data = await apiGet('/export');
+  if (!data) { showToast('Error al exportar — intenta de nuevo'); return; }
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `backup_sweetenglish_${dateStr}.json`;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  showToast('Backup exportado ♡');
+});
 
 // Celebrate btn (backup handler)
 document.getElementById('celebrateBtn').addEventListener('click', () => {

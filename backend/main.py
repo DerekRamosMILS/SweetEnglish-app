@@ -81,9 +81,15 @@ def end_session(session_id: int, body: SessionEnd):
 @app.post("/sessions/{session_id}/items")
 def add_item(session_id: int, body: SessionItem):
     with get_conn() as conn:
-        row = conn.execute("SELECT id FROM sessions WHERE id=?", (session_id,)).fetchone()
-        if not row:
+        # FIX 1: fetch lesson_id and unit_id from the session row
+        session_row = conn.execute(
+            "SELECT id, lesson_id, unit_id FROM sessions WHERE id=?", (session_id,)
+        ).fetchone()
+        if not session_row:
             raise HTTPException(404, "Session not found")
+
+        session_lesson_id = session_row["lesson_id"]
+        session_unit_id   = session_row["unit_id"]
 
         conn.execute(
             """INSERT INTO session_items
@@ -95,26 +101,40 @@ def add_item(session_id: int, body: SessionItem):
              body.correct, body.attempts or 1, body.response_secs),
         )
 
-        # update weak_words when the item has an expected_answer (vocab)
+        # Update weak_words when the item has an expected_answer
         if body.expected_answer:
             word = body.expected_answer.strip()
+            # Populate translation field for flashcard/verbal_drill items
+            translation = (
+                body.expected_answer.strip()
+                if body.item_type in ("flashcard", "verbal_drill")
+                else None
+            )
             if body.correct:
                 conn.execute(
-                    """INSERT INTO weak_words (word, lesson_id, unit_id, last_seen, correct_count)
-                       VALUES (?, ?, ?, ?, 1)
+                    """INSERT INTO weak_words
+                           (word, lesson_id, unit_id, last_seen, correct_count, translation)
+                       VALUES (?, ?, ?, ?, 1, ?)
                        ON CONFLICT(word) DO UPDATE SET
                          correct_count = correct_count + 1,
-                         last_seen     = excluded.last_seen""",
-                    (word, None, None, now_iso()),
+                         last_seen     = excluded.last_seen,
+                         lesson_id     = COALESCE(lesson_id, excluded.lesson_id),
+                         unit_id       = COALESCE(unit_id,   excluded.unit_id),
+                         translation   = COALESCE(translation, excluded.translation)""",
+                    (word, session_lesson_id, session_unit_id, now_iso(), translation),
                 )
             else:
                 conn.execute(
-                    """INSERT INTO weak_words (word, lesson_id, unit_id, last_seen, wrong_count)
-                       VALUES (?, ?, ?, ?, 1)
+                    """INSERT INTO weak_words
+                           (word, lesson_id, unit_id, last_seen, wrong_count, translation)
+                       VALUES (?, ?, ?, ?, 1, ?)
                        ON CONFLICT(word) DO UPDATE SET
                          wrong_count = wrong_count + 1,
-                         last_seen   = excluded.last_seen""",
-                    (word, None, None, now_iso()),
+                         last_seen   = excluded.last_seen,
+                         lesson_id   = COALESCE(lesson_id, excluded.lesson_id),
+                         unit_id     = COALESCE(unit_id,   excluded.unit_id),
+                         translation = COALESCE(translation, excluded.translation)""",
+                    (word, session_lesson_id, session_unit_id, now_iso(), translation),
                 )
 
     return {"ok": True}
@@ -253,3 +273,24 @@ def complete_homework(homework_id: int):
     if cur.rowcount == 0:
         raise HTTPException(404, "Homework not found")
     return {"ok": True}
+
+
+# ── Export ─────────────────────────────────────────────────────────────────────
+
+@app.get("/export")
+def export_all():
+    with get_conn() as conn:
+        sessions      = [row_to_dict(r) for r in conn.execute("SELECT * FROM sessions ORDER BY started_at").fetchall()]
+        session_items = [row_to_dict(r) for r in conn.execute("SELECT * FROM session_items ORDER BY id").fetchall()]
+        weak_words    = [row_to_dict(r) for r in conn.execute("SELECT * FROM weak_words ORDER BY wrong_count DESC").fetchall()]
+        lessons_status = [row_to_dict(r) for r in conn.execute("SELECT * FROM lessons_status ORDER BY lesson_id").fetchall()]
+        homework_log  = [row_to_dict(r) for r in conn.execute("SELECT * FROM homework_log ORDER BY id").fetchall()]
+    return {
+        "exported_at":    now_iso(),
+        "version":        "1.0",
+        "sessions":       sessions,
+        "session_items":  session_items,
+        "weak_words":     weak_words,
+        "lessons_status": lessons_status,
+        "homework_log":   homework_log,
+    }
