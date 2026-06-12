@@ -1,0 +1,25 @@
+/*
+  ── MY SWEET PIANO MASCOT ─────────────────────────────────────────────
+  PARA REVERTIR: quitar esta línea de student/index.html:
+    <link rel="stylesheet" href="mascot.css">
+  ─────────────────────────────────────────────────────────────────────
+*/
+
+.welcome-mascot,
+.guide-mascot,
+.celebrate-mascot,
+.mascot {
+  font-size: 0 !important;
+}
+
+#welcomeMascot,
+#homeAvatar,
+#homeMascot,
+#exMascot,
+#celebrateMascot {
+  background-image: url('mysweetpiano.avif') !important;
+  background-size: 90% !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  mix-blend-mode: multiply;
+}
