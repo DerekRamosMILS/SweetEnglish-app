@@ -158,10 +158,6 @@ function createMain() {
     },
   });
 
-  mainWin.loadURL('http://localhost:8000/../teacher/index.html')
-    .catch(() => mainWin.loadFile(path.join(TEACHER_DIR, 'index.html')));
-
-  // The teacher HTML fetches the API at localhost:8000 — load the file directly
   mainWin.loadFile(path.join(TEACHER_DIR, 'index.html'));
 
   mainWin.once('ready-to-show', () => {
