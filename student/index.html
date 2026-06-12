@@ -499,7 +499,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 'use strict';
 
 // ── STORAGE ──────────────────────────────────────────────────────────────
-function store(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
+function store(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { showToast('Error al guardar: ' + e.message); } }
 function load(key, fallback) {
   try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : fallback; }
   catch(e) { return fallback; }
