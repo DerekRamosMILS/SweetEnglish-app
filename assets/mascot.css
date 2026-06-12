@@ -1,0 +1,32 @@
+/*
+  ── MY SWEET PIANO MASCOT ─────────────────────────────────────────────
+  Imagen única: assets/mysweetpiano.avif (200×200, sticker YES globo)
+  mix-blend-mode: multiply elimina el fondo blanco del sticker
+
+  PARA REVERTIR COMPLETAMENTE — quitar estas líneas de los 3 archivos HTML:
+    app.html            → <link rel="stylesheet" href="assets/mascot.css">
+    teacher/index.html  → <link rel="stylesheet" href="../assets/mascot.css">
+    student/index.html  → <link rel="stylesheet" href="../assets/mascot.css">
+  ─────────────────────────────────────────────────────────────────────
+*/
+
+/* Ocultar emoji/texto en todos los contenedores de mascota */
+.welcome-mascot,
+.guide-mascot,
+.celebrate-mascot,
+.mascot {
+  font-size: 0 !important;
+}
+
+/* Base: todos los contenedores muestran el sticker */
+#welcomeMascot,
+#homeAvatar,
+#homeMascot,
+#exMascot,
+#celebrateMascot {
+  background-image: url('mysweetpiano.avif') !important;
+  background-size: 90% !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  mix-blend-mode: multiply;
+}

@@ -580,6 +580,256 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 }
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
+/* ── GUIDED SESSION ── */
+#screenGuided{position:relative}
+#screenGuided .scroll-area{padding:0 18px calc(20px + var(--safe-bottom));position:relative;z-index:1}
+.guided-topbar{display:flex;align-items:center;gap:10px;padding:4px 18px 0;position:relative;z-index:1;flex-shrink:0;margin-top:2px}
+.view-toggle{display:flex;border:2px solid var(--pink-border);border-radius:var(--r-pill);overflow:hidden;flex-shrink:0}
+.vtb{font-family:var(--font);font-weight:900;font-size:12px;padding:8px 14px;border:none;cursor:pointer;background:var(--cream);color:var(--mauve-soft);transition:all .14s}
+.vtb.active-teacher{background:var(--mauve);color:var(--white)}
+.vtb.active-student{background:var(--rose);color:var(--white)}
+.phase-progress{display:flex;align-items:center;gap:5px;padding:8px 18px 4px;flex-shrink:0;position:relative;z-index:1}
+.phase-dot{width:9px;height:9px;border-radius:50%;background:var(--track);flex-shrink:0;transition:background .2s}
+.phase-dot.done{background:var(--rose)}
+.phase-dot.now{background:var(--rose);box-shadow:0 0 0 3px rgba(232,99,140,0.25)}
+.phase-label{font-size:11.5px;font-weight:900;color:var(--mauve-soft);margin-left:4px;white-space:nowrap}
+.phase-link{flex:1;height:2px;border-radius:99px;background:var(--track)}
+.phase-link.done{background:var(--rose)}
+.phase-card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-xl);padding:20px 18px;box-shadow:var(--shadow-md)}
+.phase-type-chip{font-size:10.5px;font-weight:900;color:var(--white);background:var(--mauve);padding:4px 10px;border-radius:var(--r-pill);display:inline-flex;align-items:center;gap:5px}
+/* Presentation */
+.pres-word{font-size:38px;font-weight:900;color:var(--rose-deep);text-align:center;margin-bottom:4px}
+.pres-phonetic{font-size:15px;font-weight:700;color:var(--mauve-soft);text-align:center;margin-bottom:12px}
+.pres-translation{font-size:22px;font-weight:800;color:var(--mauve);text-align:center;background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 16px;margin-bottom:12px}
+.teacher-notes{background:#FFF8DD;border:2px solid #E0C060;border-radius:var(--r-md);padding:10px 13px;font-size:13px;font-weight:700;color:#6B4E00;line-height:1.45}
+.student-word{font-size:52px;font-weight:900;color:var(--rose-deep);text-align:center;margin-bottom:10px}
+.student-repeat-card{background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:14px 18px;text-align:center;font-size:18px;font-weight:800;color:var(--mauve-soft)}
+/* Verbal drill */
+.drill-prompt{font-size:20px;font-weight:900;color:var(--mauve);line-height:1.3;margin-bottom:10px}
+.drill-answer{background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 14px;font-size:16px;font-weight:800;color:var(--rose-deep);margin-bottom:12px}
+.reveal-toggle-btn{display:flex;align-items:center;gap:6px;background:none;border:2px dashed var(--pink-border);border-radius:var(--r-md);padding:9px 14px;font-family:var(--font);font-size:13px;font-weight:800;color:var(--mauve-soft);cursor:pointer;width:100%;margin-bottom:12px;transition:all .14s}
+.reveal-toggle-btn:hover{border-color:var(--rose);color:var(--rose)}
+.student-prompt-card{background:linear-gradient(160deg,#FFF6F9,#FFE7EF);border:2.5px solid var(--pink-border-strong);border-radius:var(--r-xl);padding:20px;box-shadow:var(--shadow-sm);margin-bottom:4px}
+.student-prompt-label{font-size:11px;font-weight:900;color:var(--rose);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.student-prompt-text{font-size:20px;font-weight:900;color:var(--mauve);line-height:1.3}
+.drill-result-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.drill-btn-c{font-family:var(--font);font-weight:900;font-size:22px;border:2.5px solid #5FBF8A;border-radius:var(--r-md);padding:16px;cursor:pointer;background:#EAF8F0;color:#2A7A4E;transition:all .14s}
+.drill-btn-c:hover{background:#D6F0E1}
+.drill-btn-w{font-family:var(--font);font-weight:900;font-size:22px;border:2.5px solid #F0A0A0;border-radius:var(--r-md);padding:16px;cursor:pointer;background:#FDEDED;color:#C0392B;transition:all .14s}
+.drill-btn-w:hover{background:#FFDCDC}
+.drill-scored{opacity:0.38;pointer-events:none}
+.drill-score-row{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px}
+.drill-dot{width:13px;height:13px;border-radius:50%;background:var(--track);flex-shrink:0}
+.drill-dot.c{background:#5FBF8A}
+.drill-dot.w{background:#EC8C8C}
+/* Listen card (student view for drill/checkpoint) */
+.listen-card{background:linear-gradient(160deg,#FFF6F9,#FFE7EF);border:2.5px solid var(--pink-border-strong);border-radius:var(--r-xl);padding:36px 20px;text-align:center;box-shadow:var(--shadow-sm)}
+.listen-icon{font-size:52px;margin-bottom:10px}
+.listen-text{font-size:22px;font-weight:900;color:var(--mauve)}
+/* Dialogue */
+.dialogue-setup{font-size:13px;font-weight:700;color:var(--mauve-soft);background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 13px;margin-bottom:12px;font-style:italic}
+.dialogue-lines{display:flex;flex-direction:column;gap:8px}
+.dl{padding:11px 13px;border-radius:var(--r-md);border:2px solid var(--pink-border);background:var(--cream);transition:all .18s;display:flex;align-items:flex-start;gap:8px}
+.dl.active{border-color:var(--rose);background:#FFF0F4;box-shadow:var(--shadow-sm)}
+.dl-body{flex:1;min-width:0}
+.dl-next-inline{flex-shrink:0;align-self:center;background:var(--rose);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;transition:background .14s;box-shadow:var(--shadow-sm)}
+.dl-next-inline:hover{background:var(--rose-deep)}
+.dl.past{opacity:0.45}
+.dl.future{opacity:0.3}
+.dl.teacher-l{border-left:4px solid var(--mauve)}
+.dl.student-l{border-left:4px solid var(--rose)}
+.dl-who{font-size:10.5px;font-weight:900;text-transform:uppercase;letter-spacing:0.5px;color:var(--mauve-soft);margin-bottom:3px}
+.dl-who.t{color:var(--mauve)}
+.dl-who.s{color:var(--rose)}
+.dl-text{font-size:17px;font-weight:800;color:var(--mauve);line-height:1.3}
+.dl-tr{font-size:13px;font-weight:700;color:var(--mauve-soft);margin-top:2px}
+.student-turn-card{background:linear-gradient(160deg,#FFF6F9,#FFE7EF);border:2.5px solid var(--pink-border-strong);border-radius:var(--r-xl);padding:24px 20px;text-align:center;box-shadow:var(--shadow-md)}
+.st-label{font-size:12px;font-weight:900;color:var(--rose);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.st-text{font-size:28px;font-weight:900;color:var(--mauve);line-height:1.25;margin-bottom:8px}
+.st-tr{font-size:15px;font-weight:700;color:var(--mauve-soft)}
+/* Checkpoint */
+.cp-prompt{font-size:19px;font-weight:900;color:var(--mauve);line-height:1.35;margin-bottom:10px}
+.cp-expected{background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 14px;margin-bottom:12px}
+.cp-expected-label{font-size:11px;font-weight:800;color:var(--mauve-soft);margin-bottom:2px}
+.cp-expected-val{font-size:16px;font-weight:900;color:var(--rose-deep)}
+.cp-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.cp-pass{font-family:var(--font);font-weight:900;font-size:15px;border:2.5px solid #5FBF8A;border-radius:var(--r-md);padding:16px;cursor:pointer;background:#EAF8F0;color:#2A7A4E;transition:all .14s}
+.cp-pass:hover{background:#D6F0E1}
+.cp-review{font-family:var(--font);font-weight:900;font-size:15px;border:2.5px solid #E0C060;border-radius:var(--r-md);padding:16px;cursor:pointer;background:#FFF8DD;color:#8B6914;transition:all .14s}
+.cp-review:hover{background:#FFF3C0}
+.cp-scored{opacity:0.38;pointer-events:none}
+/* Guided next button */
+.guided-next{width:100%;font-family:var(--font);font-weight:900;font-size:16px;border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);transition:transform .12s,background .14s;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.guided-next:active{transform:translateY(2px)}
+.guided-next:hover:not(:disabled){background:var(--rose-deep)}
+.guided-next:disabled{opacity:0.4;box-shadow:none;cursor:default}
+/* Guided summary */
+.gs-title{font-size:26px;font-weight:900;color:var(--rose-deep);text-align:center;margin-bottom:6px}
+.gs-sub{font-size:14px;font-weight:700;color:var(--mauve-soft);text-align:center;margin-bottom:20px}
+.gs-section-title{font-size:12px;font-weight:900;color:var(--mauve);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;padding-left:2px}
+.gs-row{display:flex;align-items:center;justify-content:space-between;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:11px 14px;margin-bottom:6px}
+.gs-row-text{font-size:13px;font-weight:800;color:var(--mauve);flex:1;margin-right:10px}
+.gs-badge{font-size:11.5px;font-weight:900;padding:4px 10px;border-radius:var(--r-pill);flex-shrink:0}
+.gs-badge.c{background:#EAF8F0;color:#2A7A4E}
+.gs-badge.w{background:#FDEDED;color:#C0392B}
+.gs-badge.p{background:#EAF8F0;color:#2A7A4E}
+.gs-badge.r{background:#FFF8DD;color:#8B6914}
+
+/* ── REPEAT COUNTER ── */
+.repeat-btn{font-family:var(--font);font-weight:900;font-size:14px;border:2.5px solid var(--pink-border-strong);border-radius:var(--r-md);padding:10px 16px;cursor:pointer;background:var(--white);color:var(--mauve);transition:all .14s;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px}
+.repeat-btn:hover:not(.done){border-color:var(--rose);background:#FFF0F4}
+.repeat-btn.done{background:#EAF8F0;border-color:#5FBF8A;color:#2A7A4E}
+
+/* ── HINT ── */
+.hint-reveal-btn{font-family:var(--font);font-weight:800;font-size:12.5px;border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:7px 14px;cursor:pointer;background:var(--cream);color:var(--mauve-soft);transition:all .14s;margin-top:8px}
+.hint-reveal-btn:hover{border-color:var(--pink-border-strong)}
+.hint-box{background:#FFF8DD;border:2px solid #E0C060;border-radius:var(--r-md);padding:9px 13px;font-size:13.5px;font-weight:700;color:#6B4E00;margin-top:8px;animation:popIn .18s ease}
+
+/* ── PHASE INTRO ── */
+.intro-card{background:#FFF8DD;border:2px solid #E0C060;border-radius:var(--r-xl);padding:20px 18px;box-shadow:var(--shadow-sm)}
+.intro-label{font-size:11px;font-weight:900;color:#B8860B;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px}
+.intro-text{font-size:15px;font-weight:700;color:#6B4E00;line-height:1.55;margin-bottom:16px}
+.intro-got-it{font-family:var(--font);font-weight:900;font-size:14px;border:none;border-radius:var(--r-pill);padding:12px 24px;cursor:pointer;background:var(--mauve);color:var(--white);transition:all .14s}
+.intro-got-it:hover{background:#3A1A26}
+
+/* ── TIMER ── */
+.guided-timer{font-size:12px;font-weight:900;color:var(--mauve-soft);background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:4px 10px;letter-spacing:0.5px;flex-shrink:0;font-variant-numeric:tabular-nums}
+
+/* ── HISTORY PANEL ── */
+.history-panel{position:fixed;inset:0;z-index:90;display:none;flex-direction:column;background:var(--cream)}
+.history-panel.open{display:flex;animation:popIn .22s ease}
+.history-topbar{display:flex;align-items:center;gap:10px;padding:54px 18px 14px;background:var(--white);border-bottom:2px solid var(--pink-border);flex-shrink:0}
+.history-topbar h2{font-size:20px;font-weight:900;flex:1;margin:0}
+.history-close{width:36px;height:36px;border-radius:12px;background:var(--cream);border:2px solid var(--pink-border);display:grid;place-items:center;cursor:pointer;font-size:16px;flex-shrink:0}
+.history-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:14px 16px}
+.history-scroll::-webkit-scrollbar{display:none}
+.history-card{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.hc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+.hc-lesson{font-size:15px;font-weight:900;color:var(--mauve)}
+.hc-unit{font-size:11.5px;font-weight:700;color:var(--mauve-soft);margin-top:2px}
+.hc-date{font-size:11px;font-weight:800;color:var(--mauve-soft);text-align:right;flex-shrink:0;line-height:1.5}
+.hc-stats{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px}
+.hc-stat{background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:4px 10px;font-size:11.5px;font-weight:800;color:var(--mauve-soft)}
+.hc-cp-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;font-size:12.5px;font-weight:700;color:var(--mauve)}
+.hc-cp-row+.hc-cp-row{border-top:1px solid var(--pink-border)}
+.hc-cp-badge{font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:var(--r-pill);flex-shrink:0}
+.hc-cp-badge.p{background:#EAF8F0;color:#2A7A4E}
+.hc-cp-badge.r{background:#FFF8DD;color:#8B6914}
+.history-empty{text-align:center;padding:48px 20px;color:var(--mauve-soft);font-weight:800;font-size:14px;line-height:1.6}
+.history-btn{font-family:var(--font);font-weight:800;font-size:12px;border:2px solid var(--pink-border);background:var(--white);color:var(--mauve-soft);border-radius:var(--r-pill);padding:7px 13px;cursor:pointer;transition:all .14s;white-space:nowrap}
+.history-btn:hover{border-color:var(--pink-border-strong);color:var(--mauve)}
+
+/* ── HOMEWORK SCREEN ── */
+#screenHomework{position:relative}
+#screenHomework .scroll-area{padding:0 18px calc(28px + var(--safe-bottom));position:relative;z-index:1}
+.hw-topbar{display:flex;align-items:center;gap:10px;padding:4px 18px 0;position:relative;z-index:1;flex-shrink:0;margin-top:2px}
+.hw-title{flex:1;min-width:0}
+.hw-lesson-name{font-size:12px;font-weight:800;color:var(--mauve-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hw-heading{font-size:18px;font-weight:900;color:var(--rose)}
+.hw-time-chip{font-size:12px;font-weight:800;background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:5px 11px;color:var(--mauve-soft);flex-shrink:0}
+.hw-section{margin-bottom:18px}
+.hw-section-head{font-size:14px;font-weight:900;color:var(--mauve);margin-bottom:9px;padding:0 2px}
+/* vocab_list */
+.vocab-list{display:flex;flex-direction:column;gap:8px}
+.vocab-item{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);overflow:hidden;cursor:pointer;box-shadow:var(--shadow-sm);transition:border-color .14s}
+.vocab-item:hover{border-color:var(--pink-border-strong)}
+.vocab-item.flipped{border-color:var(--rose)}
+.vocab-front{display:flex;align-items:center;justify-content:space-between;padding:14px 16px}
+.vocab-word{font-size:20px;font-weight:900;color:var(--rose-deep)}
+.vocab-phon{font-size:12px;font-weight:700;color:var(--mauve-soft);margin-top:2px}
+.vocab-flip-hint{font-size:11px;font-weight:800;color:var(--rose)}
+.vocab-back{display:none;padding:0 16px 14px;border-top:2px solid var(--pink-border);margin:0 16px;padding-top:10px}
+.vocab-item.flipped .vocab-back{display:block}
+.vocab-translation{font-size:17px;font-weight:800;color:var(--mauve);margin-bottom:4px}
+.vocab-example{font-size:12.5px;font-weight:700;color:var(--mauve-soft);font-style:italic}
+/* reading */
+.reading-text{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:16px;box-shadow:var(--shadow-sm);font-size:15px;font-weight:700;line-height:1.65;color:var(--mauve)}
+.reading-translation{display:none;background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:13px;font-size:14px;font-weight:700;color:var(--mauve-soft);line-height:1.6;margin-top:8px}
+.reading-translation.visible{display:block;animation:popIn .18s ease}
+.reading-toggle{font-family:var(--font);font-weight:800;font-size:12px;border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:8px 14px;cursor:pointer;background:var(--cream);color:var(--mauve-soft);transition:all .14s;margin-top:8px}
+.reading-toggle:hover{border-color:var(--pink-border-strong)}
+/* writing_prompt */
+.writing-prompts{display:flex;flex-direction:column;gap:9px}
+.writing-prompt-item{display:flex;align-items:flex-start;gap:12px;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:13px 14px;box-shadow:var(--shadow-sm);cursor:pointer;transition:all .14s}
+.writing-prompt-item.done{border-color:#5FBF8A;background:#EAF8F0}
+.wp-check{width:24px;height:24px;border-radius:8px;border:2.5px solid var(--pink-border-strong);background:var(--cream);display:grid;place-items:center;flex-shrink:0;font-size:14px;color:var(--white);transition:all .14s}
+.writing-prompt-item.done .wp-check{background:#5FBF8A;border-color:#5FBF8A}
+.wp-text{font-size:14px;font-weight:700;color:var(--mauve);line-height:1.5}
+.writing-prompt-item.done .wp-text{color:var(--mauve-soft);text-decoration:line-through}
+/* listen_and_repeat */
+.listen-items{display:flex;flex-direction:column;gap:8px}
+.listen-item{background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:13px 16px;box-shadow:var(--shadow-sm)}
+.listen-phrase{font-size:17px;font-weight:800;color:var(--mauve);margin-bottom:3px}
+.listen-phon{font-size:12px;font-weight:700;color:var(--mauve-soft)}
+.listen-tr{font-size:13px;font-weight:700;color:var(--rose-deep);margin-top:4px}
+/* challenge */
+.challenge-card{background:linear-gradient(160deg,#FFF8DD,#FFF3C0);border:2px solid #E0C060;border-radius:var(--r-xl);padding:20px 18px;box-shadow:var(--shadow-sm)}
+.challenge-star{font-size:32px;margin-bottom:8px}
+.challenge-text{font-size:14px;font-weight:700;color:#6B4E00;line-height:1.6}
+/* mark complete */
+.hw-mark-complete-btn{width:100%;font-family:var(--font);font-weight:900;font-size:16px;border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;background:#5FBF8A;color:var(--white);box-shadow:0 8px 22px rgba(95,191,138,0.3);transition:all .14s;margin-top:8px}
+.hw-mark-complete-btn:hover{background:#4AA876}
+.hw-mark-complete-btn.completed{background:var(--cream);border:2px solid #5FBF8A;color:#3FA06E;box-shadow:none;cursor:default}
+/* homework badge on lesson rows */
+.hw-badge{display:inline-flex;align-items:center;font-size:10px;font-weight:900;background:#FFF8DD;border:1.5px solid #E0C060;border-radius:var(--r-pill);padding:2px 7px;color:#8B6914;margin-left:4px;vertical-align:middle}
+.hw-badge.done{background:#EAF8F0;border-color:#5FBF8A;color:#2A7A4E}
+/* homework history panel */
+.hw-history-panel{position:fixed;inset:0;z-index:90;display:none;flex-direction:column;background:var(--cream)}
+.hw-history-panel.open{display:flex;animation:popIn .22s ease}
+.hw-history-topbar{display:flex;align-items:center;gap:10px;padding:54px 18px 14px;background:var(--white);border-bottom:2px solid var(--pink-border);flex-shrink:0}
+.hw-history-topbar h2{font-size:20px;font-weight:900;flex:1;margin:0}
+.hw-history-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:14px 16px}
+.hw-history-scroll::-webkit-scrollbar{display:none}
+.hw-history-card{background:var(--white);border:2px solid #5FBF8A;border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm)}
+.hw-hc-lesson{font-size:15px;font-weight:900;color:var(--mauve)}
+.hw-hc-unit{font-size:11.5px;font-weight:700;color:var(--mauve-soft);margin-top:2px}
+.hw-hc-date{font-size:11px;font-weight:800;color:#3FA06E;text-align:right;line-height:1.5}
+
+/* ── GENERATOR SCREEN ── */
+#screenGenerator{position:relative;display:none;flex-direction:column}
+#screenGenerator.active{display:flex}
+.gen-topbar{display:flex;align-items:center;gap:10px;padding:4px 18px 0;position:relative;z-index:1;flex-shrink:0;margin-top:2px}
+.gen-title{flex:1;font-size:18px;font-weight:900;color:var(--rose)}
+.gen-reset-btn{font-family:var(--font);font-weight:800;font-size:12px;border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:7px 12px;cursor:pointer;background:var(--white);color:var(--mauve-soft);transition:all .14s}
+.gen-reset-btn:hover{border-color:var(--pink-border-strong)}
+.gen-mobile-sel{display:none;width:calc(100% - 36px);margin:8px 18px 0;font-family:var(--font);font-size:14px;font-weight:800;color:var(--mauve);background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 13px;flex-shrink:0}
+.gen-layout{display:flex;flex:1;overflow:hidden;position:relative;z-index:1}
+.gen-sidebar{width:190px;flex-shrink:0;border-right:2px solid var(--pink-border);overflow-y:auto;background:var(--white);padding:6px 0}
+.gen-sidebar::-webkit-scrollbar{display:none}
+.gen-level-head{font-size:10px;font-weight:900;color:var(--mauve-soft);text-transform:uppercase;letter-spacing:.08em;padding:12px 14px 4px}
+.gen-unit-btn{width:100%;text-align:left;font-family:var(--font);font-size:12.5px;font-weight:800;color:var(--mauve);background:none;border:none;padding:8px 14px;cursor:pointer;line-height:1.3;display:block}
+.gen-unit-btn:hover{background:#FFF0F5}
+.gen-unit-btn.active{background:#FFE7EE;color:var(--rose)}
+.gen-unit-id{font-size:10px;font-weight:900;color:var(--mauve-soft);display:block}
+.gen-unit-btn.active .gen-unit-id{color:var(--rose)}
+.gen-panel{flex:1;overflow-y:auto;padding:14px 16px;background:var(--cream)}
+.gen-panel::-webkit-scrollbar{display:none}
+.gen-unit-title{font-size:18px;font-weight:900;color:var(--rose-deep);margin-bottom:3px}
+.gen-unit-meta{font-size:12px;font-weight:700;color:var(--mauve-soft);margin-bottom:10px}
+.gen-grammar-pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
+.gen-grammar-pill{font-size:11px;font-weight:800;background:var(--pink-border);border-radius:var(--r-pill);padding:3px 9px;color:var(--mauve)}
+.gen-lessons-head{font-size:12px;font-weight:900;color:var(--mauve-soft);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px}
+.gen-lesson-row{display:flex;align-items:center;gap:8px;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:11px 13px;margin-bottom:7px;cursor:pointer;transition:all .14s}
+.gen-lesson-row:hover{border-color:var(--pink-border-strong)}
+.gen-lesson-row.active{border-color:var(--rose);background:#FFF5F7}
+.gen-lesson-num{font-size:11px;font-weight:900;color:var(--mauve-soft);flex-shrink:0;width:20px}
+.gen-lesson-name{flex:1;font-size:13.5px;font-weight:800;color:var(--mauve);line-height:1.3}
+.gen-lesson-badges{display:flex;gap:4px;flex-shrink:0}
+.gen-badge{font-size:10px;font-weight:900;border-radius:var(--r-pill);padding:2px 6px}
+.gen-badge.review{background:#E8F4FF;color:#2F6FA8;border:1.5px solid #B0D4F5}
+.gen-badge.exam{background:#FFF3E0;color:#B06000;border:1.5px solid #FFD580}
+.gen-badge.copied{background:#EAF8F0;color:#2A7A4E;border:1.5px solid #5FBF8A}
+.gen-bottombar{flex-shrink:0;border-top:2px solid var(--pink-border);background:var(--white);padding:12px 16px;padding-bottom:calc(12px + var(--safe-bottom));display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.gen-copy-btn{font-family:var(--font);font-weight:900;font-size:15px;border:none;border-radius:var(--r-pill);padding:13px 20px;cursor:pointer;background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);transition:all .14s;flex-shrink:0;white-space:nowrap}
+.gen-copy-btn:disabled{background:var(--pink-border);color:var(--mauve-soft);box-shadow:none;cursor:default}
+.gen-copy-btn:not(:disabled):hover{background:var(--rose-deep)}
+.gen-status{flex:1;font-size:12px;font-weight:800;color:var(--mauve-soft);line-height:1.4}
+#navGeneratorBtn{display:none}
+@media(max-width:520px){
+  .gen-sidebar{display:none}
+  .gen-mobile-sel{display:block}
+}
+
 /* ── MERGE DIALOG ── */
 .dialog-overlay{
   position:fixed;inset:0;background:rgba(74,37,53,0.45);backdrop-filter:blur(4px);
@@ -595,6 +845,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 .dialog p{font-size:13px;font-weight:700;color:var(--mauve-soft);margin-bottom:18px;line-height:1.5}
 .dialog-btns{display:flex;flex-direction:column;gap:8px}
 </style>
+<link rel="stylesheet" href="assets/mascot.css">
 </head>
 <body>
 
@@ -695,7 +946,13 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
     <div class="screen-bg"></div>
     <div class="status-pad"></div>
     <div class="scroll-area">
-      <div class="screen-head">Lessons</div>
+      <div class="screen-head" style="display:flex;align-items:center;justify-content:space-between">
+        Lessons
+        <div style="display:flex;gap:6px">
+          <button class="history-btn" id="btnOpenHwHistory">📚 HW</button>
+          <button class="history-btn" id="btnOpenHistory">📋 History</button>
+        </div>
+      </div>
       <div id="lessonsList"></div>
     </div>
   </div>
@@ -741,6 +998,70 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
     </div>
   </div>
 
+  <!-- ══ GUIDED SESSION SCREEN ══ -->
+  <div class="screen" id="screenGuided">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="guided-topbar">
+      <button class="ex-back" id="btnGuidedBack">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div style="flex:1;min-width:0">
+        <div id="guidedLessonTitle" style="font-size:13px;font-weight:900;color:var(--mauve);white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div>
+      </div>
+      <span class="guided-timer" id="guidedTimer">00:00</span>
+      <div class="view-toggle">
+        <button class="vtb active-teacher" id="btnViewTeacher">👨‍🏫 Teacher</button>
+        <button class="vtb" id="btnViewStudent">👩‍🎓 Student</button>
+      </div>
+    </div>
+    <div class="phase-progress" id="guidedPhaseProgress"></div>
+    <div class="scroll-area" id="guidedScrollArea">
+      <div id="guidedContent"></div>
+    </div>
+  </div>
+
+  <!-- ══ HOMEWORK SCREEN ══ -->
+  <div class="screen" id="screenHomework">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="hw-topbar">
+      <button class="ex-back" id="btnHwBack">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div class="hw-title">
+        <div class="hw-lesson-name" id="hwLessonName"></div>
+        <div class="hw-heading">Homework</div>
+      </div>
+      <span class="hw-time-chip" id="hwTimeChip"></span>
+    </div>
+    <div class="scroll-area" id="hwScrollArea">
+      <div id="hwContent"></div>
+    </div>
+  </div>
+
+  <!-- ══ GENERATOR SCREEN ══ -->
+  <div class="screen" id="screenGenerator">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="gen-topbar">
+      <button class="ex-back" id="btnGenBack">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+      <div class="gen-title">🎓 Lesson Generator</div>
+      <button class="gen-reset-btn" id="btnGenReset">⚙ Reset marks</button>
+    </div>
+    <select class="gen-mobile-sel" id="genMobileSel"><option value="">— Select a unit —</option></select>
+    <div class="gen-layout">
+      <div class="gen-sidebar" id="genSidebar"></div>
+      <div class="gen-panel" id="genPanel"><div style="text-align:center;padding:40px 20px;color:var(--mauve-soft);font-weight:800;font-size:14px">Select a unit to get started ♡</div></div>
+    </div>
+    <div class="gen-bottombar">
+      <button class="gen-copy-btn" id="btnGenCopy" disabled>📋 Copy prompt</button>
+      <div class="gen-status" id="genStatus">Select a lesson to generate its prompt</div>
+    </div>
+  </div>
+
   <!-- ══ BOTTOM NAV ══ -->
   <nav class="tabbar" id="tabbar" style="display:none">
     <button class="nav-item active" data-screen="screenHome">
@@ -758,6 +1079,10 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
     <button class="nav-item" data-screen="screenProgress">
       <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 19V9M10 19V4M16 19v-7M22 19H2"/></svg></div>
       Progress
+    </button>
+    <button class="nav-item" id="navGeneratorBtn" data-screen="screenGenerator">
+      <div class="ni-pill" style="font-size:20px;line-height:1">🎓</div>
+      Generator
     </button>
   </nav>
 
@@ -784,6 +1109,36 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
     <div class="dialog-btns">
       <button class="btn-pill" id="btnMerge" style="font-size:14px;padding:12px">Merge — keep my progress</button>
       <button class="btn-ghost" id="btnReplace" style="justify-content:center;width:100%">Replace all</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HOMEWORK HISTORY PANEL ══ -->
+<div class="hw-history-panel" id="hwHistoryPanel">
+  <div class="hw-history-topbar">
+    <h2>Homework History</h2>
+    <button class="history-close" id="btnCloseHwHistory">✕</button>
+  </div>
+  <div class="hw-history-scroll" id="hwHistoryScroll"></div>
+</div>
+
+<!-- ══ HISTORY PANEL ══ -->
+<div class="history-panel" id="historyPanel">
+  <div class="history-topbar">
+    <h2>Session History</h2>
+    <button class="history-close" id="btnCloseHistory">✕</button>
+  </div>
+  <div class="history-scroll" id="historyScroll"></div>
+</div>
+
+<!-- ══ MODE CHOICE DIALOG ══ -->
+<div class="dialog-overlay" id="modeDialog">
+  <div class="dialog">
+    <h3>Choose mode</h3>
+    <p>This lesson supports both solo practice and guided session with a teacher.</p>
+    <div class="dialog-btns">
+      <button class="btn-pill" id="btnModeGuided" style="font-size:14px;padding:12px">👨‍🏫 Guided Session</button>
+      <button class="btn-ghost" id="btnModeSolo" style="justify-content:center;width:100%">📖 Solo Practice</button>
     </div>
   </div>
 </div>
@@ -829,6 +1184,15 @@ let progress = load(LS.progress, {});
 let streak = load(LS.streak, { current: 0, last_date: null });
 let stats = load(LS.stats, { total_done: 0, total_correct: 0, xp: 0 });
 let practiceLog = load(LS.practiceLog, {}); // { 'YYYY-MM-DD': count }
+let homeworkHistory = load('homework_history', []);
+let isTeacher = load('is_teacher', false);
+let genSelectedUnit = null;
+let genSelectedLesson = null;
+let genCopiedLessons = load('generator_copied_lessons', []);
+let teacherTapCount = 0;
+let teacherTapTimer = null;
+
+const SYLLABUS = {"version":1,"meta":{"title":"English A1 to C1 — Full Syllabus","goal":"Functional English for living in an English-speaking country","schedule":"5 classes/week · 1 hour per class","estimated_months":18,"total_units":32,"total_lessons":128},"levels":[{"id":"A1","title":"Survival English","estimated_weeks":10,"units":["U01","U02","U03","U04","U05","U06","U07","U08"]},{"id":"A2","title":"Basic Communication","estimated_weeks":12,"units":["U09","U10","U11","U12","U13","U14","U15","U16"]},{"id":"B1","title":"Independent Communication","estimated_weeks":16,"units":["U17","U18","U19","U20","U21","U22","U23","U24"]},{"id":"B2","title":"Upper Intermediate","estimated_weeks":16,"units":["U25","U26","U27","U28"]},{"id":"C1","title":"Advanced Mastery","estimated_weeks":12,"units":["U29","U30","U31","U32"]}],"units":[{"id":"U01","level":"A1","order":1,"title":"Greetings & Introductions","grammar":["Verb 'to be' (I am, you are)","Subject pronouns","Basic word order"],"vocabulary_target":30,"lessons":[{"id":"U01-L1","order":1,"title":"Hello! Basic Greetings","topics":["good morning","hi","goodbye","how are you"]},{"id":"U01-L2","order":2,"title":"My Name Is...","topics":["name","age","where are you from"]},{"id":"U01-L3","order":3,"title":"Meeting People","topics":["nice to meet you","this is my friend","pleased to meet you"]},{"id":"U01-L4","order":4,"title":"Review & Real Dialogue","topics":["full intro conversation","checkpoint"],"is_review":true}]},{"id":"U02","level":"A1","order":2,"title":"Numbers, Dates & Time","grammar":["Cardinal/ordinal numbers","Questions with 'what'","Telling time"],"vocabulary_target":45,"lessons":[{"id":"U02-L1","order":1,"title":"Numbers 1–20","topics":["counting","ages","phone numbers"]},{"id":"U02-L2","order":2,"title":"Numbers 21–100 & Money","topics":["prices","how much","I want"]},{"id":"U02-L3","order":3,"title":"Days, Months & Dates","topics":["Monday","January","birthday"]},{"id":"U02-L4","order":4,"title":"Telling Time","topics":["what time is it","o'clock","half past","AM/PM"]}]},{"id":"U03","level":"A1","order":3,"title":"Family & People","grammar":["Possessives (my, your, his, her)","Plural nouns","'have' vs 'be'"],"vocabulary_target":35,"lessons":[{"id":"U03-L1","order":1,"title":"My Family","topics":["mother","father","sister","brother","grandparents"]},{"id":"U03-L2","order":2,"title":"Describing People","topics":["tall","short","young","old","hair color"]},{"id":"U03-L3","order":3,"title":"Relationships","topics":["friend","neighbor","colleague","partner"]},{"id":"U03-L4","order":4,"title":"Talking About Your Family","topics":["full conversation","photos activity"],"is_review":true}]},{"id":"U04","level":"A1","order":4,"title":"Colors, Shapes & Objects","grammar":["Adjective order","'this/that/these/those'","Articles (a, an, the)"],"vocabulary_target":40,"lessons":[{"id":"U04-L1","order":1,"title":"Colors & Basic Adjectives","topics":["red","big","beautiful","new"]},{"id":"U04-L2","order":2,"title":"Common Objects","topics":["table","chair","phone","bag","book"]},{"id":"U04-L3","order":3,"title":"In the House","topics":["bedroom","kitchen","bathroom","living room"]},{"id":"U04-L4","order":4,"title":"Describing Your Space","topics":["full description dialogue","checkpoint"],"is_review":true}]},{"id":"U05","level":"A1","order":5,"title":"Daily Routines","grammar":["Simple Present tense","Frequency adverbs (always, sometimes, never)"],"vocabulary_target":40,"lessons":[{"id":"U05-L1","order":1,"title":"Morning Routines","topics":["wake up","brush teeth","get dressed","eat breakfast"]},{"id":"U05-L2","order":2,"title":"Work & School Day","topics":["go to work","study","take a break","finish"]},{"id":"U05-L3","order":3,"title":"Evening & Weekend","topics":["cook dinner","watch TV","go out","relax"]},{"id":"U05-L4","order":4,"title":"My Typical Day","topics":["full routine narration","time expressions"],"is_review":true}]},{"id":"U06","level":"A1","order":6,"title":"Food & Eating","grammar":["Countable vs uncountable nouns","'some/any'","Ordering expressions"],"vocabulary_target":50,"lessons":[{"id":"U06-L1","order":1,"title":"Food I Like","topics":["fruits","vegetables","meat","dairy","like/don't like"]},{"id":"U06-L2","order":2,"title":"At the Supermarket","topics":["shopping list","how much","I need"]},{"id":"U06-L3","order":3,"title":"At a Restaurant","topics":["ordering","asking for the menu","the bill"]},{"id":"U06-L4","order":4,"title":"Cooking at Home","topics":["recipe vocabulary","measurements","instructions"]}]},{"id":"U07","level":"A1","order":7,"title":"Getting Around","grammar":["Imperatives","Prepositions of place (next to, in front of, behind)"],"vocabulary_target":40,"lessons":[{"id":"U07-L1","order":1,"title":"Transport","topics":["bus","train","taxi","walk","drive"]},{"id":"U07-L2","order":2,"title":"Asking for Directions","topics":["turn left","go straight","how far"]},{"id":"U07-L3","order":3,"title":"At the Airport / Station","topics":["ticket","passport","gate","platform"]},{"id":"U07-L4","order":4,"title":"Getting Around Town","topics":["full navigation dialogue","map activity"],"is_review":true}]},{"id":"U08","level":"A1","order":8,"title":"Shopping & Services","grammar":["Can/can't for ability and requests","'I'd like'","How much/many"],"vocabulary_target":40,"lessons":[{"id":"U08-L1","order":1,"title":"Buying Clothes","topics":["size","color","try on","too big/small"]},{"id":"U08-L2","order":2,"title":"At the Bank / Post Office","topics":["account","send","receive","exchange"]},{"id":"U08-L3","order":3,"title":"Asking for Help","topics":["excuse me","could you help me","I'm looking for"]},{"id":"U08-L4","order":4,"title":"A1 Final Review","topics":["comprehensive checkpoint","all A1 topics"],"is_review":true,"is_level_exam":true}]},{"id":"U09","level":"A2","order":9,"title":"Past Experiences","grammar":["Simple Past (regular & irregular verbs)","Time expressions (yesterday, last week, ago)"],"vocabulary_target":50,"lessons":[{"id":"U09-L1","order":1,"title":"Regular Past Verbs","topics":["worked","walked","cooked","visited"]},{"id":"U09-L2","order":2,"title":"Irregular Past Verbs — Group 1","topics":["went","had","saw","ate","came"]},{"id":"U09-L3","order":3,"title":"Irregular Past Verbs — Group 2","topics":["said","made","got","took","knew"]},{"id":"U09-L4","order":4,"title":"Telling Stories","topics":["what did you do?","narrating a past day"],"is_review":true}]},{"id":"U10","level":"A2","order":10,"title":"Future Plans","grammar":["'going to' for plans","'will' for spontaneous decisions","Present continuous for future"],"vocabulary_target":35,"lessons":[{"id":"U10-L1","order":1,"title":"My Plans","topics":["I'm going to","next week","this summer"]},{"id":"U10-L2","order":2,"title":"Making Decisions","topics":["I'll have","I think I'll","maybe I will"]},{"id":"U10-L3","order":3,"title":"Invitations & Arrangements","topics":["do you want to","let's","shall we"]},{"id":"U10-L4","order":4,"title":"Planning a Trip","topics":["full future planning dialogue"],"is_review":true}]},{"id":"U11","level":"A2","order":11,"title":"Health & Body","grammar":["'feel' + adjective","Should/shouldn't","Imperatives for advice"],"vocabulary_target":50,"lessons":[{"id":"U11-L1","order":1,"title":"The Body","topics":["head","shoulders","knees","organs","senses"]},{"id":"U11-L2","order":2,"title":"Feeling Sick","topics":["I have a headache","I feel tired","symptoms"]},{"id":"U11-L3","order":3,"title":"At the Doctor","topics":["appointment","prescription","how long"]},{"id":"U11-L4","order":4,"title":"Healthy Habits","topics":["exercise","sleep","diet","mental health basics"]}]},{"id":"U12","level":"A2","order":12,"title":"Home & Living","grammar":["There is/are","Prepositions of place (advanced)","Possessive pronouns"],"vocabulary_target":50,"lessons":[{"id":"U12-L1","order":1,"title":"Describing Your Home","topics":["rooms","furniture","layout"]},{"id":"U12-L2","order":2,"title":"Finding a Place to Live","topics":["rent","deposit","landlord","lease"]},{"id":"U12-L3","order":3,"title":"Neighborhood & Community","topics":["neighbors","nearby","local services"]},{"id":"U12-L4","order":4,"title":"Household Problems","topics":["broken","fix","call the repairman"]}]},{"id":"U13","level":"A2","order":13,"title":"Work & Study","grammar":["Present Perfect introduction","Have you ever...?","For/since"],"vocabulary_target":50,"lessons":[{"id":"U13-L1","order":1,"title":"Jobs & Professions","topics":["what do you do","I work as","I study"]},{"id":"U13-L2","order":2,"title":"At Work / School","topics":["meeting","deadline","assignment","class"]},{"id":"U13-L3","order":3,"title":"Skills & Experience","topics":["I can","I know how to","I have experience"]},{"id":"U13-L4","order":4,"title":"Job Interview Basics","topics":["tell me about yourself","why do you want"],"is_review":true}]},{"id":"U14","level":"A2","order":14,"title":"Travel & Tourism","grammar":["Past continuous","When/while clauses","Question tags"],"vocabulary_target":50,"lessons":[{"id":"U14-L1","order":1,"title":"Planning a Holiday","topics":["destination","budget","accommodation"]},{"id":"U14-L2","order":2,"title":"At the Hotel","topics":["check in","room service","complaint","checkout"]},{"id":"U14-L3","order":3,"title":"Sightseeing","topics":["museum","tour","local food","souvenir"]},{"id":"U14-L4","order":4,"title":"Travel Stories","topics":["narrating a past trip","travel mishaps"],"is_review":true}]},{"id":"U15","level":"A2","order":15,"title":"Opinions & Preferences","grammar":["Like/love/hate + gerund","Think/believe/feel","Comparatives & superlatives"],"vocabulary_target":40,"lessons":[{"id":"U15-L1","order":1,"title":"What I Like and Dislike","topics":["I enjoy","I can't stand","I prefer"]},{"id":"U15-L2","order":2,"title":"Comparing Things","topics":["better than","the best","not as good as"]},{"id":"U15-L3","order":3,"title":"Giving Opinions","topics":["I think","in my opinion","I agree/disagree"]},{"id":"U15-L4","order":4,"title":"Discussing Movies, Music & Books","topics":["recommendations","reviews"],"is_review":true}]},{"id":"U16","level":"A2","order":16,"title":"Social Life & Relationships","grammar":["Used to","Modal verbs review","Reported speech basics"],"vocabulary_target":45,"lessons":[{"id":"U16-L1","order":1,"title":"Friendships","topics":["close friend","get along","fall out","make up"]},{"id":"U16-L2","order":2,"title":"Social Events","topics":["party","invitation","RSVP","what to bring"]},{"id":"U16-L3","order":3,"title":"Emotions & Feelings","topics":["happy","frustrated","nervous","proud"]},{"id":"U16-L4","order":4,"title":"A2 Final Review","topics":["comprehensive checkpoint","real-life scenario"],"is_review":true,"is_level_exam":true}]},{"id":"U17","level":"B1","order":17,"title":"News & Current Events","grammar":["Passive voice (present & past)","Reported speech","Linking words (however, although)"],"vocabulary_target":50,"lessons":[{"id":"U17-L1","order":1,"title":"Reading Headlines","topics":["news vocabulary","key topics"]},{"id":"U17-L2","order":2,"title":"Talking About the News","topics":["apparently","it is said that","according to"]},{"id":"U17-L3","order":3,"title":"Social Media & Information","topics":["fake news","share","trending","viral"]},{"id":"U17-L4","order":4,"title":"Giving Your Opinion on Current Events","topics":["debate structure"],"is_review":true}]},{"id":"U18","level":"B1","order":18,"title":"Work & Career (Advanced)","grammar":["Conditionals (zero & first)","Future perfect","Professional register"],"vocabulary_target":60,"lessons":[{"id":"U18-L1","order":1,"title":"The Workplace","topics":["colleague","manager","HR","department","promotion"]},{"id":"U18-L2","order":2,"title":"Meetings & Presentations","topics":["agenda","point","summarize","I'd like to add"]},{"id":"U18-L3","order":3,"title":"Emails & Written Communication","topics":["formal tone","greetings","sign-off"]},{"id":"U18-L4","order":4,"title":"Career Development","topics":["goals","performance review","feedback"],"is_review":true}]},{"id":"U19","level":"B1","order":19,"title":"Culture & Customs","grammar":["Modals for obligation/prohibition (must, mustn't, have to)","Gerunds as subjects"],"vocabulary_target":50,"lessons":[{"id":"U19-L1","order":1,"title":"Cultural Differences","topics":["customs","traditions","taboos","etiquette"]},{"id":"U19-L2","order":2,"title":"English-Speaking Countries","topics":["US","UK","Australia","Canada key facts"]},{"id":"U19-L3","order":3,"title":"Holidays & Celebrations","topics":["Christmas","Thanksgiving","Easter","local"]},{"id":"U19-L4","order":4,"title":"Living Abroad","topics":["culture shock","adapting","fitting in","homesickness"]}]},{"id":"U20","level":"B1","order":20,"title":"Arguments & Debate","grammar":["Second conditional","Concession (even though, despite)","Emphatic structures"],"vocabulary_target":45,"lessons":[{"id":"U20-L1","order":1,"title":"Agreeing & Disagreeing","topics":["I see your point but","on the other hand"]},{"id":"U20-L2","order":2,"title":"Making Arguments","topics":["firstly","furthermore","to sum up"]},{"id":"U20-L3","order":3,"title":"Discussing Controversial Topics","topics":["politely","without offending"]},{"id":"U20-L4","order":4,"title":"Formal Debate Practice","topics":["structured debate","real topics"],"is_review":true}]},{"id":"U21","level":"B1","order":21,"title":"Technology & Daily Life","grammar":["Relative clauses (who, which, that)","Defining vs non-defining"],"vocabulary_target":60,"lessons":[{"id":"U21-L1","order":1,"title":"Devices & Apps","topics":["smartphone","laptop","download","update","crash"]},{"id":"U21-L2","order":2,"title":"The Internet","topics":["search","browse","stream","account","password"]},{"id":"U21-L3","order":3,"title":"Technology Problems","topics":["troubleshooting","customer support"]},{"id":"U21-L4","order":4,"title":"Technology & Society","topics":["pros and cons","screen time","privacy"],"is_review":true}]},{"id":"U22","level":"B1","order":22,"title":"Environment & Society","grammar":["Passive voice (advanced)","Modal perfect (should have, could have)"],"vocabulary_target":50,"lessons":[{"id":"U22-L1","order":1,"title":"The Environment","topics":["climate change","recycle","pollution","renewable"]},{"id":"U22-L2","order":2,"title":"Social Issues","topics":["equality","poverty","community","volunteer"]},{"id":"U22-L3","order":3,"title":"Taking Action","topics":["what can we do","it's important to","we should"]},{"id":"U22-L4","order":4,"title":"Presenting a Problem and Solution","topics":["structured spoken essay"],"is_review":true}]},{"id":"U23","level":"B1","order":23,"title":"Emotions & Mental Health","grammar":["Wish + past simple","If only","Expressing regret"],"vocabulary_target":50,"lessons":[{"id":"U23-L1","order":1,"title":"Complex Emotions","topics":["overwhelmed","anxious","relieved","content"]},{"id":"U23-L2","order":2,"title":"Talking About Stress","topics":["pressure","coping","support","self-care"]},{"id":"U23-L3","order":3,"title":"Mental Health Conversations","topics":["reducing stigma","asking for help"]},{"id":"U23-L4","order":4,"title":"Expressing Regret & Wishes","topics":["I wish I had","if only I could"],"is_review":true}]},{"id":"U24","level":"B1","order":24,"title":"Storytelling & Narrative","grammar":["Narrative tenses (past perfect, past continuous + simple past)","Time linkers"],"vocabulary_target":50,"lessons":[{"id":"U24-L1","order":1,"title":"Telling a Good Story","topics":["setting the scene","building tension"]},{"id":"U24-L2","order":2,"title":"Anecdotes","topics":["you won't believe this","so anyway","in the end"]},{"id":"U24-L3","order":3,"title":"Describing Events","topics":["suddenly","just then","at that moment"]},{"id":"U24-L4","order":4,"title":"B1 Final Review","topics":["long spoken narrative","comprehensive checkpoint"],"is_review":true,"is_level_exam":true}]},{"id":"U25","level":"B2","order":25,"title":"Nuance & Register","grammar":["Advanced modals","Inversion for emphasis","Cleft sentences"],"vocabulary_target":60,"lessons":[{"id":"U25-L1","order":1,"title":"Formal vs Informal English","topics":["register shifts","when to use which"]},{"id":"U25-L2","order":2,"title":"Hedging & Softening","topics":["apparently","tend to","might","somewhat"]},{"id":"U25-L3","order":3,"title":"Emphasizing & Focusing","topics":["what I mean is","the thing is","it's X that"]},{"id":"U25-L4","order":4,"title":"Reading Real Articles","topics":["newspaper","blog","letter comprehension"],"is_review":true}]},{"id":"U26","level":"B2","order":26,"title":"Abstract Ideas","grammar":["Nominalization","Complex noun phrases","Fronting"],"vocabulary_target":60,"lessons":[{"id":"U26-L1","order":1,"title":"Concepts & Ideas","topics":["notion","perspective","implication","framework"]},{"id":"U26-L2","order":2,"title":"Philosophy & Ethics","topics":["right/wrong","moral","dilemma","value"]},{"id":"U26-L3","order":3,"title":"Discussing Abstract Topics","topics":["consciousness","justice","beauty"]},{"id":"U26-L4","order":4,"title":"Academic-Style Discussion","topics":["structured","referenced opinions"],"is_review":true}]},{"id":"U27","level":"B2","order":27,"title":"Formal Writing","grammar":["Discourse markers","Parallel structure","Complex subordination"],"vocabulary_target":55,"lessons":[{"id":"U27-L1","order":1,"title":"Formal Emails & Letters","topics":["structure","tone","key phrases"]},{"id":"U27-L2","order":2,"title":"Essays & Reports","topics":["introduction","argument","conclusion"]},{"id":"U27-L3","order":3,"title":"Summarizing & Paraphrasing","topics":["in other words","to put it differently"]},{"id":"U27-L4","order":4,"title":"Writing Workshop","topics":["write a full formal email","review together"],"is_review":true}]},{"id":"U28","level":"B2","order":28,"title":"Advanced Comprehension","grammar":["Mixed conditionals","Ellipsis & substitution","Cohesion devices"],"vocabulary_target":60,"lessons":[{"id":"U28-L1","order":1,"title":"Understanding Fast Speech","topics":["contractions","linking","weak forms"]},{"id":"U28-L2","order":2,"title":"Accents & Varieties","topics":["American","British","Australian differences"]},{"id":"U28-L3","order":3,"title":"Movies, Podcasts & TV Without Subtitles","topics":["strategies"]},{"id":"U28-L4","order":4,"title":"B2 Final Review","topics":["full comprehension","production checkpoint"],"is_review":true,"is_level_exam":true}]},{"id":"U29","level":"C1","order":29,"title":"Native-Like Expression","grammar":["Advanced discourse","Pragmatics","Implicature"],"vocabulary_target":60,"lessons":[{"id":"U29-L1","order":1,"title":"Natural Spoken English","topics":["reductions","rhythm","stress patterns"]},{"id":"U29-L2","order":2,"title":"Sounding Natural","topics":["fillers","discourse markers","hesitation devices"]},{"id":"U29-L3","order":3,"title":"Humor & Sarcasm","topics":["how English humor works","irony","understatement"]},{"id":"U29-L4","order":4,"title":"Real Conversations","topics":["unscripted extended conversation practice"],"is_review":true}]},{"id":"U30","level":"C1","order":30,"title":"Idioms & Phrasal Verbs","grammar":["Collocation","Lexical chunks","Pragmatic meaning"],"vocabulary_target":80,"lessons":[{"id":"U30-L1","order":1,"title":"Everyday Idioms","topics":["break a leg","hit the nail","piece of cake"]},{"id":"U30-L2","order":2,"title":"Phrasal Verbs in Context","topics":["give up","take on","bring up","carry out"]},{"id":"U30-L3","order":3,"title":"Idioms for Emotions & Situations","topics":["over the moon","under pressure"]},{"id":"U30-L4","order":4,"title":"Using Idioms Naturally","topics":["when and how to use them","not overusing"],"is_review":true}]},{"id":"U31","level":"C1","order":31,"title":"Professional English","grammar":["Advanced conditionals in professional contexts","Diplomatic language"],"vocabulary_target":65,"lessons":[{"id":"U31-L1","order":1,"title":"Presentations & Public Speaking","topics":["structure","signposting","impact"]},{"id":"U31-L2","order":2,"title":"Negotiation & Persuasion","topics":["making proposals","conceding","closing"]},{"id":"U31-L3","order":3,"title":"Networking","topics":["small talk","follow-up","building rapport"]},{"id":"U31-L4","order":4,"title":"Job Interview — Advanced","topics":["behavioral questions","selling yourself"],"is_review":true}]},{"id":"U32","level":"C1","order":32,"title":"Full Mastery","grammar":["Complete review of all structures","Error correction focus"],"vocabulary_target":100,"lessons":[{"id":"U32-L1","order":1,"title":"Error Correction Workshop","topics":["identify and fix common mistakes"]},{"id":"U32-L2","order":2,"title":"Fluency & Speed","topics":["rapid-fire conversation","no pausing"]},{"id":"U32-L3","order":3,"title":"Real World Simulation","topics":["phone call","formal meeting","social event"]},{"id":"U32-L4","order":4,"title":"C1 Final Exam","topics":["comprehensive spoken + written evaluation"],"is_review":true,"is_level_exam":true}]}]};
 
 let currentScreen = 'screenWelcome';
 let session = null; // { queue, idx, lessonId, mode }
@@ -972,7 +1336,7 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
   currentScreen = id;
 
-  const showNav = id !== 'screenWelcome' && id !== 'screenExercise';
+  const showNav = id !== 'screenWelcome' && id !== 'screenExercise' && id !== 'screenGuided' && id !== 'screenHomework' && id !== 'screenGenerator';
   document.getElementById('tabbar').style.display = showNav ? 'flex' : 'none';
 
   document.querySelectorAll('.nav-item').forEach(n => {
@@ -983,6 +1347,7 @@ function showScreen(id) {
   else if (id === 'screenLessons') renderLessons();
   else if (id === 'screenFlashcards') renderFlashcards();
   else if (id === 'screenProgress') renderProgress();
+  else if (id === 'screenGenerator') renderGenerator();
 }
 
 // ══════════════════════════════════════
@@ -1058,7 +1423,7 @@ function renderHome() {
   const btn = document.getElementById('btnStartPractice');
   const lessonPct = lessonCompletion(currentLesson);
   btn.innerHTML = `${lessonPct > 0 ? 'Continue' : 'Start'} — ${esc(currentLesson.title)} <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
-  btn.onclick = () => startSession(u.id, currentLesson.id, 'fsrs');
+  btn.onclick = () => handleLessonClick(u.id, currentLesson.id);
 }
 
 // ══════════════════════════════════════
@@ -1075,12 +1440,18 @@ function renderLessons() {
       const pct = lessonCompletion(l);
       const locked = false; // could enforce sequencing
       const exCount = (l.exercises || []).length;
+      const lMode = l.mode || 'solo';
+      const modeTag = lMode === 'guided' ? ' <span style="font-size:10px;background:var(--mauve);color:var(--white);border-radius:99px;padding:2px 7px;margin-left:4px">guided</span>'
+        : lMode === 'both' ? ' <span style="font-size:10px;background:var(--rose);color:var(--white);border-radius:99px;padding:2px 7px;margin-left:4px">guided+solo</span>' : '';
+      const metaText = lMode === 'guided' ? 'Guided session' : `${exCount} exercise${exCount === 1 ? '' : 's'}`;
+      const hwDone = l.homework && isHomeworkDone(l.id);
+      const hwTag = l.homework ? ` <span class="hw-badge${hwDone ? ' done' : ''}">${hwDone ? '✅' : '📚'}</span>` : '';
       const html = `
         <div class="lesson-row${locked ? ' locked' : ''}" data-unit="${u.id}" data-lesson="${l.id}">
-          <div class="l-icon">${pct === 100 ? '✓' : '📖'}</div>
+          <div class="l-icon">${pct === 100 ? '✓' : (lMode === 'guided' ? '👨‍🏫' : '📖')}</div>
           <div class="l-body">
-            <div class="l-title">${esc(l.title)}</div>
-            <div class="l-meta">${exCount} exercise${exCount === 1 ? '' : 's'}</div>
+            <div class="l-title">${esc(l.title)}${modeTag}${hwTag}</div>
+            <div class="l-meta">${metaText}</div>
             <div class="l-prog"><span style="width:${pct}%"></span></div>
           </div>
           <div class="l-pct">${pct}%</div>
@@ -1099,7 +1470,7 @@ function renderLessons() {
   }).join('');
 
   el.querySelectorAll('.lesson-row:not(.locked)').forEach(row => {
-    row.addEventListener('click', () => startSession(row.dataset.unit, row.dataset.lesson, 'practice'));
+    row.addEventListener('click', () => handleLessonClick(row.dataset.unit, row.dataset.lesson));
   });
 }
 
@@ -1208,7 +1579,9 @@ function renderProgress() {
 function startSession(unitId, lessonId, mode) {
   const unit = curriculum?.units.find(u => u.id === unitId);
   const lesson = unit?.lessons.find(l => l.id === lessonId);
-  if (!lesson || !lesson.exercises || !lesson.exercises.length) {
+  if (!lesson) { showToast('Lesson not found'); return; }
+  if ((lesson.mode === 'guided') || (!lesson.exercises || !lesson.exercises.length)) {
+    if (lesson.phases && lesson.phases.length) { startGuidedSession(unitId, lessonId); return; }
     showToast('No exercises in this lesson'); return;
   }
 
@@ -1762,6 +2135,851 @@ function exportProgress() {
 }
 
 // ══════════════════════════════════════
+//  LESSON MODE ROUTER
+// ══════════════════════════════════════
+let pendingModeLesson = null;
+
+function handleLessonClick(unitId, lessonId) {
+  const unit = curriculum?.units.find(u => u.id === unitId);
+  const lesson = unit?.lessons.find(l => l.id === lessonId);
+  if (!lesson) return;
+  const mode = lesson.mode || 'solo';
+  if (mode === 'guided') {
+    startGuidedSession(unitId, lessonId);
+  } else if (mode === 'both') {
+    pendingModeLesson = { unitId, lessonId };
+    document.getElementById('modeDialog').classList.add('open');
+  } else {
+    startSession(unitId, lessonId, 'practice');
+  }
+}
+
+// ══════════════════════════════════════
+//  GUIDED SESSION
+// ══════════════════════════════════════
+let guidedSession = null;
+
+function startGuidedSession(unitId, lessonId) {
+  const unit = curriculum?.units.find(u => u.id === unitId);
+  const lesson = unit?.lessons.find(l => l.id === lessonId);
+  if (!lesson || !lesson.phases || !lesson.phases.length) {
+    showToast('No guided phases in this lesson'); return;
+  }
+  guidedSession = {
+    lesson, unit, unitId, lessonId,
+    phases: lesson.phases,
+    phaseIdx: 0, itemIdx: 0, lineIdx: 0,
+    view: 'teacher',
+    drillResults: [], checkpointResults: [],
+    drillAnswered: false, checkpointAnswered: false,
+    repeatCount: 0, hintShown: false,
+    drillExpanded: false, cpExpanded: false,
+    showingIntro: !!(lesson.phases[0]?.intro_notes),
+    startTime: Date.now(), timerInterval: null
+  };
+  document.getElementById('guidedLessonTitle').textContent = lesson.title;
+  document.getElementById('btnViewTeacher').className = 'vtb active-teacher';
+  document.getElementById('btnViewStudent').className = 'vtb';
+  showScreen('screenGuided');
+  startGuidedTimer();
+  renderGuidedSession();
+}
+
+function gPhase() { return guidedSession.phases[guidedSession.phaseIdx]; }
+function gItem()  { return gPhase()?.items[guidedSession.itemIdx]; }
+
+function renderGuidedSession() {
+  renderGuidedPhaseProgress();
+  renderGuidedContent();
+}
+
+function renderGuidedPhaseProgress() {
+  const { phases, phaseIdx } = guidedSession;
+  const el = document.getElementById('guidedPhaseProgress');
+  let html = '';
+  phases.forEach((p, i) => {
+    if (i > 0) html += `<div class="phase-link ${i <= phaseIdx ? 'done' : ''}"></div>`;
+    const cls = i < phaseIdx ? 'done' : i === phaseIdx ? 'now' : '';
+    html += `<div class="phase-dot ${cls}" title="${esc(p.title || p.type)}"></div>`;
+  });
+  html += `<span class="phase-label">Phase ${phaseIdx + 1} / ${phases.length}</span>`;
+  el.innerHTML = html;
+}
+
+function renderGuidedContent() {
+  if (!guidedSession) return;
+  const { view, drillResults, drillAnswered, checkpointAnswered,
+          repeatCount, hintShown, showingIntro } = guidedSession;
+  const phase = gPhase();
+  const item = gItem();
+  if (!phase || !item) { showGuidedSummary(); return; }
+
+  const phaseLabels = { presentation:'Presentation', verbal_drill:'Verbal Drill', dialogue:'Dialogue', checkpoint:'Checkpoint' };
+  const phaseIcons  = { presentation:'📚', verbal_drill:'🎯', dialogue:'💬', checkpoint:'✅' };
+  const itemNum = guidedSession.itemIdx + 1;
+  const itemTotal = phase.items.length;
+  const el = document.getElementById('guidedContent');
+
+  // ── INTRO CARD ──────────────────────────────────────────────
+  if (showingIntro && view === 'teacher') {
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 10px">
+        <div class="phase-type-chip">${phaseIcons[phase.type]||'📝'} ${esc(phase.title||phaseLabels[phase.type]||phase.type)}</div>
+      </div>
+      <div class="intro-card">
+        <div class="intro-label">📋 Teacher notes for this phase</div>
+        <div class="intro-text">${esc(phase.intro_notes)}</div>
+        <button class="intro-got-it" id="introGotIt">Got it →</button>
+      </div>`;
+    document.getElementById('introGotIt').addEventListener('click', dismissGuidedIntro);
+    document.getElementById('guidedScrollArea').scrollTop = 0;
+    return;
+  }
+
+  let inner = '', actions = '';
+
+  // ── PRESENTATION ─────────────────────────────────────────────
+  if (item.type === 'presentation') {
+    if (view === 'teacher') {
+      const target = item.repeat_target ?? 2;
+      const done = repeatCount >= target;
+      inner = `
+        <div class="pres-word">${esc(item.word||'')}</div>
+        ${item.phonetic ? `<div class="pres-phonetic">${esc(item.phonetic)}</div>` : ''}
+        <div class="pres-translation">${esc(item.translation||'')}</div>
+        ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
+        <button class="repeat-btn${done?' done':''}" id="repeatBtn">
+          ${done ? `✅ Done (${repeatCount} / ${target})` : `🔁 Repeat (${repeatCount} / ${target})`}
+        </button>`;
+    } else {
+      inner = `
+        <div class="student-word">${esc(item.word||'')}</div>
+        ${item.phonetic ? `<div class="pres-phonetic" style="text-align:center">${esc(item.phonetic)}</div>` : ''}
+        <div class="student-repeat-card" style="margin-top:14px">🗣️ Repeat after me ♪</div>`;
+    }
+    actions = nextBtn();
+
+  // ── VERBAL DRILL ─────────────────────────────────────────────
+  } else if (item.type === 'verbal_drill') {
+    if (view === 'teacher') {
+      const { drillExpanded } = guidedSession;
+      const scoreDots = drillResults.map(r => `<div class="drill-dot ${r.correct?'c':'w'}"></div>`).join('');
+      const altAnswers = (item.acceptable_answers||[]).length > 1
+        ? ` <span style="font-weight:700;color:var(--mauve-soft);font-size:13px">/ ${item.acceptable_answers.slice(1).map(esc).join(' / ')}</span>` : '';
+      const answerHtml = drillExpanded
+        ? `<div class="drill-answer">${esc(item.answer||'')}${altAnswers}</div>
+           <button class="reveal-toggle-btn" id="toggleDrillBtn">🙈 Hide answer</button>`
+        : `<button class="reveal-toggle-btn" id="toggleDrillBtn">👁 Show answer</button>`;
+      inner = `
+        <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:8px">Ask aloud:</div>
+        <div class="drill-prompt">${esc(item.prompt||'')}</div>
+        ${answerHtml}
+        ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
+        ${item.hint ? (hintShown
+          ? `<div class="hint-box">💡 ${esc(item.hint)}</div>`
+          : `<button class="hint-reveal-btn" id="hintRevealBtn">💡 Show Hint</button>`)
+          : ''}
+        <div class="drill-result-btns">
+          <button class="drill-btn-c${drillAnswered?' drill-scored':''}" id="drillC">✓</button>
+          <button class="drill-btn-w${drillAnswered?' drill-scored':''}" id="drillW">✗</button>
+        </div>
+        <div class="drill-score-row">${scoreDots}</div>`;
+      actions = nextBtn(!drillAnswered);
+    } else {
+      inner = `<div class="student-prompt-card">
+        <div class="student-prompt-label">👂 Question</div>
+        <div class="student-prompt-text">${esc(item.prompt||'')}</div>
+      </div>
+      <div class="student-repeat-card" style="margin-top:10px">🗣️ Answer aloud ♪</div>`;
+    }
+
+  // ── DIALOGUE ─────────────────────────────────────────────────
+  } else if (item.type === 'dialogue') {
+    const lines = item.lines || [];
+    const { lineIdx } = guidedSession;
+    if (view === 'teacher') {
+      const linesHtml = lines.map((ln, i) => {
+        const cls = i < lineIdx ? 'past' : i === lineIdx ? 'active' : 'future';
+        const side = ln.speaker === 'teacher' ? 'teacher-l' : 'student-l';
+        const isActive = i === lineIdx;
+        const isLast = lineIdx >= lines.length - 1;
+        return `<div class="dl ${cls} ${side}">
+          <div class="dl-body">
+            <div class="dl-who ${ln.speaker==='teacher'?'t':'s'}">${ln.speaker==='teacher'?'👨‍🏫 Teacher':'👩‍🎓 Student'}</div>
+            <div class="dl-text">${esc(ln.text||'')}</div>
+            ${ln.translation?`<div class="dl-tr">${esc(ln.translation)}</div>`:''}
+            ${isActive&&ln.teacher_notes?`<div class="teacher-notes" style="margin-top:8px">📝 ${esc(ln.teacher_notes)}</div>`:''}
+          </div>
+          ${isActive?`<button class="dl-next-inline" id="inlineNextBtn" title="${isLast?'Next Item':'Next Line'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:''}
+        </div>`;
+      }).join('');
+      inner = `${item.setup?`<div class="dialogue-setup">💭 ${esc(item.setup)}</div>`:''}
+        <div class="dialogue-lines">${linesHtml}</div>`;
+    } else {
+      const ln = lines[lineIdx];
+      if (ln && ln.speaker === 'student') {
+        inner = `<div class="student-turn-card">
+          <div class="st-label">Your turn ♪</div>
+          <div class="st-text">${esc(ln.text||'')}</div>
+          ${ln.translation?`<div class="st-tr">${esc(ln.translation)}</div>`:''}
+        </div>`;
+      } else {
+        inner = `<div class="listen-card"><div class="listen-icon">👂</div><div class="listen-text">Listen…</div></div>`;
+      }
+    }
+    const isLastLine = lineIdx >= lines.length - 1;
+    actions = `<button class="guided-next" id="guidedNextBtn">${isLastLine ? 'Next Item' : 'Next Line'} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`;
+
+  // ── CHECKPOINT ───────────────────────────────────────────────
+  } else if (item.type === 'checkpoint') {
+    if (view === 'teacher') {
+      const { cpExpanded } = guidedSession;
+      const expectedHtml = cpExpanded
+        ? `<div class="cp-expected">
+             <div class="cp-expected-label">Expected answer</div>
+             <div class="cp-expected-val">${esc(item.expected||'')}</div>
+           </div>
+           <button class="reveal-toggle-btn" id="toggleCpBtn">🙈 Hide answer</button>`
+        : `<button class="reveal-toggle-btn" id="toggleCpBtn">👁 Show expected answer</button>`;
+      inner = `
+        <div class="cp-prompt">${esc(item.prompt||'')}</div>
+        ${expectedHtml}
+        ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
+        <div class="cp-btns">
+          <button class="cp-pass${checkpointAnswered?' cp-scored':''}" id="cpPass">✓ PASS</button>
+          <button class="cp-review${checkpointAnswered?' cp-scored':''}" id="cpReview">↺ NEEDS REVIEW</button>
+        </div>`;
+      actions = nextBtn(!checkpointAnswered);
+    } else {
+      inner = `<div class="student-prompt-card">
+        <div class="student-prompt-label">🌟 Question</div>
+        <div class="student-prompt-text">${esc(item.prompt||'')}</div>
+      </div>
+      <div class="student-repeat-card" style="margin-top:10px">🗣️ Answer aloud ♪</div>`;
+    }
+  }
+
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 10px">
+      <div class="phase-type-chip">${phaseIcons[phase.type]||'📝'} ${esc(phase.title||phaseLabels[phase.type]||phase.type)}</div>
+      <div class="q-count">${itemNum} / ${itemTotal}</div>
+    </div>
+    <div class="phase-card">${inner}</div>
+    ${actions}`;
+
+  // Wire buttons
+  document.getElementById('guidedNextBtn')?.addEventListener('click', advanceGuidedItem);
+  document.getElementById('inlineNextBtn')?.addEventListener('click', advanceGuidedItem);
+  document.getElementById('repeatBtn')?.addEventListener('click', tapRepeat);
+  document.getElementById('hintRevealBtn')?.addEventListener('click', showDrillHint);
+  document.getElementById('toggleDrillBtn')?.addEventListener('click', () => { guidedSession.drillExpanded = !guidedSession.drillExpanded; renderGuidedContent(); });
+  document.getElementById('toggleCpBtn')?.addEventListener('click', () => { guidedSession.cpExpanded = !guidedSession.cpExpanded; renderGuidedContent(); });
+  if (item.type === 'verbal_drill' && view === 'teacher' && !drillAnswered) {
+    document.getElementById('drillC')?.addEventListener('click', () => recordDrill(true));
+    document.getElementById('drillW')?.addEventListener('click', () => recordDrill(false));
+  }
+  if (item.type === 'checkpoint' && view === 'teacher' && !checkpointAnswered) {
+    document.getElementById('cpPass')?.addEventListener('click', () => recordCheckpoint(true));
+    document.getElementById('cpReview')?.addEventListener('click', () => recordCheckpoint(false));
+  }
+  document.getElementById('guidedScrollArea').scrollTop = 0;
+}
+
+function nextBtn(disabled) {
+  return `<button class="guided-next" id="guidedNextBtn"${disabled?' disabled':''}>Next <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`;
+}
+
+function recordDrill(correct) {
+  const item = gItem();
+  guidedSession.drillResults.push({ prompt: item.prompt, correct });
+  guidedSession.drillAnswered = true;
+  renderGuidedContent();
+}
+
+function recordCheckpoint(passed) {
+  const item = gItem();
+  guidedSession.checkpointResults.push({ prompt: item.prompt, passed });
+  guidedSession.checkpointAnswered = true;
+  renderGuidedContent();
+}
+
+function advanceGuidedItem() {
+  const phase = gPhase();
+  const item = gItem();
+  // Advance through dialogue lines first
+  if (item.type === 'dialogue') {
+    const lines = item.lines || [];
+    if (guidedSession.lineIdx < lines.length - 1) {
+      guidedSession.lineIdx++;
+      renderGuidedContent();
+      return;
+    }
+  }
+  // Reset per-item state
+  guidedSession.lineIdx = 0;
+  guidedSession.drillAnswered = false;
+  guidedSession.checkpointAnswered = false;
+  guidedSession.repeatCount = 0;
+  guidedSession.hintShown = false;
+  guidedSession.drillExpanded = false;
+  guidedSession.cpExpanded = false;
+  // Advance within phase or to next phase
+  if (guidedSession.itemIdx < phase.items.length - 1) {
+    guidedSession.itemIdx++;
+    guidedSession.showingIntro = false;
+    renderGuidedContent();
+  } else if (guidedSession.phaseIdx < guidedSession.phases.length - 1) {
+    guidedSession.phaseIdx++;
+    guidedSession.itemIdx = 0;
+    const nextPhase = gPhase();
+    guidedSession.showingIntro = !!(nextPhase?.intro_notes);
+    renderGuidedSession();
+  } else {
+    showGuidedSummary();
+  }
+}
+
+function dismissGuidedIntro() {
+  guidedSession.showingIntro = false;
+  renderGuidedContent();
+}
+
+function tapRepeat() {
+  const item = gItem();
+  const target = item.repeat_target ?? 2;
+  if (guidedSession.repeatCount < target) guidedSession.repeatCount++;
+  renderGuidedContent();
+}
+
+function showDrillHint() {
+  guidedSession.hintShown = true;
+  renderGuidedContent();
+}
+
+function showGuidedSummary() {
+  const { drillResults, checkpointResults, lesson, unit, unitId, lessonId, startTime, phases } = guidedSession;
+  const dCorrect = drillResults.filter(r => r.correct).length;
+  const cpPassed = checkpointResults.filter(r => r.passed).length;
+  const durationSec = Math.floor((Date.now() - startTime) / 1000);
+
+  // Stop timer
+  clearInterval(guidedSession.timerInterval);
+  guidedSession.timerInterval = null;
+
+  // Save to history
+  saveSessionHistory({
+    date: new Date().toISOString(),
+    lesson_id: lesson.id,
+    lesson_title: lesson.title,
+    unit_title: unit?.title || '',
+    duration_seconds: durationSec,
+    drill_score: { correct: dCorrect, total: drillResults.length },
+    checkpoint_results: checkpointResults.map((r, i) => {
+      const ph = phases.find(p => p.type === 'checkpoint') || phases[i] || {};
+      return { phase_id: ph.id || '', phase_title: ph.title || 'Checkpoint', result: r.passed ? 'pass' : 'review' };
+    })
+  });
+
+  document.getElementById('guidedPhaseProgress').innerHTML = '';
+
+  let drillHtml = '', cpHtml = '';
+  if (drillResults.length) {
+    drillHtml = `<div style="margin-bottom:16px">
+      <div class="gs-section-title">Verbal Drills — ${dCorrect}/${drillResults.length}</div>
+      ${drillResults.map(r => `<div class="gs-row"><div class="gs-row-text">${esc(r.prompt)}</div><div class="gs-badge ${r.correct?'c':'w'}">${r.correct?'✓ Correct':'✗ Wrong'}</div></div>`).join('')}
+    </div>`;
+  }
+  if (checkpointResults.length) {
+    cpHtml = `<div style="margin-bottom:16px">
+      <div class="gs-section-title">Checkpoints — ${cpPassed}/${checkpointResults.length} passed</div>
+      ${checkpointResults.map(r => `<div class="gs-row"><div class="gs-row-text">${esc(r.prompt)}</div><div class="gs-badge ${r.passed?'p':'r'}">${r.passed?'✓ Pass':'↺ Review'}</div></div>`).join('')}
+    </div>`;
+  }
+
+  const mm = String(Math.floor(durationSec / 60)).padStart(2, '0');
+  const ss = String(durationSec % 60).padStart(2, '0');
+  const allGood = drillResults.every(r => r.correct) && checkpointResults.every(r => r.passed);
+  document.getElementById('guidedContent').innerHTML = `
+    <div style="padding:8px 2px 24px">
+      <div style="text-align:center;font-size:64px;margin-bottom:10px">${allGood?'🎉':'⭐'}</div>
+      <div class="gs-title">${allGood?'Perfect Session! ♡':'Session Complete! ♡'}</div>
+      <div class="gs-sub">${esc(lesson.title)}</div>
+      <div style="text-align:center;margin-bottom:16px">
+        <span class="guided-timer" style="font-size:14px">${mm}:${ss}</span>
+      </div>
+      ${drillHtml}${cpHtml}
+      ${!drillHtml&&!cpHtml?'<div style="text-align:center;padding:20px;color:var(--mauve-soft);font-weight:800">Great work! ♡</div>':''}
+      ${lesson.homework ? `<button class="btn-ghost" id="guidedViewHwBtn" style="justify-content:center;width:100%;margin-top:8px">📚 View Homework</button>` : ''}
+      <button class="btn-pill" id="guidedDoneBtn" style="margin-top:8px">Done ♪</button>
+    </div>`;
+
+  if (lesson.homework) {
+    document.getElementById('guidedViewHwBtn').addEventListener('click', () => {
+      guidedSession = null;
+      startHomework(unitId, lessonId);
+    });
+  }
+  document.getElementById('guidedDoneBtn').addEventListener('click', () => {
+    guidedSession = null;
+    showScreen('screenHome');
+  });
+}
+
+// ══════════════════════════════════════
+//  TIMER
+// ══════════════════════════════════════
+function startGuidedTimer() {
+  clearInterval(guidedSession.timerInterval);
+  guidedSession.timerInterval = setInterval(updateTimerDisplay, 1000);
+  updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const el = document.getElementById('guidedTimer');
+  if (!el || !guidedSession) return;
+  el.style.display = guidedSession.view === 'teacher' ? '' : 'none';
+  const elapsed = Math.floor((Date.now() - guidedSession.startTime) / 1000);
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const ss = String(elapsed % 60).padStart(2, '0');
+  el.textContent = `${mm}:${ss}`;
+}
+
+// ══════════════════════════════════════
+//  SESSION HISTORY
+// ══════════════════════════════════════
+function saveSessionHistory(record) {
+  const hist = load('session_history', []);
+  hist.unshift(record);
+  store('session_history', hist);
+}
+
+function openHistoryPanel() {
+  const hist = load('session_history', []);
+  const scroll = document.getElementById('historyScroll');
+
+  if (!hist.length) {
+    scroll.innerHTML = `<div class="history-empty">📋 No sessions yet.<br>Start your first guided lesson!</div>`;
+  } else {
+    scroll.innerHTML = hist.map(r => {
+      const d = new Date(r.date);
+      const dateStr = d.toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric' });
+      const timeStr = d.toLocaleTimeString(undefined, { hour:'2-digit', minute:'2-digit' });
+      const durM = Math.floor(r.duration_seconds / 60);
+      const durS = r.duration_seconds % 60;
+      const durStr = durM > 0 ? `${durM}m ${durS}s` : `${durS}s`;
+      const drillStr = r.drill_score.total > 0 ? `${r.drill_score.correct} / ${r.drill_score.total} correct` : null;
+      const cpHtml = (r.checkpoint_results || []).map(cp =>
+        `<div class="hc-cp-row"><span>${esc(cp.phase_title)}</span><span class="hc-cp-badge ${cp.result==='pass'?'p':'r'}">${cp.result==='pass'?'✓ Pass':'↺ Review'}</span></div>`
+      ).join('');
+      return `<div class="history-card">
+        <div class="hc-top">
+          <div><div class="hc-lesson">${esc(r.lesson_title)}</div><div class="hc-unit">${esc(r.unit_title)}</div></div>
+          <div class="hc-date">${dateStr}<br>${timeStr}</div>
+        </div>
+        <div class="hc-stats">
+          <span class="hc-stat">⏱ ${durStr}</span>
+          ${drillStr ? `<span class="hc-stat">🎯 ${drillStr}</span>` : ''}
+        </div>
+        ${cpHtml ? `<div>${cpHtml}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('historyPanel').classList.add('open');
+}
+
+function closeHistoryPanel() {
+  document.getElementById('historyPanel').classList.remove('open');
+}
+
+// ══════════════════════════════════════
+//  HOMEWORK
+// ══════════════════════════════════════
+function isHomeworkDone(lessonId) {
+  return homeworkHistory.some(r => r.lesson_id === lessonId);
+}
+
+function startHomework(unitId, lessonId) {
+  const unit = curriculum?.units.find(u => u.id === unitId);
+  const lesson = unit?.lessons.find(l => l.id === lessonId);
+  if (!lesson?.homework) { showToast('No homework in this lesson'); return; }
+  document.getElementById('hwLessonName').textContent = lesson.title;
+  const est = lesson.homework.estimated_minutes;
+  const chip = document.getElementById('hwTimeChip');
+  chip.textContent = est ? `~${est} min` : '';
+  chip.style.display = est ? '' : 'none';
+  showScreen('screenHomework');
+  renderHomework(lesson, unitId, lessonId, unit);
+}
+
+function renderHomework(lesson, unitId, lessonId, unit) {
+  const hw = lesson.homework;
+  const done = isHomeworkDone(lessonId);
+  const el = document.getElementById('hwContent');
+
+  const sectionsHtml = (hw.sections || []).map(sec => {
+    let body = '';
+    if (sec.type === 'vocabulary_list')    body = renderHwVocabList(sec);
+    else if (sec.type === 'reading')       body = renderHwReading(sec);
+    else if (sec.type === 'writing_prompt') body = renderHwWritingPrompt(sec);
+    else if (sec.type === 'listen_and_repeat') body = renderHwListenRepeat(sec);
+    else if (sec.type === 'challenge')     body = renderHwChallenge(sec);
+    return `<div class="hw-section"><div class="hw-section-head">${esc(sec.title || '')}</div>${body}</div>`;
+  }).join('');
+
+  const markBtn = done
+    ? `<button class="hw-mark-complete-btn completed" disabled>✅ Homework Completed</button>`
+    : `<button class="hw-mark-complete-btn" id="hwMarkCompleteBtn">✅ Mark as Complete</button>`;
+
+  el.innerHTML = `<div style="padding:8px 0 28px">${sectionsHtml}${markBtn}</div>`;
+
+  el.querySelectorAll('.vocab-item').forEach(card => {
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+  });
+
+  el.querySelectorAll('.reading-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tr = btn.previousElementSibling;
+      const showing = tr.classList.contains('visible');
+      tr.classList.toggle('visible', !showing);
+      btn.textContent = showing ? 'Ver en español' : 'Ocultar traducción';
+    });
+  });
+
+  el.querySelectorAll('.writing-prompt-item').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.toggle('done');
+      item.querySelector('.wp-check').textContent = item.classList.contains('done') ? '✓' : '';
+    });
+  });
+
+  if (!done) {
+    document.getElementById('hwMarkCompleteBtn')?.addEventListener('click', () => {
+      markHomeworkComplete(unitId, lessonId, lesson, unit);
+    });
+  }
+
+  document.getElementById('hwScrollArea').scrollTop = 0;
+}
+
+function renderHwVocabList(sec) {
+  const items = (sec.items || []).map(item => `
+    <div class="vocab-item">
+      <div class="vocab-front">
+        <div>
+          <div class="vocab-word">${esc(item.word)}</div>
+          ${item.phonetic ? `<div class="vocab-phon">${esc(item.phonetic)}</div>` : ''}
+        </div>
+        <div class="vocab-flip-hint">↻ tap</div>
+      </div>
+      <div class="vocab-back">
+        <div class="vocab-translation">${esc(item.translation)}</div>
+        ${item.example ? `<div class="vocab-example">"${esc(item.example)}"</div>` : ''}
+      </div>
+    </div>`).join('');
+  return `<div class="vocab-list">${items}</div>`;
+}
+
+function renderHwReading(sec) {
+  const hasTr = !!sec.translation;
+  return `
+    <div class="reading-text">${esc(sec.text || '')}</div>
+    ${hasTr ? `<div class="reading-translation">${esc(sec.translation)}</div><button class="reading-toggle">Ver en español</button>` : ''}`;
+}
+
+function renderHwWritingPrompt(sec) {
+  const items = (sec.prompts || []).map(prompt => `
+    <div class="writing-prompt-item">
+      <div class="wp-check"></div>
+      <div class="wp-text">${esc(prompt)}</div>
+    </div>`).join('');
+  return `<div class="writing-prompts">${items}</div>`;
+}
+
+function renderHwListenRepeat(sec) {
+  const items = (sec.items || []).map(item => `
+    <div class="listen-item">
+      <div class="listen-phrase">${esc(item.phrase)}</div>
+      ${item.phonetic ? `<div class="listen-phon">${esc(item.phonetic)}</div>` : ''}
+      ${item.translation ? `<div class="listen-tr">${esc(item.translation)}</div>` : ''}
+    </div>`).join('');
+  return `<div class="listen-items">${items}</div>`;
+}
+
+function renderHwChallenge(sec) {
+  return `
+    <div class="challenge-card">
+      <div class="challenge-star">⭐</div>
+      <div class="challenge-text">${esc(sec.description || '')}</div>
+    </div>`;
+}
+
+function markHomeworkComplete(unitId, lessonId, lesson, unit) {
+  homeworkHistory.unshift({
+    lesson_id: lessonId,
+    lesson_title: lesson.title,
+    unit_title: unit?.title || '',
+    completed_at: new Date().toISOString()
+  });
+  store('homework_history', homeworkHistory);
+  const btn = document.getElementById('hwMarkCompleteBtn');
+  if (btn) {
+    btn.textContent = '✅ Homework Completed';
+    btn.className = 'hw-mark-complete-btn completed';
+    btn.disabled = true;
+  }
+  showToast('Homework marked as complete ♡');
+}
+
+function openHwHistoryPanel() {
+  const scroll = document.getElementById('hwHistoryScroll');
+  if (!homeworkHistory.length) {
+    scroll.innerHTML = `<div class="history-empty">📚 No homework completed yet.<br>Complete your first lesson's homework!</div>`;
+  } else {
+    scroll.innerHTML = homeworkHistory.map(r => {
+      const d = new Date(r.completed_at);
+      const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+      const timeStr = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+      return `<div class="hw-history-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+          <div>
+            <div class="hw-hc-lesson">${esc(r.lesson_title)}</div>
+            <div class="hw-hc-unit">${esc(r.unit_title)}</div>
+          </div>
+          <div class="hw-hc-date">${dateStr}<br>${timeStr}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('hwHistoryPanel').classList.add('open');
+}
+
+function closeHwHistoryPanel() {
+  document.getElementById('hwHistoryPanel').classList.remove('open');
+}
+
+// ══════════════════════════════════════
+//  TEACHER MODE
+// ══════════════════════════════════════
+function updateTeacherModeUI() {
+  const btn = document.getElementById('navGeneratorBtn');
+  btn.style.display = isTeacher ? 'flex' : 'none';
+}
+
+function toggleTeacherMode() {
+  isTeacher = !isTeacher;
+  store('is_teacher', isTeacher);
+  updateTeacherModeUI();
+  showToast(isTeacher ? '🎓 Teacher mode ON' : 'Teacher mode OFF');
+}
+
+// ══════════════════════════════════════
+//  LESSON GENERATOR
+// ══════════════════════════════════════
+function renderGenerator() {
+  const sidebar = document.getElementById('genSidebar');
+  const sel = document.getElementById('genMobileSel');
+  let sHtml = '';
+  let selHtml = '<option value="">— Select a unit —</option>';
+
+  for (const level of SYLLABUS.levels) {
+    sHtml += `<div class="gen-level-head">${level.id} — ${esc(level.title)}</div>`;
+    for (const uid of level.units) {
+      const u = SYLLABUS.units.find(x => x.id === uid);
+      if (!u) continue;
+      const active = genSelectedUnit?.id === uid ? ' active' : '';
+      sHtml += `<button class="gen-unit-btn${active}" data-unit="${uid}"><span class="gen-unit-id">${uid}</span>${esc(u.title)}</button>`;
+      selHtml += `<option value="${uid}"${genSelectedUnit?.id === uid ? ' selected' : ''}>${uid} — ${esc(u.title)}</option>`;
+    }
+  }
+
+  sidebar.innerHTML = sHtml;
+  sel.innerHTML = selHtml;
+
+  sidebar.querySelectorAll('.gen-unit-btn').forEach(b => {
+    b.addEventListener('click', () => selectGeneratorUnit(b.dataset.unit));
+  });
+  sel.addEventListener('change', () => { if (sel.value) selectGeneratorUnit(sel.value); });
+
+  if (genSelectedUnit) renderGeneratorPanel();
+  else document.getElementById('genPanel').innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--mauve-soft);font-weight:800;font-size:14px">Select a unit to get started ♡</div>';
+
+  updateGenBottomBar();
+}
+
+function selectGeneratorUnit(unitId) {
+  genSelectedUnit = SYLLABUS.units.find(u => u.id === unitId) || null;
+  genSelectedLesson = null;
+  renderGenerator();
+}
+
+function renderGeneratorPanel() {
+  const unit = genSelectedUnit;
+  if (!unit) return;
+  const panel = document.getElementById('genPanel');
+
+  const grammarPills = (unit.grammar || []).map(g => `<span class="gen-grammar-pill">${esc(g)}</span>`).join('');
+
+  const lessonsHtml = (unit.lessons || []).map(l => {
+    const active = genSelectedLesson?.id === l.id ? ' active' : '';
+    const badges = [
+      l.is_level_exam ? '<span class="gen-badge exam">Exam</span>' : (l.is_review ? '<span class="gen-badge review">Review</span>' : ''),
+      genCopiedLessons.includes(l.id) ? '<span class="gen-badge copied">📋</span>' : ''
+    ].join('');
+    return `<div class="gen-lesson-row${active}" data-lesson="${l.id}">
+      <span class="gen-lesson-num">${l.order}</span>
+      <span class="gen-lesson-name">${esc(l.title)}</span>
+      <span class="gen-lesson-badges">${badges}</span>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML = `
+    <div class="gen-unit-title">${esc(unit.id)} — ${esc(unit.title)}</div>
+    <div class="gen-unit-meta">CEFR ${unit.level} · ~${unit.vocabulary_target} vocab words</div>
+    <div class="gen-grammar-pills">${grammarPills}</div>
+    <div class="gen-lessons-head">Lessons</div>
+    ${lessonsHtml}
+  `;
+
+  panel.querySelectorAll('.gen-lesson-row').forEach(row => {
+    row.addEventListener('click', () => selectGeneratorLesson(row.dataset.lesson));
+  });
+}
+
+function selectGeneratorLesson(lessonId) {
+  genSelectedLesson = genSelectedUnit?.lessons.find(l => l.id === lessonId) || null;
+  renderGeneratorPanel();
+  updateGenBottomBar();
+}
+
+function updateGenBottomBar() {
+  const btn = document.getElementById('btnGenCopy');
+  const status = document.getElementById('genStatus');
+  if (!genSelectedLesson) {
+    btn.disabled = true;
+    status.textContent = genSelectedUnit ? 'Select a lesson to generate its prompt' : 'Select a unit to get started ♡';
+  } else {
+    btn.disabled = false;
+    const copied = genCopiedLessons.includes(genSelectedLesson.id);
+    status.textContent = copied
+      ? `📋 Already copied — paste into Claude and generate`
+      : `${genSelectedLesson.id} — ${genSelectedLesson.title}`;
+  }
+}
+
+function buildLessonPrompt(unit, lesson) {
+  const level = unit.level;
+  const lessonSnake = lesson.id.replace(/-/g, '_').toLowerCase();
+  const grammarStr = (unit.grammar || []).join(' | ');
+  const topicsStr = (lesson.topics || []).join(', ');
+  const promptLang = ['A1','A2'].includes(level) ? 'español' : 'English';
+  let notes = '';
+  if (lesson.is_level_exam) notes = `\nNOTA: Esta es la lección de examen de nivel — evalúa todo el nivel ${level}.`;
+  else if (lesson.is_review) notes = `\nNOTA: Esta es una lección de repaso — refuerza todo lo de la unidad.`;
+
+  return `Eres un generador de contenido para una app de aprendizaje de inglés.
+Responde ÚNICAMENTE con JSON válido. Sin explicaciones, sin texto extra, sin bloques de código markdown, solo el JSON puro.
+
+Genera la lección ${lesson.id} — "${lesson.title}"
+Unidad: ${unit.id} — ${unit.title}
+Nivel CEFR: ${level}
+Mode: "both" (incluye exercises + phases + homework)
+
+GRAMÁTICA OBJETIVO: ${grammarStr}
+VOCABULARIO OBJETIVO: ~${unit.vocabulary_target} palabras
+TEMAS DE LA LECCIÓN: ${topicsStr}${notes}
+
+ESTRUCTURA REQUERIDA (clase de 1 hora):
+- ~10 min · Presentation (phase type: "presentation") — vocabulario nuevo con fonética
+- ~15 min · Verbal Drills (phase type: "verbal_drill") — práctica guiada con el profesor
+- ~15 min · Dialogue (phase type: "dialogue") — conversación real aplicada al contexto
+- ~10 min · Written Practice (exercises array) — ejercicios estilo Duolingo
+- ~5 min  · Checkpoint (phase type: "checkpoint") — 3 preguntas de evaluación final
+- ~5 min  · Homework (homework object) — contenido de estudio autónomo en casa
+
+SCHEMA EXERCISE TYPES (array "exercises"):
+{"type":"multiple_choice","prompt":"...","choices":["A","B","C","D"],"answer":"A","hint":"..."}
+{"type":"fill_blank","prompt":"She ___ a teacher.","answer":"is","hint":"..."}
+{"type":"translate","prompt":"...","answer":"...","hint":"..."}
+{"type":"word_order","prompt":"Ordena las palabras:","words":["am","I","María"],"answer":"I am María","hint":"..."}
+{"type":"flashcard","front":"hello","back":"hola","phonetic":"/həˈloʊ/"}
+
+SCHEMA PHASE ITEMS:
+Presentation: {"type":"presentation","word":"hello","phonetic":"/həˈloʊ/","translation":"hola","example":"Hello! My name is María.","teacher_notes":"..."}
+Verbal drill: {"type":"verbal_drill","prompt":"How do you say 'hola'?","expected":"Hello!","hint":"Empieza con H...","teacher_notes":"..."}
+Dialogue line: {"speaker":"teacher"|"student","text":"...","translation":"...","teacher_notes":"..."}
+Checkpoint: {"type":"checkpoint","prompt":"...","expected":"...","teacher_notes":"..."}
+
+SCHEMA HOMEWORK SECTIONS (array "homework.sections"):
+{"type":"vocabulary_list","title":"...","items":[{"word":"...","phonetic":"...","translation":"...","example":"..."}]}
+{"type":"reading","title":"...","text":"...","translation":"..."}
+{"type":"writing_prompt","title":"...","prompts":["Escribe 3 oraciones sobre ti misma.","..."]}
+{"type":"listen_and_repeat","title":"...","items":[{"phrase":"...","phonetic":"...","translation":"..."}]}
+{"type":"challenge","title":"...","task":"..."}
+
+SCHEMA TOP LEVEL:
+{
+  "id": "${lessonSnake}",
+  "units": [{
+    "id": "u1",
+    "title": "${unit.title}",
+    "lessons": [{
+      "id": "l1",
+      "title": "${lesson.title}",
+      "exercises": [],
+      "phases": [
+        {"type":"presentation","title":"Presentation","items":[]},
+        {"type":"verbal_drill","title":"Verbal Drills","items":[]},
+        {"type":"dialogue","title":"Dialogue","lines":[]},
+        {"type":"checkpoint","title":"Checkpoint","items":[]}
+      ],
+      "homework": {"estimated_minutes":15,"sections":[]}
+    }]
+  }]
+}
+
+REGLAS:
+- IDs únicos con prefijo de lección: ${lessonSnake}_e1, p1_i1, hw_s1
+- Prompts de ejercicios en ${promptLang} para nivel ${level}
+- La estudiante es hispanohablante, meta: vivir en un país anglohablante
+- Vocabulario y gramática deben corresponder exactamente al nivel CEFR ${level}
+- Mínimo: 6 exercises, 3 presentation items, 4 verbal drills, 6 dialogue lines, 3 checkpoint items, 2 homework sections (incluye vocabulary_list)`;
+}
+
+async function copyLessonPrompt() {
+  if (!genSelectedLesson || !genSelectedUnit) return;
+  const text = buildLessonPrompt(genSelectedUnit, genSelectedLesson);
+  let ok = false;
+  try {
+    await navigator.clipboard.writeText(text);
+    ok = true;
+  } catch(_) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:none;outline:none;box-shadow:none;background:transparent;font-size:16px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.setSelectionRange(0, text.length);
+      ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+    } catch(_2) { ok = false; }
+  }
+  if (ok) {
+    if (!genCopiedLessons.includes(genSelectedLesson.id)) {
+      genCopiedLessons.push(genSelectedLesson.id);
+      store('generator_copied_lessons', genCopiedLessons);
+    }
+    showToast('✓ Prompt copied — paste it into Claude');
+    renderGeneratorPanel();
+    updateGenBottomBar();
+  } else {
+    showToast('Copy failed — please try again');
+  }
+}
+
+// ══════════════════════════════════════
 //  EVENT WIRING
 // ══════════════════════════════════════
 
@@ -1785,21 +3003,7 @@ document.getElementById('continueBtn').addEventListener('click', () => {
   else showSessionComplete();
 });
 
-// Home start practice
-document.getElementById('btnStartPractice').addEventListener('click', () => {
-  if (!curriculum) { showToast('Import your curriculum first ♡'); return; }
-  // Find first lesson with due exercises
-  for (const u of curriculum.units) {
-    for (const l of u.lessons) {
-      const hasDue = (l.exercises||[]).some(ex => FSRS.isDue(progress[ex.id]));
-      if (hasDue || (l.exercises||[]).length > 0) {
-        startSession(u.id, l.id, 'fsrs');
-        return;
-      }
-    }
-  }
-  showToast('All caught up! ♡');
-});
+// Home start practice — handled via btn.onclick set in renderHome()
 
 // File input
 document.getElementById('fileInput').addEventListener('change', e => {
@@ -1868,7 +3072,82 @@ document.getElementById('celebrateBtn').addEventListener('click', () => {
   showScreen('screenHome');
 });
 
+// Guided session back
+document.getElementById('btnGuidedBack').addEventListener('click', () => {
+  if (guidedSession) { clearInterval(guidedSession.timerInterval); guidedSession = null; }
+  showScreen('screenHome');
+});
+
+// View toggle
+document.getElementById('btnViewTeacher').addEventListener('click', () => {
+  if (!guidedSession) return;
+  guidedSession.view = 'teacher';
+  document.getElementById('btnViewTeacher').className = 'vtb active-teacher';
+  document.getElementById('btnViewStudent').className = 'vtb';
+  updateTimerDisplay();
+  renderGuidedContent();
+});
+document.getElementById('btnViewStudent').addEventListener('click', () => {
+  if (!guidedSession) return;
+  guidedSession.view = 'student';
+  document.getElementById('btnViewTeacher').className = 'vtb';
+  document.getElementById('btnViewStudent').className = 'vtb active-student';
+  updateTimerDisplay();
+  renderGuidedContent();
+});
+
+// Session history panel
+document.getElementById('btnOpenHistory').addEventListener('click', openHistoryPanel);
+document.getElementById('btnCloseHistory').addEventListener('click', closeHistoryPanel);
+
+// Homework back button
+document.getElementById('btnHwBack').addEventListener('click', () => showScreen('screenLessons'));
+
+// Homework history panel
+document.getElementById('btnOpenHwHistory').addEventListener('click', openHwHistoryPanel);
+document.getElementById('btnCloseHwHistory').addEventListener('click', closeHwHistoryPanel);
+
+// Generator buttons
+document.getElementById('btnGenBack').addEventListener('click', () => showScreen('screenHome'));
+document.getElementById('btnGenCopy').addEventListener('click', copyLessonPrompt);
+document.getElementById('btnGenReset').addEventListener('click', () => {
+  genCopiedLessons = [];
+  store('generator_copied_lessons', genCopiedLessons);
+  if (genSelectedUnit) renderGeneratorPanel();
+  updateGenBottomBar();
+  showToast('Marks reset ♡');
+});
+
+// Teacher mode: tap home avatar 5 times
+document.getElementById('homeAvatar').addEventListener('click', () => {
+  teacherTapCount++;
+  clearTimeout(teacherTapTimer);
+  if (teacherTapCount >= 5) {
+    teacherTapCount = 0;
+    toggleTeacherMode();
+  } else {
+    teacherTapTimer = setTimeout(() => { teacherTapCount = 0; }, 1500);
+  }
+});
+
+// Mode choice dialog
+document.getElementById('btnModeGuided').addEventListener('click', () => {
+  if (!pendingModeLesson) return;
+  const { unitId, lessonId } = pendingModeLesson;
+  pendingModeLesson = null;
+  document.getElementById('modeDialog').classList.remove('open');
+  startGuidedSession(unitId, lessonId);
+});
+document.getElementById('btnModeSolo').addEventListener('click', () => {
+  if (!pendingModeLesson) return;
+  const { unitId, lessonId } = pendingModeLesson;
+  pendingModeLesson = null;
+  document.getElementById('modeDialog').classList.remove('open');
+  startSession(unitId, lessonId, 'practice');
+});
+
 // ── INIT ──
+updateTeacherModeUI();
 if (curriculum && studentName) {
   document.getElementById('tabbar').style.display = 'flex';
   showScreen('screenHome');

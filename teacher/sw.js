@@ -1,4 +1,4 @@
-const CACHE = 'sweet-teacher-v1';
+const CACHE = 'sweet-teacher-v2';
 const ASSETS = ['./index.html', './manifest.json', './syllabus.json'];
 
 self.addEventListener('install', e => {

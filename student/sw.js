@@ -1,4 +1,4 @@
-const CACHE = 'sweet-student-v2';
+const CACHE = 'sweet-student-v3';
 const ASSETS = ['./index.html', './manifest.json'];
 
 self.addEventListener('install', e => {

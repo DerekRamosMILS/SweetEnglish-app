@@ -1,4 +1,4 @@
-const CACHE = 'sweet-v5';
+const CACHE = 'sweet-v6';
 const ASSETS = [
   './app.html',
   './admin.html',
@@ -7,7 +7,9 @@ const ASSETS = [
   './student/manifest.json',
   './teacher/index.html',
   './teacher/manifest.json',
-  './teacher/syllabus.json'
+  './teacher/syllabus.json',
+  './assets/mascot.css',
+  './assets/mysweetpiano.avif'
 ];
 
 self.addEventListener('install', e => {
