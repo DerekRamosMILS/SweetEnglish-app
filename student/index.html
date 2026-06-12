@@ -1274,6 +1274,7 @@ function renderHwContent(hw, lessonTitle) {
     else if (sec.type === 'writing_prompt') body = hwWriting(sec);
     else if (sec.type === 'listen_and_repeat') body = hwListen(sec);
     else if (sec.type === 'challenge') body = hwChallenge(sec);
+    else if (sec.type === 'flashcard_set') body = hwFlashcards(sec);
     return `<div class="hw-section"><div class="hw-section-head">${esc(sec.title || '')}</div>${body}</div>`;
   }).join('');
   el.innerHTML = `<div style="padding-bottom:12px">${sectionsHtml}</div>`;
@@ -1333,6 +1334,19 @@ function hwChallenge(sec) {
     <div class="challenge-star">⭐</div>
     <div class="challenge-text">${esc(sec.task || sec.description || '')}</div>
   </div>`;
+}
+function hwFlashcards(sec) {
+  return `<div class="vocab-list">${(sec.items || []).map((fc, i) => `
+    <div class="vocab-item" data-fc="${i}">
+      <div class="vocab-front">
+        <div><div class="vocab-word">${esc(fc.front || '')}</div>${fc.phonetic ? `<div class="vocab-phon">${esc(fc.phonetic)}</div>` : ''}</div>
+        <div class="vocab-flip-hint">↻ tap</div>
+      </div>
+      <div class="vocab-back">
+        <div class="vocab-translation">${esc(fc.back || '')}</div>
+        ${fc.example_sentence ? `<div class="vocab-example">"${esc(fc.example_sentence)}"</div>` : ''}
+      </div>
+    </div>`).join('')}</div>`;
 }
 
 // ── CONFETTI ──────────────────────────────────────────────────────────────

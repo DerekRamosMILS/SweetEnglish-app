@@ -2818,6 +2818,7 @@ function gItem() {
 function renderGuidedSession() {
   renderGuidedPhaseProgress();
   renderGuidedContent();
+  document.getElementById('guidedScrollArea').scrollTop = 0;
 }
 
 function renderGuidedPhaseProgress() {
@@ -3015,7 +3016,6 @@ function renderGuidedContent() {
     document.getElementById('cpPass')?.addEventListener('click', () => recordCheckpoint(true));
     document.getElementById('cpReview')?.addEventListener('click', () => recordCheckpoint(false));
   }
-  document.getElementById('guidedScrollArea').scrollTop = 0;
 }
 
 function nextBtn(disabled) {
@@ -3068,6 +3068,7 @@ function advanceGuidedItem() {
     if (guidedSession.lineIdx < lines.length - 1) {
       guidedSession.lineIdx++;
       renderGuidedContent();
+      document.querySelector('#guidedScrollArea .dl.active')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       return;
     }
   }
@@ -3085,6 +3086,7 @@ function advanceGuidedItem() {
     guidedSession.itemIdx++;
     guidedSession.showingIntro = false;
     renderGuidedContent();
+    document.getElementById('guidedScrollArea').scrollTop = 0;
   } else if (guidedSession.phaseIdx < guidedSession.phases.length - 1) {
     guidedSession.phaseIdx++;
     guidedSession.itemIdx = 0;
@@ -3215,7 +3217,7 @@ function showGuidedSummary() {
   document.getElementById('guidedContent').innerHTML = `
     <div style="padding:8px 2px 24px">
       ${offlineBanner}
-      <div style="text-align:center;font-size:64px;margin-bottom:10px">${allGood?'🎉':'⭐'}</div>
+      <div style="margin:0 auto 10px;width:100px;height:100px;background-image:url('msp-excited.jpg');background-size:88%;background-position:center 55%;background-repeat:no-repeat;mix-blend-mode:multiply"></div>
       <div class="gs-title">${allGood?'Perfect Session! ♡':'Session Complete! ♡'}</div>
       <div class="gs-sub">${esc(lesson.title)}</div>
       <div style="text-align:center;margin-bottom:16px">
@@ -3240,6 +3242,15 @@ function showGuidedSummary() {
       startHomework(unitId, lessonId);
     });
     document.getElementById('guidedExportHwBtn').addEventListener('click', () => {
+      const flashcards = (lesson.exercises || []).filter(e => e.type === 'flashcard');
+      const sections = [...(lesson.homework.sections || [])];
+      if (flashcards.length) {
+        sections.push({
+          type: 'flashcard_set',
+          title: 'Flashcards',
+          items: flashcards.map(fc => ({ front: fc.front || '', back: fc.back || '', phonetic: fc.phonetic || '', example_sentence: fc.example_sentence || '' }))
+        });
+      }
       const payload = {
         lesson_id: lesson.id,
         lesson_title: lesson.title || '',
@@ -3247,7 +3258,7 @@ function showGuidedSummary() {
         level: unit?.level || '',
         homework: {
           estimated_minutes: lesson.homework.estimated_minutes || null,
-          sections: lesson.homework.sections || []
+          sections
         }
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -3460,11 +3471,20 @@ function renderHwChallenge(sec) {
 function exportHomework() {
   if (!currentHwContext) return;
   const { lesson, unit, lessonId } = currentHwContext;
+  const flashcards = (lesson.exercises || []).filter(e => e.type === 'flashcard');
+  const homeworkSections = [...(lesson.homework.sections || [])];
+  if (flashcards.length) {
+    homeworkSections.push({
+      type: 'flashcard_set',
+      title: 'Flashcards',
+      items: flashcards.map(fc => ({ front: fc.front || '', back: fc.back || '', phonetic: fc.phonetic || '', example_sentence: fc.example_sentence || '' }))
+    });
+  }
   const payload = {
     lesson_id: lessonId,
     lesson_title: lesson.title,
     unit_title: unit?.title || '',
-    homework: lesson.homework
+    homework: { ...lesson.homework, sections: homeworkSections }
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
