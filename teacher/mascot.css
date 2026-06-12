@@ -1,10 +1,10 @@
 /*
-  ── MY SWEET PIANO MASCOT ─────────────────────────────────────────────
-  PARA REVERTIR: quitar esta línea de teacher/index.html:
-    <link rel="stylesheet" href="mascot.css">
-  ─────────────────────────────────────────────────────────────────────
+  ── MY SWEET PIANO — DECORACIONES ─────────────────────────────────────
+  REVERTIR: quitar <link rel="stylesheet" href="mascot.css"> de index.html
+  ──────────────────────────────────────────────────────────────────────
 */
 
+/* Ocultar emoji/texto placeholder en todos los contenedores */
 .welcome-mascot,
 .guide-mascot,
 .celebrate-mascot,
@@ -12,14 +12,112 @@
   font-size: 0 !important;
 }
 
-#welcomeMascot,
-#homeAvatar,
-#homeMascot,
-#exMascot,
-#celebrateMascot {
-  background-image: url('mysweetpiano.avif') !important;
-  background-size: 90% !important;
-  background-position: center center !important;
+/* ══ PANTALLA DE BIENVENIDA ══ */
+/* Winking — perfecta para dar la bienvenida */
+#welcomeMascot {
+  background-image: url('msp-wink.jpg') !important;
+  background-size: 88% !important;
+  background-position: center 60% !important;
   background-repeat: no-repeat !important;
   mix-blend-mode: multiply;
+}
+
+/* ══ HOME — AVATAR PEQUEÑO (46px) ══ */
+/* Solo la cara — ideal para el espacio pequeño */
+#homeAvatar {
+  background-image: url('msp-face.jpg') !important;
+  background-size: 110% !important;
+  background-position: center 55% !important;
+  background-repeat: no-repeat !important;
+  mix-blend-mode: multiply;
+}
+
+/* ══ HOME — GUIDE CARD (54px) ══ */
+/* Con flor — tono cálido y hogareño */
+#homeMascot {
+  background-image: url('msp-flower.jpg') !important;
+  background-size: 88% !important;
+  background-position: center 60% !important;
+  background-repeat: no-repeat !important;
+  mix-blend-mode: multiply;
+}
+
+/* ══ EJERCICIOS — GUÍA (74px) ══ */
+/* Con daisy — tranquila y estudiosa */
+#exMascot {
+  background-image: url('msp-daisy.jpg') !important;
+  background-size: 90% !important;
+  background-position: center 60% !important;
+  background-repeat: no-repeat !important;
+  mix-blend-mode: multiply;
+}
+
+/* ══ CELEBRACIÓN ACIERTO (190px) ══ */
+/* Emocionada saltando — la más expresiva de todas */
+#celebrateMascot {
+  background-image: url('msp-excited.jpg') !important;
+  background-size: 88% !important;
+  background-position: center 55% !important;
+  background-repeat: no-repeat !important;
+  mix-blend-mode: multiply;
+}
+
+/* ══ HOME — DECORACIÓN FLOTANTE (bottom del scroll) ══ */
+/* Caminando simple — aparece encima del texto de racha */
+.home-deco {
+  position: relative;
+}
+.home-deco::before {
+  content: '';
+  display: block;
+  width: 72px;
+  height: 72px;
+  background-image: url('msp-walk.jpg');
+  background-size: 90%;
+  background-position: center;
+  background-repeat: no-repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.92;
+  align-self: center;
+}
+
+/* ══ PROGRESS — DECORACIÓN ESQUINA ══ */
+/* Asomada peeking desde la esquina inferior derecha */
+#screenProgress {
+  position: relative;
+}
+#screenProgress::after {
+  content: '';
+  position: fixed;
+  bottom: 70px;
+  right: -8px;
+  width: 90px;
+  height: 90px;
+  background-image: url('msp-peek.jpg');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.80;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ══ PROGRESS — STICKER FONDO DECORATIVO ══ */
+/* Con fresas/cumpleaños — aparece como fondo suave arriba del scroll */
+#screenProgress .scroll-area::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 100px;
+  height: 100px;
+  background-image: url('msp-birthday.jpg');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  mix-blend-mode: multiply;
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: 0;
 }
