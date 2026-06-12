@@ -238,6 +238,15 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 .hw-complete-btn{font-family:var(--font);font-weight:900;font-size:13px;border:2px solid #5FBF8A;border-radius:var(--r-pill);padding:8px 14px;cursor:pointer;background:#EAF8F0;color:#2A7A4E;transition:all .14s;white-space:nowrap;min-height:40px}
 .hw-complete-btn.done{background:#5FBF8A;color:var(--white);border-color:#5FBF8A}
 .hw-complete-btn:hover{background:#5FBF8A;color:var(--white)}
+/* HW completion screen */
+#screenHwDone{background:radial-gradient(circle at 60% 20%,rgba(95,191,138,.22) 0,transparent 50%),radial-gradient(circle at 20% 80%,rgba(95,191,138,.15) 0,transparent 40%),var(--cream);align-items:center;justify-content:center;padding:40px 28px}
+.hwdone-box{display:flex;flex-direction:column;align-items:center;text-align:center;gap:20px;max-width:340px;width:100%}
+.hwdone-emoji{font-size:80px;line-height:1;animation:float 3s ease-in-out infinite}
+.hwdone-title{font-size:28px;font-weight:900;color:#2A7A4E;line-height:1.2}
+.hwdone-sub{font-size:16px;font-weight:700;color:var(--mauve-soft);line-height:1.5}
+.hwdone-lesson{font-size:14px;font-weight:800;color:var(--mauve-soft);background:var(--white);border:2px solid #B8EDD1;border-radius:var(--r-pill);padding:7px 16px}
+.hwdone-btn{font-family:var(--font);font-weight:900;font-size:17px;border:none;border-radius:var(--r-pill);padding:16px 28px;cursor:pointer;background:#5FBF8A;color:var(--white);box-shadow:0 8px 22px rgba(95,191,138,.3);transition:all .14s;width:100%}
+.hwdone-btn:hover{background:#4AA876}
 #screenHomework .scroll-area{padding:12px 20px calc(20px + var(--safe-bottom))}
 .hw-section{margin-bottom:20px}
 .hw-section-head{font-size:16px;font-weight:900;color:var(--mauve);margin-bottom:10px;padding:0 2px}
@@ -446,6 +455,17 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 </div>
 
 </div><!-- #app -->
+
+<!-- HW COMPLETION -->
+<div class="screen" id="screenHwDone">
+  <div class="hwdone-box">
+    <div class="hwdone-emoji">🌟</div>
+    <div class="hwdone-title">¡Tarea completada!</div>
+    <div class="hwdone-sub" id="hwDoneSub">¡Excelente trabajo! Sigue así.</div>
+    <div class="hwdone-lesson" id="hwDoneLesson"></div>
+    <button class="hwdone-btn" id="btnHwDoneBack">← Volver a mis tareas</button>
+  </div>
+</div>
 
 <!-- PROGRESS -->
 <div class="screen" id="screenProgress">
@@ -806,6 +826,16 @@ function loadLessonFile(file) {
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
+      // Auto-detect homework format: { lesson_id, lesson_title, homework: { sections } }
+      if (data.homework && data.homework.sections) {
+        const lessonTitle = data.lesson_title || '';
+        const lessonId = data.lesson_id || lessonTitle;
+        importHw(data.homework, lessonTitle, lessonId);
+        renderHwLibrary();
+        showScreen('screenHwLibrary');
+        showToast('✓ Tarea guardada en tu biblioteca');
+        return;
+      }
       if (!data.units || !Array.isArray(data.units)) throw new Error('Archivo inválido — pídele a tu maestro el archivo correcto');
       const { added, updated } = importCurriculum(data);
       renderWelcome();
@@ -842,6 +872,7 @@ function loadHwFile(file) {
       if (!hw) { showToast('No hay tarea en este archivo'); return; }
       const id = importHw(hw, lessonTitle, lessonId);
       renderHwLibrary();
+      showScreen('screenHwLibrary');
       showToast('✓ Tarea guardada en tu biblioteca');
     } catch(err) { showToast('Error: ' + err.message); }
   };
@@ -1408,11 +1439,15 @@ document.getElementById('btnHwBack').addEventListener('click', () => {
 });
 document.getElementById('btnHwComplete').addEventListener('click', () => {
   if (!currentHwId) return;
-  const nowDone = markHwComplete(currentHwId);
-  const btn = document.getElementById('btnHwComplete');
-  btn.textContent = nowDone ? '✅ Completada' : '✓ Completar';
-  btn.className = 'hw-complete-btn' + (nowDone ? ' done' : '');
-  showToast(nowDone ? '¡Tarea completada! ✅' : 'Marcada como pendiente');
+  markHwComplete(currentHwId);
+  const lib = getHwLibrary();
+  const entry = lib.find(h => h.id === currentHwId);
+  document.getElementById('hwDoneLesson').textContent = entry?.lesson_title || '';
+  showScreen('screenHwDone');
+});
+document.getElementById('btnHwDoneBack').addEventListener('click', () => {
+  renderHwLibrary();
+  showScreen('screenHwLibrary');
 });
 
 // ── INIT ──────────────────────────────────────────────────────────────────
