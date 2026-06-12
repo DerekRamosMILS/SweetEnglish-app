@@ -1,10 +1,10 @@
 'use strict';
 
-const { app, BrowserWindow, Menu, shell, dialog, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
 const path  = require('path');
 const fs    = require('fs');
 const http  = require('http');
-const { spawn, execFileSync } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 
 // ── Paths ──────────────────────────────────────────────────────────────────────
 
@@ -33,6 +33,23 @@ let mainWin     = null;
 let backendProc = null;
 let logStream   = null;
 
+// ── Global error guard (prevents ugly Electron error dialogs) ─────────────────
+
+process.on('uncaughtException', (err) => {
+  logToFile(`[uncaughtException] ${err.stack || err.message}`);
+  showBackendError(`Error inesperado:\n${err.message}`);
+});
+
+process.on('unhandledRejection', (reason) => {
+  logToFile(`[unhandledRejection] ${reason}`);
+});
+
+function logToFile(msg) {
+  try {
+    fs.appendFileSync(LOG_FILE, `${msg}\n`);
+  } catch (_) {}
+}
+
 // ── Python discovery ───────────────────────────────────────────────────────────
 
 function findPython() {
@@ -48,35 +65,52 @@ function findPython() {
 
   for (const cmd of candidates) {
     try {
-      const out = execFileSync(cmd, ['--version'], {
-        env: { ...process.env, PATH },
-        timeout: 5000,
-      }).toString().trim();
-      if (out.startsWith('Python 3')) return { cmd, PATH };
+      // spawnSync avoids the stdin-pipe EPIPE that execFileSync triggers
+      const r = spawnSync(cmd, ['--version'], {
+        env:      { ...process.env, PATH },
+        timeout:  5000,
+        encoding: 'utf8',
+      });
+      const out = (r.stdout || r.stderr || '').trim();
+      if (out.startsWith('Python 3') && r.status === 0) return { cmd, PATH };
     } catch (_) {
-      // try next
+      // try next candidate
     }
   }
   return null;
 }
 
-// ── Dependency install ─────────────────────────────────────────────────────────
+// ── Dependency install (async — must not block the event loop) ────────────────
 
 function installDeps(pythonCmd, envPATH) {
-  if (fs.existsSync(DEPS_MARKER)) return;
+  return new Promise((resolve, reject) => {
+    if (fs.existsSync(DEPS_MARKER)) return resolve();
 
-  const reqFile = path.join(BACKEND_DIR, 'requirements.txt');
-  if (!fs.existsSync(reqFile)) return;
+    const reqFile = path.join(BACKEND_DIR, 'requirements.txt');
+    if (!fs.existsSync(reqFile)) return resolve();
 
-  execFileSync(
-    pythonCmd,
-    ['-m', 'pip', 'install', '-r', reqFile, '--target', VENDOR_DIR, '--quiet'],
-    {
-      env:     { ...process.env, PATH: envPATH },
-      timeout: 120_000,
-    },
-  );
-  fs.writeFileSync(DEPS_MARKER, new Date().toISOString());
+    logToFile(`[${new Date().toISOString()}] Installing Python deps into ${VENDOR_DIR}`);
+
+    const pip = spawn(
+      pythonCmd,
+      ['-m', 'pip', 'install', '-r', reqFile, '--target', VENDOR_DIR, '--quiet'],
+      { env: { ...process.env, PATH: envPATH } },
+    );
+
+    pip.stderr.on('data', d => logToFile(d.toString().trimEnd()));
+
+    pip.on('close', (code) => {
+      if (code === 0) {
+        fs.writeFileSync(DEPS_MARKER, new Date().toISOString());
+        logToFile(`[${new Date().toISOString()}] Deps installed OK`);
+        resolve();
+      } else {
+        reject(new Error(`pip exited with code ${code}`));
+      }
+    });
+
+    pip.on('error', reject);
+  });
 }
 
 // ── Backend spawn ──────────────────────────────────────────────────────────────
@@ -84,10 +118,14 @@ function installDeps(pythonCmd, envPATH) {
 function startBackend(pythonCmd, envPATH) {
   logStream = fs.createWriteStream(LOG_FILE, { flags: 'a' });
   logStream.write(`\n[${new Date().toISOString()}] Starting backend\n`);
+  logStream.write(`  BACKEND_DIR : ${BACKEND_DIR}\n`);
+  logStream.write(`  TEACHER_DIR : ${TEACHER_DIR}\n`);
+  logStream.write(`  VENDOR_DIR  : ${VENDOR_DIR}\n`);
+  logStream.write(`  DB_PATH     : ${DB_PATH}\n`);
 
   backendProc = spawn(
     pythonCmd,
-    ['-m', 'uvicorn', 'main:app', '--port', '8000', '--host', '127.0.0.1', '--log-level', 'warning'],
+    ['-m', 'uvicorn', 'main:app', '--port', '8000', '--host', '127.0.0.1', '--log-level', 'info'],
     {
       cwd: BACKEND_DIR,
       env: {
@@ -113,6 +151,7 @@ function waitForBackend(retries = 40, delayMs = 500) {
     let attempts = 0;
     const check = () => {
       http.get('http://localhost:8000/progress', res => {
+        res.resume(); // consume response body to free socket
         if (res.statusCode < 500) return resolve();
         retry();
       }).on('error', retry);
@@ -228,14 +267,14 @@ function buildMenu() {
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-// ── Last resort error dialog ───────────────────────────────────────────────────
+// ── Error dialog ───────────────────────────────────────────────────────────────
 
 function showBackendError(message) {
   let detail = message;
   try {
     if (fs.existsSync(LOG_FILE)) {
       const lines = fs.readFileSync(LOG_FILE, 'utf8').split('\n').filter(Boolean);
-      detail += '\n\nÚltimas líneas del log:\n' + lines.slice(-10).join('\n');
+      detail += '\n\nLog:\n' + lines.slice(-10).join('\n');
     }
   } catch (_) {}
 
@@ -263,7 +302,7 @@ app.whenReady().then(async () => {
       type:    'error',
       title:   'Python no encontrado',
       message: 'SweetEnglish necesita Python 3',
-      detail:  'No se encontró Python 3 en tu sistema. Descárgalo desde python.org e instálalo, luego vuelve a abrir la app.',
+      detail:  'No se encontró Python 3. Instálalo desde python.org y vuelve a abrir la app.',
       buttons: ['Abrir python.org', 'Cerrar'],
     });
     if (choice === 0) shell.openExternal('https://www.python.org/downloads/');
@@ -271,22 +310,24 @@ app.whenReady().then(async () => {
     return;
   }
 
-  // 2. Install deps (first launch only)
+  logToFile(`[${new Date().toISOString()}] Python found: ${python.cmd}`);
+
+  // 2. Install deps async (does NOT block the event loop)
   try {
-    installDeps(python.cmd, python.PATH);
+    await installDeps(python.cmd, python.PATH);
   } catch (err) {
-    showBackendError(`No se pudieron instalar las dependencias de Python:\n${err.message}`);
+    showBackendError(`No se pudieron instalar las dependencias:\n${err.message}`);
     return;
   }
 
   // 3. Start uvicorn
   startBackend(python.cmd, python.PATH);
 
-  // 4. Wait for backend
+  // 4. Wait for backend ready
   try {
     await waitForBackend();
   } catch (err) {
-    showBackendError('El servidor FastAPI no respondió a tiempo.');
+    showBackendError('El servidor no respondió a tiempo.');
     return;
   }
 
@@ -315,4 +356,4 @@ function killBackend() {
 }
 
 app.on('before-quit', killBackend);
-process.on('exit',    killBackend);
+process.on('exit', killBackend);
