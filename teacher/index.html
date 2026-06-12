@@ -218,6 +218,86 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
   background:#FFE7EE;border:2px solid var(--pink-border-strong);border-radius:var(--r-pill);
   padding:5px 12px;font-size:12px;font-weight:900;color:var(--rose-deep);margin-bottom:4px
 }
+.home-quick-stats{display:flex;gap:10px;margin-bottom:14px}
+.hqs-tile{
+  flex:1;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:10px 8px;text-align:center;box-shadow:var(--shadow-sm)
+}
+.hqs-val{font-size:22px;font-weight:900;color:var(--rose-deep)}
+.hqs-lbl{font-size:10px;font-weight:800;color:var(--mauve-soft);margin-top:1px}
+.home-recent{
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-lg);
+  padding:13px 15px;margin-bottom:14px;box-shadow:var(--shadow-sm)
+}
+.home-recent-title{font-size:11px;font-weight:900;color:var(--rose);letter-spacing:.4px;margin-bottom:8px}
+.home-recent-row{display:flex;align-items:center;gap:10px}
+.home-recent-icon{font-size:22px;flex-shrink:0}
+.home-recent-body{flex:1;min-width:0}
+.home-recent-lesson{font-size:14px;font-weight:900;color:var(--mauve);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-recent-meta{font-size:12px;font-weight:700;color:var(--mauve-soft)}
+.home-lessons-section{margin-bottom:16px}
+.home-lessons-title{font-size:11px;font-weight:900;color:var(--rose);letter-spacing:.4px;margin-bottom:8px}
+.home-lesson-chip{
+  display:flex;align-items:center;gap:10px;
+  background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);
+  padding:11px 14px;margin-bottom:8px;cursor:pointer;transition:border-color .14s,box-shadow .14s
+}
+.home-lesson-chip:hover{border-color:var(--pink-border-strong);box-shadow:var(--shadow-sm)}
+.home-lesson-chip .hlc-icon{font-size:20px;flex-shrink:0}
+.home-lesson-chip .hlc-body{flex:1;min-width:0}
+.home-lesson-chip .hlc-title{font-size:14px;font-weight:900;color:var(--mauve);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.home-lesson-chip .hlc-meta{font-size:11px;font-weight:700;color:var(--mauve-soft)}
+.home-lesson-chip .hlc-arr{flex-shrink:0;color:var(--rose)}
+
+/* ── LESSON PICKER MODAL ── */
+.picker-overlay{
+  display:none;position:fixed;inset:0;background:rgba(74,37,53,.45);
+  backdrop-filter:blur(4px);z-index:600;align-items:flex-end;
+}
+.picker-overlay.open{display:flex}
+.picker-sheet{
+  width:100%;background:var(--white);border-radius:var(--r-xl) var(--r-xl) 0 0;
+  padding:0 0 calc(20px + var(--safe-bottom));max-height:75vh;overflow-y:auto;
+  box-shadow:0 -8px 40px rgba(232,99,140,.18);animation:slideUp .25s ease
+}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.picker-handle{width:36px;height:4px;background:var(--track);border-radius:99px;margin:10px auto 0}
+.picker-header{font-size:17px;font-weight:900;color:var(--mauve);padding:14px 20px 10px;border-bottom:2px solid var(--pink-border)}
+.picker-row{
+  display:flex;align-items:center;gap:12px;padding:13px 20px;cursor:pointer;
+  border-bottom:1.5px solid var(--pink-border);transition:background .12s
+}
+.picker-row:hover{background:#FFF5F7}
+.picker-row:last-child{border-bottom:none}
+.picker-row-icon{font-size:22px;flex-shrink:0}
+.picker-row-body{flex:1;min-width:0}
+.picker-row-title{font-size:15px;font-weight:900;color:var(--mauve)}
+.picker-row-meta{font-size:12px;font-weight:700;color:var(--mauve-soft)}
+.picker-cancel{
+  display:block;width:calc(100% - 40px);margin:14px 20px 0;
+  font-family:var(--font);font-weight:800;font-size:15px;
+  background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-pill);
+  padding:13px;cursor:pointer;color:var(--mauve-soft);transition:all .14s
+}
+.picker-cancel:hover{border-color:var(--pink-border-strong)}
+
+/* ── SKIP BUTTON ── */
+.guided-skip{
+  font-family:var(--font);font-weight:800;font-size:13px;
+  background:none;border:2px solid var(--pink-border);border-radius:var(--r-pill);
+  padding:8px 18px;cursor:pointer;color:var(--mauve-soft);
+  display:inline-flex;align-items:center;gap:6px;margin-top:8px;transition:all .14s
+}
+.guided-skip:hover{border-color:var(--pink-border-strong);color:var(--mauve)}
+
+/* ── HW button on lesson row ── */
+.lesson-hw-btn{
+  font-family:var(--font);font-weight:800;font-size:11px;
+  background:#FFF0F4;border:1.5px solid var(--pink-border-strong);border-radius:var(--r-pill);
+  padding:4px 10px;cursor:pointer;color:var(--rose-deep);flex-shrink:0;white-space:nowrap;
+  transition:all .14s
+}
+.lesson-hw-btn:hover{background:#FFE0EA}
 
 /* ── EXERCISE SCREEN ── */
 #screenExercise{position:relative}
@@ -1012,12 +1092,15 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
           <span id="streakCount">0</span>
         </div>
       </div>
+      <div class="home-quick-stats" id="homeQuickStats"></div>
+      <div id="homeRecentSession"></div>
       <div id="homeUnitCard"></div>
       <div class="home-guide">
         <div class="guide-mascot mascot-home" id="homeMascot">♡</div>
         <div class="guide-bubble" id="homeBubble">Let's practice today! Ready when you are ♪</div>
       </div>
       <div id="dueBadgeWrap"></div>
+      <div id="homeLessonsSection"></div>
       <button class="btn-pill" id="btnStartPractice">
         Start Today's Practice
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -1255,6 +1338,16 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
   </nav>
 
 </div><!-- #app -->
+
+<!-- ══ LESSON PICKER MODAL ══ -->
+<div class="picker-overlay" id="lessonPickerOverlay">
+  <div class="picker-sheet">
+    <div class="picker-handle"></div>
+    <div class="picker-header">Select a lesson to start</div>
+    <div id="lessonPickerList"></div>
+    <button class="picker-cancel" id="lessonPickerCancel">Cancel</button>
+  </div>
+</div>
 
 <!-- ══ CELEBRATION OVERLAY ══ -->
 <div id="celebrate">
@@ -1642,10 +1735,46 @@ function renderHome() {
   ];
   document.getElementById('homeBubble').textContent = bubbles[Math.floor(Math.random() * bubbles.length)];
 
+  // ── Quick stats ──
+  const sessionHist = load('session_history', []);
+  const totalSessions = sessionHist.length;
+  const practiceDays = Object.keys(practiceLog).length;
+  const totalPracticed = Object.values(practiceLog).reduce((a, b) => a + b, 0);
+  document.getElementById('homeQuickStats').innerHTML = `
+    <div class="hqs-tile"><div class="hqs-val">${streak.current || 0}</div><div class="hqs-lbl">Day streak</div></div>
+    <div class="hqs-tile"><div class="hqs-val">${totalSessions}</div><div class="hqs-lbl">Sessions</div></div>
+    <div class="hqs-tile"><div class="hqs-val">${stats.xp || 0}</div><div class="hqs-lbl">XP earned</div></div>
+    <div class="hqs-tile"><div class="hqs-val">${totalPracticed}</div><div class="hqs-lbl">Exercises</div></div>`;
+
+  // ── Recent session ──
+  const recEl = document.getElementById('homeRecentSession');
+  if (sessionHist.length) {
+    const r = sessionHist[0];
+    const durM = Math.floor((r.duration_seconds || 0) / 60);
+    const durS = (r.duration_seconds || 0) % 60;
+    const durStr = durM > 0 ? `${durM}m ${durS}s` : `${durS}s`;
+    const dateStr = new Date(r.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    const drillStr = r.drill_score?.total > 0 ? ` · ${r.drill_score.correct}/${r.drill_score.total} drills` : '';
+    recEl.innerHTML = `
+      <div class="home-recent">
+        <div class="home-recent-title">LAST SESSION</div>
+        <div class="home-recent-row">
+          <div class="home-recent-icon">📖</div>
+          <div class="home-recent-body">
+            <div class="home-recent-lesson">${esc(r.lesson_title || 'Lesson')}</div>
+            <div class="home-recent-meta">${esc(r.unit_title || '')} · ${dateStr} · ${durStr}${drillStr}</div>
+          </div>
+        </div>
+      </div>`;
+  } else {
+    recEl.innerHTML = '';
+  }
+
   // Unit card
   const unitCardEl = document.getElementById('homeUnitCard');
   if (!curriculum || !curriculum.units.length) {
     unitCardEl.innerHTML = '<div class="card" style="padding:18px;text-align:center;color:var(--mauve-soft);font-weight:800;font-size:14px">No curriculum loaded ♡<br>Go to your teacher for the curriculum.json</div>';
+    document.getElementById('homeLessonsSection').innerHTML = '';
     return;
   }
 
@@ -1686,11 +1815,36 @@ function renderHome() {
       </div>
     </div>`;
 
-  // Update start button
+  // ── Lessons with content ──
+  const lessonsEl = document.getElementById('homeLessonsSection');
+  const allLessons = curriculum.units.flatMap(u2 => u2.lessons.map(l => ({ l, u: u2 })));
+  const withContent = allLessons.filter(({ l }) => (l.phases && l.phases.length) || (l.exercises && l.exercises.length));
+  if (withContent.length) {
+    const chips = withContent.slice(0, 5).map(({ l, u: lu }) => {
+      const hasGuided = l.phases && l.phases.length;
+      const icon = hasGuided ? '👨‍🏫' : '📖';
+      const tag = hasGuided ? 'Guided session' : `${(l.exercises || []).length} exercises`;
+      return `<div class="home-lesson-chip" data-unit="${lu.id}" data-lesson="${l.id}">
+        <div class="hlc-icon">${icon}</div>
+        <div class="hlc-body">
+          <div class="hlc-title">${esc(l.title)}</div>
+          <div class="hlc-meta">${esc(lu.level)} · ${esc(lu.title)} · ${tag}</div>
+        </div>
+        <div class="hlc-arr"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>`;
+    }).join('');
+    lessonsEl.innerHTML = `<div class="home-lessons-section"><div class="home-lessons-title">LESSONS WITH CONTENT</div>${chips}</div>`;
+    lessonsEl.querySelectorAll('.home-lesson-chip').forEach(chip => {
+      chip.addEventListener('click', () => handleLessonClick(chip.dataset.unit, chip.dataset.lesson));
+    });
+  } else {
+    lessonsEl.innerHTML = '';
+  }
+
+  // Update start button — show picker if multiple lessons with content, else go directly
   const btn = document.getElementById('btnStartPractice');
-  const lessonPct = lessonCompletion(currentLesson);
-  btn.innerHTML = `${lessonPct > 0 ? 'Continue' : 'Start'} — ${esc(currentLesson.title)} <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
-  btn.onclick = () => handleLessonClick(u.id, currentLesson.id);
+  btn.innerHTML = `Start Guided Session <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+  btn.onclick = () => openLessonPicker();
 }
 
 // ══════════════════════════════════════
@@ -1713,6 +1867,7 @@ function renderLessons() {
       const metaText = lMode === 'guided' ? 'Guided session' : `${exCount} exercise${exCount === 1 ? '' : 's'}`;
       const hwDone = l.homework && isHomeworkDone(l.id);
       const hwTag = l.homework ? ` <span class="hw-badge${hwDone ? ' done' : ''}">${hwDone ? '✅' : '📚'}</span>` : '';
+      const hwBtn = l.homework ? `<button class="lesson-hw-btn" data-unit="${u.id}" data-lesson="${l.id}">📚 HW</button>` : '';
       const html = `
         <div class="lesson-row${locked ? ' locked' : ''}" data-unit="${u.id}" data-lesson="${l.id}">
           <div class="l-icon">${pct === 100 ? '✓' : (lMode === 'guided' ? '👨‍🏫' : '📖')}</div>
@@ -1721,7 +1876,7 @@ function renderLessons() {
             <div class="l-meta">${metaText}</div>
             <div class="l-prog"><span style="width:${pct}%"></span></div>
           </div>
-          <div class="l-pct">${pct}%</div>
+          ${hwBtn}<div class="l-pct">${pct}%</div>
         </div>`;
       prevLessonCompleted = pct === 100;
       return html;
@@ -1738,6 +1893,12 @@ function renderLessons() {
 
   el.querySelectorAll('.lesson-row:not(.locked)').forEach(row => {
     row.addEventListener('click', () => handleLessonClick(row.dataset.unit, row.dataset.lesson));
+  });
+  el.querySelectorAll('.lesson-hw-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      startHomework(btn.dataset.unit, btn.dataset.lesson);
+    });
   });
 }
 
@@ -2537,6 +2698,41 @@ function exportProgress() {
 // ══════════════════════════════════════
 let pendingModeLesson = null;
 
+function openLessonPicker() {
+  if (!curriculum) { showToast('No curriculum loaded'); return; }
+  const allLessons = curriculum.units.flatMap(u => u.lessons.map(l => ({ l, u })));
+  const withContent = allLessons.filter(({ l }) => (l.phases && l.phases.length) || (l.exercises && l.exercises.length));
+  if (!withContent.length) { showToast('No lessons with content yet — paste a JSON first'); return; }
+  if (withContent.length === 1) {
+    const { l, u } = withContent[0];
+    handleLessonClick(u.id, l.id);
+    return;
+  }
+  const list = document.getElementById('lessonPickerList');
+  list.innerHTML = withContent.map(({ l, u }) => {
+    const hasGuided = l.phases && l.phases.length;
+    const tag = hasGuided ? '👨‍🏫 Guided' : `📖 ${(l.exercises || []).length} exercises`;
+    return `<div class="picker-row" data-unit="${u.id}" data-lesson="${l.id}">
+      <div class="picker-row-icon">${hasGuided ? '👨‍🏫' : '📖'}</div>
+      <div class="picker-row-body">
+        <div class="picker-row-title">${esc(l.title)}</div>
+        <div class="picker-row-meta">${esc(u.level)} · ${esc(u.title)} · ${tag}</div>
+      </div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.picker-row').forEach(row => {
+    row.addEventListener('click', () => {
+      closeLessonPicker();
+      handleLessonClick(row.dataset.unit, row.dataset.lesson);
+    });
+  });
+  document.getElementById('lessonPickerOverlay').classList.add('open');
+}
+
+function closeLessonPicker() {
+  document.getElementById('lessonPickerOverlay').classList.remove('open');
+}
+
 function handleLessonClick(unitId, lessonId) {
   const unit = curriculum?.units.find(u => u.id === unitId);
   const lesson = unit?.lessons.find(l => l.id === lessonId);
@@ -2568,7 +2764,7 @@ function startGuidedSession(unitId, lessonId) {
     phases: lesson.phases,
     phaseIdx: 0, itemIdx: 0, lineIdx: 0,
     view: 'teacher',
-    drillResults: [], checkpointResults: [],
+    drillResults: [], checkpointResults: [], skipResults: [],
     drillAnswered: false, checkpointAnswered: false,
     repeatCount: 0, hintShown: false,
     showingIntro: !!(lesson.phases[0]?.intro_notes),
@@ -2750,16 +2946,22 @@ function renderGuidedContent() {
     }
   }
 
+  const skipBtn = view === 'teacher'
+    ? `<button class="guided-skip" id="guidedSkipBtn">Skip ⟶</button>`
+    : '';
+
   el.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 10px">
       <div class="phase-type-chip">${phaseIcons[phase.type]||'📝'} ${esc(phase.title||phaseLabels[phase.type]||phase.type)}</div>
       <div class="q-count">${itemNum} / ${itemTotal}</div>
     </div>
     <div class="phase-card">${inner}</div>
-    ${actions}`;
+    ${actions}
+    ${skipBtn}`;
 
   // Wire buttons
   document.getElementById('guidedNextBtn')?.addEventListener('click', advanceGuidedItem);
+  document.getElementById('guidedSkipBtn')?.addEventListener('click', skipGuidedItem);
   document.getElementById('repeatBtn')?.addEventListener('click', tapRepeat);
   document.getElementById('hintRevealBtn')?.addEventListener('click', showDrillHint);
   if (item.type === 'verbal_drill' && view === 'teacher' && !drillAnswered) {
@@ -2866,8 +3068,24 @@ function showDrillHint() {
   renderGuidedContent();
 }
 
+function skipGuidedItem() {
+  const phase = gPhase();
+  const item = gItem();
+  if (!item || !phase) return;
+  const label = item.prompt || item.word || item.type || 'item';
+  guidedSession.skipResults.push({ phase: phase.type, label });
+  // If it's a verbal drill or checkpoint that hasn't been answered, mark as skipped (not counted)
+  if (item.type === 'verbal_drill' && !guidedSession.drillAnswered) {
+    guidedSession.drillAnswered = true;
+  }
+  if (item.type === 'checkpoint' && !guidedSession.checkpointAnswered) {
+    guidedSession.checkpointAnswered = true;
+  }
+  advanceGuidedItem();
+}
+
 function showGuidedSummary() {
-  const { drillResults, checkpointResults, lesson, unit, unitId, lessonId, startTime, phases } = guidedSession;
+  const { drillResults, checkpointResults, skipResults, lesson, unit, unitId, lessonId, startTime, phases } = guidedSession;
   const dCorrect = drillResults.filter(r => r.correct).length;
   const cpPassed = checkpointResults.filter(r => r.passed).length;
   const durationSec = Math.floor((Date.now() - startTime) / 1000);
@@ -2888,6 +3106,22 @@ function showGuidedSummary() {
     });
   }
 
+  // Update streak + practiceLog for guided session (counts each drill+checkpoint as practice)
+  const totalItems = drillResults.length + checkpointResults.length + (skipResults || []).length;
+  if (totalItems > 0) {
+    updateStreak();
+    const t = today();
+    practiceLog[t] = (practiceLog[t] || 0) + totalItems;
+    store(LS.practiceLog, practiceLog);
+  }
+
+  // Award XP: 10 per drill correct, 5 per checkpoint pass, 2 per item
+  const xpEarned = dCorrect * 10 + cpPassed * 5 + totalItems * 2;
+  if (xpEarned > 0) {
+    stats.xp = (stats.xp || 0) + xpEarned;
+    store(LS.stats, stats);
+  }
+
   // Save to history
   saveSessionHistory({
     date: new Date().toISOString(),
@@ -2899,12 +3133,13 @@ function showGuidedSummary() {
     checkpoint_results: checkpointResults.map((r, i) => {
       const ph = phases.find(p => p.type === 'checkpoint') || phases[i] || {};
       return { phase_id: ph.id || '', phase_title: ph.title || 'Checkpoint', result: r.passed ? 'pass' : 'review' };
-    })
+    }),
+    skips: (skipResults || []).length
   });
 
   document.getElementById('guidedPhaseProgress').innerHTML = '';
 
-  let drillHtml = '', cpHtml = '';
+  let drillHtml = '', cpHtml = '', skipHtml = '';
   if (drillResults.length) {
     drillHtml = `<div style="margin-bottom:16px">
       <div class="gs-section-title">Verbal Drills — ${dCorrect}/${drillResults.length}</div>
@@ -2915,6 +3150,12 @@ function showGuidedSummary() {
     cpHtml = `<div style="margin-bottom:16px">
       <div class="gs-section-title">Checkpoints — ${cpPassed}/${checkpointResults.length} passed</div>
       ${checkpointResults.map(r => `<div class="gs-row"><div class="gs-row-text">${esc(r.prompt)}</div><div class="gs-badge ${r.passed?'p':'r'}">${r.passed?'✓ Pass':'↺ Review'}</div></div>`).join('')}
+    </div>`;
+  }
+  if ((skipResults || []).length) {
+    skipHtml = `<div style="margin-bottom:16px">
+      <div class="gs-section-title">Skipped — ${skipResults.length} item${skipResults.length===1?'':'s'}</div>
+      ${skipResults.map(r => `<div class="gs-row"><div class="gs-row-text">${esc(r.label)}</div><div class="gs-badge" style="background:#F4E6EB;color:#8A6472;border-color:#FFB7C5">⟶ Skip</div></div>`).join('')}
     </div>`;
   }
 
@@ -2935,8 +3176,9 @@ function showGuidedSummary() {
       <div style="text-align:center;margin-bottom:16px">
         <span class="guided-timer" style="font-size:14px">${mm}:${ss}</span>
       </div>
-      ${drillHtml}${cpHtml}
-      ${!drillHtml&&!cpHtml?'<div style="text-align:center;padding:20px;color:var(--mauve-soft);font-weight:800">Great work! ♡</div>':''}
+      ${xpEarned > 0 ? `<div style="text-align:center;margin-bottom:14px;font-size:14px;font-weight:900;color:var(--rose)">+${xpEarned} XP earned ★</div>` : ''}
+      ${drillHtml}${cpHtml}${skipHtml}
+      ${!drillHtml&&!cpHtml&&!skipHtml?'<div style="text-align:center;padding:20px;color:var(--mauve-soft);font-weight:800">Great work! ♡</div>':''}
       ${lesson.homework ? `
         <button class="btn-ghost" id="guidedViewHwBtn" style="justify-content:center;width:100%;margin-top:8px">📚 View Homework</button>
         <button class="btn-ghost" id="guidedExportHwBtn" style="justify-content:center;width:100%;margin-top:8px">📤 Exportar tarea</button>
@@ -3914,6 +4156,8 @@ document.getElementById('btnGenStart').addEventListener('click', startSessionFro
 document.getElementById('btnPasteCancel').addEventListener('click', closePasteModal);
 document.getElementById('btnPasteOk').addEventListener('click', savePastedJson);
 document.getElementById('pasteOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closePasteModal(); });
+document.getElementById('lessonPickerCancel').addEventListener('click', closeLessonPicker);
+document.getElementById('lessonPickerOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeLessonPicker(); });
 document.getElementById('pasteFileInput').addEventListener('change', function() {
   const file = this.files[0];
   if (!file) return;
