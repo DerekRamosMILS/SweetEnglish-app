@@ -287,6 +287,14 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 .challenge-star{font-size:36px;margin-bottom:10px}
 .challenge-text{font-size:16px;font-weight:700;color:#6B4E00;line-height:1.6}
 
+/* ── WRITING FREE ── */
+.wf-item{margin-bottom:16px}
+.wf-prompt{font-size:14px;font-weight:800;color:var(--mauve);margin-bottom:6px}
+.wf-textarea{width:100%;box-sizing:border-box;border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:10px 12px;font-size:14px;font-family:inherit;resize:vertical;background:var(--white);color:var(--mauve);outline:none}
+.wf-textarea:focus{border-color:var(--rose)}
+.wf-reveal-btn{background:none;border:1.5px solid var(--pink-border);border-radius:var(--r-pill);padding:4px 14px;font-size:12px;font-weight:800;color:var(--mauve);cursor:pointer;margin-top:6px}
+.wf-expected{background:#FFF8FC;border:1.5px solid var(--pink-border);border-radius:var(--r-lg);padding:10px 14px;font-size:13px;font-weight:700;color:var(--mauve);margin-top:6px}
+
 /* ── PROGRESS SCREEN ── */
 #screenProgress{position:relative}
 .prog-topbar{display:flex;align-items:center;gap:12px;padding:12px 18px 0;position:relative;z-index:1;flex-shrink:0}
@@ -1275,10 +1283,19 @@ function renderHwContent(hw, lessonTitle) {
     else if (sec.type === 'listen_and_repeat') body = hwListen(sec);
     else if (sec.type === 'challenge') body = hwChallenge(sec);
     else if (sec.type === 'flashcard_set') body = hwFlashcards(sec);
+    else if (sec.type === 'writing_free') body = hwWritingFree(sec);
     return `<div class="hw-section"><div class="hw-section-head">${esc(sec.title || '')}</div>${body}</div>`;
   }).join('');
   el.innerHTML = `<div style="padding-bottom:12px">${sectionsHtml}</div>`;
   el.querySelectorAll('.vocab-item').forEach(c => c.addEventListener('click', () => c.classList.toggle('flipped')));
+  el.querySelectorAll('.wf-reveal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const exp = btn.nextElementSibling;
+      const show = exp.style.display === 'none';
+      exp.style.display = show ? 'block' : 'none';
+      btn.textContent = show ? 'Ocultar respuesta' : 'Ver respuesta esperada';
+    });
+  });
   el.querySelectorAll('.reading-toggle').forEach(btn => {
     btn.addEventListener('click', () => {
       const tr = btn.previousElementSibling;
@@ -1347,6 +1364,18 @@ function hwFlashcards(sec) {
         ${fc.example_sentence ? `<div class="vocab-example">"${esc(fc.example_sentence)}"</div>` : ''}
       </div>
     </div>`).join('')}</div>`;
+}
+
+function hwWritingFree(sec) {
+  return `<div class="wf-prompts">${(sec.prompts || []).map((p, i) => {
+    const prompt = typeof p === 'string' ? p : (p.prompt || '');
+    const expected = typeof p === 'object' ? (p.expected || '') : '';
+    return `<div class="wf-item">
+      <div class="wf-prompt">${esc(prompt)}</div>
+      <textarea class="wf-textarea" placeholder="Escribe tu respuesta aquí..." rows="3"></textarea>
+      ${expected ? `<button class="wf-reveal-btn">Ver respuesta esperada</button><div class="wf-expected" style="display:none">${esc(expected)}</div>` : ''}
+    </div>`;
+  }).join('')}</div>`;
 }
 
 // ── CONFETTI ──────────────────────────────────────────────────────────────

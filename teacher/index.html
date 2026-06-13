@@ -1271,6 +1271,10 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
         💾 Exportar backup
       </button>
+      <button class="export-prog-btn" id="btnShareReport" style="margin-top:8px;background:#FFF0F5;color:#C94F7C;border-color:#FFB7C5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        📊 Compartir reporte (PNG)
+      </button>
 
       <!-- ── BACKEND STATS (populated by renderBackendProgress) ── -->
       <div id="backendProgressSection">
@@ -3077,6 +3081,134 @@ function exportProgress() {
   showToast('progress.json downloaded ♡');
 }
 
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function exportProgressReport() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 800; canvas.height = 520;
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#FFF8FC';
+  ctx.fillRect(0, 0, 800, 520);
+
+  // Top accent bar
+  ctx.fillStyle = '#E8638C';
+  ctx.fillRect(0, 0, 800, 10);
+
+  // Title
+  ctx.fillStyle = '#3A2040';
+  ctx.font = 'bold 26px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillText('SweetEnglish — Reporte de Progreso', 40, 58);
+
+  // Student name
+  ctx.fillStyle = '#E8638C';
+  ctx.font = 'bold 19px -apple-system, sans-serif';
+  ctx.fillText(`Estudiante: ${studentName || 'Monche'}`, 40, 90);
+
+  // Date
+  ctx.fillStyle = '#8A6472';
+  ctx.font = '13px -apple-system, sans-serif';
+  ctx.fillText(new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }), 40, 113);
+
+  // Divider
+  ctx.strokeStyle = '#FFB7C5';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(40, 128); ctx.lineTo(760, 128); ctx.stroke();
+
+  // Compute stats
+  const sessionHist = load('session_history', []);
+  const totalSessions = sessionHist.length;
+  const totalExercises = Object.values(practiceLog).reduce((a, b) => a + b, 0);
+  const totalXP = stats.xp || 0;
+  let totalLessons = 0, doneLessons = 0;
+  if (curriculum) {
+    for (const u of curriculum.units) {
+      for (const l of u.lessons) {
+        totalLessons++;
+        if (lessonCompletion(l) === 100) doneLessons++;
+      }
+    }
+  }
+  const pct = totalLessons ? Math.round(100 * doneLessons / totalLessons) : 0;
+
+  // Stat rows (left column)
+  const statRows = [
+    { label: 'Racha actual',       val: `${streak.current || 0} días` },
+    { label: 'Sesiones totales',   val: String(totalSessions) },
+    { label: 'Ejercicios hechos',  val: String(totalExercises) },
+    { label: 'XP ganado',          val: `${totalXP} XP` },
+    { label: 'Lecciones completadas', val: `${doneLessons} / ${totalLessons}` },
+  ];
+  statRows.forEach((s, i) => {
+    const x = 40, y = 148 + i * 62;
+    ctx.fillStyle = '#FFFFFF';
+    roundRect(ctx, x, y, 490, 50, 10);
+    ctx.fill();
+    ctx.strokeStyle = '#FFB7C5';
+    ctx.lineWidth = 1;
+    roundRect(ctx, x, y, 490, 50, 10);
+    ctx.stroke();
+    ctx.fillStyle = '#8A6472';
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.fillText(s.label, x + 14, y + 17);
+    ctx.fillStyle = '#3A2040';
+    ctx.font = 'bold 18px -apple-system, sans-serif';
+    ctx.fillText(s.val, x + 14, y + 37);
+  });
+
+  // Progress circle (right)
+  const cx = 670, cy = 300, r = 88;
+  ctx.strokeStyle = '#FFE0EC';
+  ctx.lineWidth = 14;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+  if (pct > 0) {
+    ctx.strokeStyle = '#E8638C';
+    ctx.lineWidth = 14;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (pct / 100) * Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#3A2040';
+  ctx.font = 'bold 34px -apple-system, sans-serif';
+  ctx.fillText(`${pct}%`, cx, cy + 10);
+  ctx.fillStyle = '#8A6472';
+  ctx.font = '13px -apple-system, sans-serif';
+  ctx.fillText('completado', cx, cy + 30);
+  ctx.textAlign = 'left';
+
+  // Circle label
+  ctx.fillStyle = '#8A6472';
+  ctx.font = '11px -apple-system, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Progreso total', cx, cy - r - 14);
+  ctx.textAlign = 'left';
+
+  // Footer
+  ctx.fillStyle = '#C8A4B4';
+  ctx.font = '12px -apple-system, sans-serif';
+  ctx.fillText('Generado con SweetEnglish ♡', 40, 500);
+
+  const link = document.createElement('a');
+  link.download = `reporte_monche_${new Date().toISOString().slice(0, 10)}.png`;
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  showToast('Reporte exportado como imagen ♡');
+}
+
 // ══════════════════════════════════════
 //  LESSON MODE ROUTER
 // ══════════════════════════════════════
@@ -4547,6 +4679,7 @@ document.getElementById('btnStudyAll').addEventListener('click', () => {
 
 // Progress export
 document.getElementById('btnExportProgress').addEventListener('click', exportProgress);
+document.getElementById('btnShareReport').addEventListener('click', exportProgressReport);
 
 // Backend backup export
 document.getElementById('btnExportBackup').addEventListener('click', async () => {
