@@ -1054,6 +1054,64 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 .sdm-dot{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:10px;font-weight:900;color:var(--white)}
 .sdm-dot.c{background:var(--mint);color:var(--mauve)}
 .sdm-dot.w{background:var(--rose)}
+
+/* ── LESSON DONE ── */
+.lesson-done{background:linear-gradient(135deg,#F0FFF4,#E8F8EE)!important;border-left:3px solid #5FBF8A!important}
+.lesson-menu-btn{background:none;border:none;cursor:pointer;padding:4px 8px;font-size:18px;color:var(--mauve-soft);flex-shrink:0;line-height:1;border-radius:var(--r-sm);transition:background .12s}
+.lesson-menu-btn:hover{background:var(--cream)}
+
+/* ── GRAMMAR NOTES ── */
+.grammar-toggle-btn{background:var(--cream);border:1.5px solid var(--pink-border);border-radius:var(--r-pill);padding:3px 10px;font-size:11px;font-weight:800;color:var(--mauve);cursor:pointer;transition:all .14s}
+.grammar-toggle-btn:hover{border-color:var(--rose);color:var(--rose)}
+.grammar-notes-panel{background:#FFF8FC;border:1.5px solid var(--pink-border);border-radius:var(--r-lg);padding:12px 16px;margin:0 0 8px}
+.grammar-notes-title{font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:8px}
+.grammar-list{margin:0;padding-left:18px}
+.grammar-list li{font-size:13px;font-weight:700;color:var(--mauve);margin-bottom:4px}
+
+/* ── SPEAK BUTTON ── */
+.speak-btn{background:none;border:none;cursor:pointer;padding:4px;border-radius:50%;color:var(--rose);opacity:0.7;transition:opacity .15s,transform .1s;display:inline-flex;align-items:center}
+.speak-btn:hover{opacity:1;transform:scale(1.1)}
+.speak-btn:active{transform:scale(0.95)}
+
+/* ── KEYBOARD HINTS ── */
+.kbd-hints{display:flex;gap:12px;padding:4px 16px;font-size:11px;color:var(--mauve-soft)}
+.kbd-hints span{background:var(--cream);border:1px solid var(--pink-border);border-radius:4px;padding:1px 6px}
+
+/* ── VOCAB BANK ── */
+.vb-search{width:100%;box-sizing:border-box;border:2px solid var(--pink-border);border-radius:var(--r-lg);padding:10px 14px;font-size:14px;font-weight:700;color:var(--mauve);background:var(--white);outline:none;margin-bottom:12px;font-family:var(--font)}
+.vb-search:focus{border-color:var(--rose)}
+.vb-filter-row{display:flex;gap:5px;flex-wrap:wrap}
+.vb-filter{background:var(--cream);border:1.5px solid var(--pink-border);border-radius:var(--r-pill);padding:3px 10px;font-size:11px;font-weight:800;color:var(--mauve-soft);cursor:pointer;font-family:var(--font);transition:all .14s}
+.vb-filter.active{background:var(--rose);color:var(--white);border-color:var(--rose)}
+.vb-card{background:var(--white);border:1.5px solid var(--pink-border);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:10px}
+.vb-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+.vb-word{font-size:20px;font-weight:900;color:var(--rose-deep)}
+.vb-phon{font-size:12px;font-weight:700;color:var(--mauve-soft);margin-top:2px}
+.vb-back{font-size:15px;font-weight:800;color:var(--mauve);margin-bottom:4px}
+.vb-meta{font-size:11px;font-weight:700;color:var(--mauve-soft)}
+.vb-status{font-size:11px;font-weight:800;padding:3px 8px;border-radius:var(--r-pill);color:var(--mauve)}
+
+/* ── PLANNER ── */
+.planner-day-names{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:4px}
+.pdn{text-align:center;font-size:11px;font-weight:800;color:var(--mauve-soft);padding:4px 0}
+.planner-cells{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.planner-cell{min-height:56px;border-radius:var(--r-md);border:1.5px solid var(--pink-border);padding:5px;cursor:pointer;background:var(--white);transition:border-color .14s;position:relative}
+.planner-cell:hover{border-color:var(--rose)}
+.planner-cell.today{border-color:var(--rose);background:#FFF0F5}
+.planner-cell.past{background:var(--cream);opacity:0.6}
+.planner-cell.has-plan{background:#F0FFF4;border-color:#5FBF8A}
+.pc-num{font-size:12px;font-weight:800;color:var(--mauve);margin-bottom:3px}
+.planner-cell.today .pc-num{color:var(--rose)}
+.pc-lesson{font-size:10px;font-weight:800;color:#0F6E56;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.picker-item{padding:10px 0;border-bottom:1px solid var(--pink-border);cursor:pointer}
+.picker-item:hover{opacity:0.8}
+.picker-item.active{opacity:0.5}
+
+/* ── WRITING FREE (teacher) ── */
+.wft-item{margin-bottom:14px;background:var(--white);border:1.5px solid var(--pink-border);border-radius:var(--r-lg);padding:13px 16px}
+.wft-prompt{font-size:14px;font-weight:800;color:var(--mauve);margin-bottom:6px}
+.wft-expected{font-size:13px;font-weight:700;color:var(--mauve-soft);background:var(--cream);border:1.5px solid var(--pink-border);border-radius:var(--r-md);padding:8px 12px;margin-top:6px}
+.wft-expected-label{font-size:10px;font-weight:900;color:var(--rose);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
 </style>
 <link rel="stylesheet" href="mascot.css">
 </head>
@@ -1071,7 +1129,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
         <div style="font-size:16px;font-weight:800;color:var(--mauve-soft);margin-top:4px">Your cozy English companion ♪</div>
       </div>
       <p class="welcome-sub">Learn at your own pace with personalized spaced-repetition lessons from your teacher.</p>
-      <div class="name-row">
+      <div class="name-row" style="display:none">
         <label>Your name</label>
         <input class="name-input" id="studentNameInput" placeholder="e.g. María" autocomplete="off">
       </div>
@@ -1276,6 +1334,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
       </div>
     </div>
     <div class="phase-progress" id="guidedPhaseProgress"></div>
+    <div class="kbd-hints" id="kbdHints" style="display:none"><span>C = Correct</span><span>W = Wrong</span><span>→ = Next</span></div>
     <div class="scroll-area" id="guidedScrollArea">
       <div id="guidedContent"></div>
     </div>
@@ -1328,6 +1387,42 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
     </div>
   </div>
 
+  <!-- ══ VOCAB BANK SCREEN ══ -->
+  <div class="screen" id="screenVocab">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="scroll-area" style="padding:14px 16px calc(72px + var(--safe-bottom));position:relative;z-index:1">
+      <div class="screen-head" style="display:flex;align-items:center;justify-content:space-between">
+        Vocabulary Bank
+        <div class="vb-filter-row" id="vbFilterRow">
+          <button class="vb-filter active" data-filter="all">All</button>
+          <button class="vb-filter" data-filter="new">New</button>
+          <button class="vb-filter" data-filter="learning">Learning</button>
+          <button class="vb-filter" data-filter="mastered">Mastered</button>
+        </div>
+      </div>
+      <input class="vb-search" id="vbSearch" placeholder="Search vocabulary..." type="text">
+      <div id="vocabBankList"></div>
+    </div>
+  </div>
+
+  <!-- ══ PLANNER SCREEN ══ -->
+  <div class="screen" id="screenPlanner">
+    <div class="screen-bg"></div>
+    <div class="status-pad"></div>
+    <div class="scroll-area" style="padding:0 16px calc(72px + var(--safe-bottom));position:relative;z-index:1">
+      <div class="screen-head" style="display:flex;align-items:center;justify-content:space-between;margin-top:14px">
+        <span>Class Planner</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="history-btn" id="btnPlanPrev">‹</button>
+          <span id="plannerMonthLabel" style="font-size:14px;font-weight:800;color:var(--mauve);min-width:120px;text-align:center"></span>
+          <button class="history-btn" id="btnPlanNext">›</button>
+        </div>
+      </div>
+      <div class="planner-grid" id="plannerGrid"></div>
+    </div>
+  </div>
+
   <!-- ══ BOTTOM NAV ══ -->
   <nav class="tabbar" id="tabbar" style="display:none">
     <button class="nav-item active" data-screen="screenHome">
@@ -1349,6 +1444,14 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
     <button class="nav-item" id="navGeneratorBtn" data-screen="screenGenerator">
       <div class="ni-pill" style="font-size:20px;line-height:1">🎓</div>
       Generator
+    </button>
+    <button class="nav-item" data-screen="screenVocab">
+      <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg></div>
+      Vocab
+    </button>
+    <button class="nav-item" data-screen="screenPlanner">
+      <div class="ni-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      Planner
     </button>
   </nav>
 
@@ -1480,7 +1583,8 @@ const LS = {
   progress: 'elm_progress',
   streak: 'elm_streak',
   stats: 'elm_stats',
-  practiceLog: 'elm_practice_log'
+  practiceLog: 'elm_practice_log',
+  lessonDone: 'elm_lesson_done'
 };
 
 function store(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
@@ -1492,11 +1596,12 @@ function load(key, fallback) {
 //  STATE
 // ══════════════════════════════════════
 let curriculum = load(LS.curriculum, null);
-let studentName = load(LS.studentName, '');
+let studentName = 'Monche'; store(LS.studentName, studentName);
 let progress = load(LS.progress, {});
 let streak = load(LS.streak, { current: 0, last_date: null });
 let stats = load(LS.stats, { total_done: 0, total_correct: 0, xp: 0 });
 let practiceLog = load(LS.practiceLog, {}); // { 'YYYY-MM-DD': count }
+let lessonDoneMap = load(LS.lessonDone, {}); // { lesson_id: ISO_date_string }
 let homeworkHistory = load('homework_history', []);
 let isTeacher = load('is_teacher', false);
 let genSelectedUnit = null;
@@ -1665,13 +1770,48 @@ function countDueToday() {
   return getAllExercises().filter(ex => FSRS.isDue(progress[ex.id])).length;
 }
 
+// ══════════════════════════════════════
+//  TTS SPEAK
+// ══════════════════════════════════════
+const SPEAK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+function speak(text, lang = 'en-US') {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = lang;
+  utt.rate = 0.9;
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Samantha') || v.name.includes('Google') || v.name.includes('Natural')))
+    || voices.find(v => v.lang.startsWith('en'));
+  if (preferred) utt.voice = preferred;
+  window.speechSynthesis.speak(utt);
+}
+function wireSpeakBtns(container) {
+  container.querySelectorAll('.speak-btn[data-text]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); speak(btn.dataset.text); });
+  });
+}
+
 function lessonCompletion(lesson) {
+  if (isLessonDone(lesson.id)) return 100;
   if (!lesson.exercises || !lesson.exercises.length) return 0;
   const done = lesson.exercises.filter(ex => {
     const c = progress[ex.id];
     return c && c.reps > 0;
   }).length;
   return Math.round(100 * done / lesson.exercises.length);
+}
+
+function markLessonDone(lessonId) {
+  lessonDoneMap[lessonId] = new Date().toISOString();
+  store(LS.lessonDone, lessonDoneMap);
+}
+function unmarkLessonDone(lessonId) {
+  delete lessonDoneMap[lessonId];
+  store(LS.lessonDone, lessonDoneMap);
+}
+function isLessonDone(lessonId) {
+  return !!lessonDoneMap[lessonId];
 }
 
 function typeLabel(t) {
@@ -1710,6 +1850,8 @@ function showScreen(id) {
 
   const showNav = id !== 'screenWelcome' && id !== 'screenExercise' && id !== 'screenGuided' && id !== 'screenHomework' && id !== 'screenGenerator';
   document.getElementById('tabbar').style.display = showNav ? 'flex' : 'none';
+  // Generator shown via navGeneratorBtn so it needs nav
+  if (id === 'screenGenerator') document.getElementById('tabbar').style.display = 'flex';
 
   document.querySelectorAll('.nav-item').forEach(n => {
     n.classList.toggle('active', n.dataset.screen === id);
@@ -1719,6 +1861,8 @@ function showScreen(id) {
   else if (id === 'screenLessons') renderLessons();
   else if (id === 'screenFlashcards') renderFlashcards();
   else if (id === 'screenProgress') renderProgress();
+  else if (id === 'screenVocab') renderVocabBank();
+  else if (id === 'screenPlanner') renderPlanner();
   else if (id === 'screenGenerator') {
     genLessonStatuses = null; // reset cache on each screen open
     genWeakWords = null;
@@ -1875,6 +2019,7 @@ function renderLessons() {
     const badgeCls = u.level === 'A2' ? 'a2' : (u.level.startsWith('B') ? 'b1' : '');
     const lessonsHtml = (u.lessons || []).map(l => {
       const pct = lessonCompletion(l);
+      const done = isLessonDone(l.id);
       const locked = false; // could enforce sequencing
       const exCount = (l.exercises || []).length;
       const lMode = l.mode || 'solo';
@@ -1884,25 +2029,36 @@ function renderLessons() {
       const hwDone = l.homework && isHomeworkDone(l.id);
       const hwTag = l.homework ? ` <span class="hw-badge${hwDone ? ' done' : ''}">${hwDone ? '✅' : '📚'}</span>` : '';
       const hwBtn = l.homework ? `<button class="lesson-hw-btn" data-unit="${u.id}" data-lesson="${l.id}">📚 HW</button>` : '';
+      const iconHtml = done ? '✅' : (pct === 100 ? '✓' : (lMode === 'guided' ? '👨‍🏫' : '📖'));
       const html = `
-        <div class="lesson-row${locked ? ' locked' : ''}" data-unit="${u.id}" data-lesson="${l.id}">
-          <div class="l-icon">${pct === 100 ? '✓' : (lMode === 'guided' ? '👨‍🏫' : '📖')}</div>
+        <div class="lesson-row${locked ? ' locked' : ''}${done ? ' lesson-done' : ''}" data-unit="${u.id}" data-lesson="${l.id}">
+          <div class="l-icon">${iconHtml}</div>
           <div class="l-body">
             <div class="l-title">${esc(l.title)}${modeTag}${hwTag}</div>
             <div class="l-meta">${metaText}</div>
             <div class="l-prog"><span style="width:${pct}%"></span></div>
           </div>
           ${hwBtn}<div class="l-pct">${pct}%</div>
+          <button class="lesson-menu-btn" data-unit="${u.id}" data-lesson="${l.id}" data-done="${done}">⋯</button>
         </div>`;
       prevLessonCompleted = pct === 100;
       return html;
     }).join('');
+    const grammarToggle = u.grammar && u.grammar.length
+      ? `<button class="grammar-toggle-btn" data-uid="${u.id}">📖 Grammar</button>` : '';
+    const grammarPanel = u.grammar && u.grammar.length
+      ? `<div class="grammar-notes-panel" id="gnp-${u.id}" style="display:none">
+          <div class="grammar-notes-title">Grammar points for this unit:</div>
+          <ul class="grammar-list">${u.grammar.map(g => `<li>${esc(g)}</li>`).join('')}</ul>
+        </div>` : '';
     return `
       <div class="unit-section">
         <div class="unit-section-head">
           <span class="unit-badge ${badgeCls}">${esc(u.level)}</span>
           <span class="unit-name">${esc(u.title)}</span>
+          ${grammarToggle}
         </div>
+        ${grammarPanel}
         ${lessonsHtml}
       </div>`;
   }).join('');
@@ -1916,6 +2072,57 @@ function renderLessons() {
       startHomework(btn.dataset.unit, btn.dataset.lesson);
     });
   });
+  el.querySelectorAll('.lesson-menu-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const lessonId = btn.dataset.lesson;
+      const isDone = btn.dataset.done === 'true';
+      showLessonMenu(lessonId, isDone, btn);
+    });
+  });
+  el.querySelectorAll('.grammar-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const panel = document.getElementById(`gnp-${btn.dataset.uid}`);
+      if (panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    });
+  });
+}
+
+// ══════════════════════════════════════
+//  LESSON MENU (three-dot)
+// ══════════════════════════════════════
+function showLessonMenu(lessonId, isDone, anchorBtn) {
+  const existing = document.getElementById('lessonMenuOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'lessonMenuOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:700;background:transparent';
+
+  const rect = anchorBtn.getBoundingClientRect();
+  const sheet = document.createElement('div');
+  sheet.style.cssText = `position:fixed;top:${rect.bottom + 6}px;right:${window.innerWidth - rect.right}px;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);box-shadow:var(--shadow-lg);min-width:180px;z-index:701;overflow:hidden;animation:popIn .15s ease`;
+
+  const label = isDone ? 'Marcar como no hecha' : 'Marcar como hecha ✅';
+  sheet.innerHTML = `<button style="display:block;width:100%;text-align:left;font-family:var(--font);font-weight:800;font-size:14px;color:var(--mauve);background:none;border:none;padding:13px 16px;cursor:pointer;" id="lessonMenuAction">${label}</button>`;
+
+  overlay.appendChild(sheet);
+  document.body.appendChild(overlay);
+
+  sheet.querySelector('#lessonMenuAction').addEventListener('click', () => {
+    if (isDone) {
+      unmarkLessonDone(lessonId);
+      showToast('Lección desmarcada');
+    } else {
+      markLessonDone(lessonId);
+      showToast('Lección marcada como hecha ✅');
+    }
+    overlay.remove();
+    renderLessons();
+  });
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
 
 // ══════════════════════════════════════
@@ -1956,10 +2163,14 @@ function renderFlashcards() {
     <div class="fc-card-item" data-fc-id="${fc.id}">
       <div class="fc-front-row">
         <div>
+          ${fc.image ? `<img src="${fc.image}" style="width:100%;height:80px;object-fit:contain;border-radius:8px;margin-bottom:6px;mix-blend-mode:multiply">` : ''}
           <div class="fc-word">${esc(fc.front)}</div>
           ${fc.phonetic ? `<div class="fc-phon">${esc(fc.phonetic)}</div>` : ''}
         </div>
-        <div class="fc-flip-hint">↻ tap</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="speak-btn" data-text="${esc(fc.front)}" title="Escuchar">${SPEAK_SVG}</button>
+          <div class="fc-flip-hint">↻ tap</div>
+        </div>
       </div>
       <div class="fc-back-row">
         <div class="fc-translation">${esc(fc.back)}</div>
@@ -1970,6 +2181,7 @@ function renderFlashcards() {
   grid.querySelectorAll('.fc-card-item').forEach(card => {
     card.addEventListener('click', () => card.classList.toggle('flipped'));
   });
+  wireSpeakBtns(grid);
 }
 
 // ══════════════════════════════════════
@@ -2146,6 +2358,158 @@ async function openSessionDetail(sessionId) {
         </div>`).join('')
     : '<div style="color:var(--mauve-soft);font-size:13px;padding:8px 0">No items recorded for this session</div>';
   overlay.classList.add('open');
+}
+
+// ══════════════════════════════════════
+//  VOCAB BANK SCREEN
+// ══════════════════════════════════════
+function renderVocabBank() {
+  if (!curriculum) {
+    document.getElementById('vocabBankList').innerHTML = '<div style="text-align:center;padding:40px;color:var(--mauve-soft);font-weight:800">No curriculum loaded ♡</div>';
+    return;
+  }
+  const filterEl = document.getElementById('vbFilterRow');
+  const searchEl = document.getElementById('vbSearch');
+  const currentFilter = filterEl?.querySelector('.vb-filter.active')?.dataset.filter || 'all';
+  const searchQ = (searchEl?.value || '').toLowerCase().trim();
+
+  const allVocab = [];
+  for (const u of curriculum.units) {
+    for (const l of u.lessons) {
+      for (const ex of (l.exercises || [])) {
+        if (ex.type === 'flashcard' && ex.front) {
+          const card = progress[ex.id];
+          const reps = card?.reps || 0;
+          const stability = card?.stability || 0;
+          let status = 'new';
+          if (reps > 0 && stability < 7) status = 'learning';
+          else if (reps > 0 && stability >= 7) status = 'mastered';
+          allVocab.push({ ex, unit: u, lesson: l, status, reps, stability });
+        }
+      }
+    }
+  }
+
+  const filtered = allVocab.filter(v => {
+    if (currentFilter !== 'all' && v.status !== currentFilter) return false;
+    if (searchQ && !v.ex.front.toLowerCase().includes(searchQ) && !(v.ex.back||'').toLowerCase().includes(searchQ)) return false;
+    return true;
+  });
+
+  const statusColors = { new: '#E6F1FB', learning: '#FAEEDA', mastered: '#E1F5EE' };
+  const statusText = { new: 'New', learning: 'Learning', mastered: 'Mastered' };
+
+  const list = document.getElementById('vocabBankList');
+  if (!filtered.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mauve-soft);font-weight:800">No vocabulary found ♡</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(v => `
+    <div class="vb-card">
+      <div class="vb-card-top">
+        <div>
+          <div class="vb-word">${esc(v.ex.front)}</div>
+          ${v.ex.phonetic ? `<div class="vb-phon">${esc(v.ex.phonetic)}</div>` : ''}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button class="speak-btn vb-speak" data-text="${esc(v.ex.front)}" title="Escuchar">${SPEAK_SVG}</button>
+          <span class="vb-status" style="background:${statusColors[v.status]}">${statusText[v.status]}</span>
+        </div>
+      </div>
+      <div class="vb-back">${esc(v.ex.back || '')}</div>
+      <div class="vb-meta">${esc(v.unit.title)} · ${esc(v.lesson.title)}</div>
+    </div>`).join('');
+
+  wireSpeakBtns(list);
+}
+
+// ══════════════════════════════════════
+//  PLANNER SCREEN
+// ══════════════════════════════════════
+let plannerCurrentDate = new Date();
+
+function renderPlanner() {
+  const year = plannerCurrentDate.getFullYear();
+  const month = plannerCurrentDate.getMonth();
+  const label = plannerCurrentDate.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
+  document.getElementById('plannerMonthLabel').textContent = label.charAt(0).toUpperCase() + label.slice(1);
+
+  const plans = load('elm_class_plans', {});
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const today2 = new Date().toISOString().slice(0, 10);
+
+  const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  let html = `<div class="planner-day-names">${dayNames.map(d => `<div class="pdn">${d}</div>`).join('')}</div><div class="planner-cells">`;
+
+  for (let i = 0; i < firstDay; i++) html += `<div class="pc-empty"></div>`;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const plan = plans[dateStr];
+    const isToday = dateStr === today2;
+    const isPast = dateStr < today2;
+    html += `<div class="planner-cell${isToday?' today':''}${isPast&&!plan?' past':''}${plan?' has-plan':''}" data-date="${dateStr}">
+      <div class="pc-num">${d}</div>
+      ${plan ? `<div class="pc-lesson">${esc(plan.lessonTitle || '')}</div>` : ''}
+    </div>`;
+  }
+  html += '</div>';
+
+  document.getElementById('plannerGrid').innerHTML = html;
+
+  document.querySelectorAll('.planner-cell').forEach(cell => {
+    cell.addEventListener('click', () => openPlannerDayModal(cell.dataset.date));
+  });
+}
+
+function openPlannerDayModal(dateStr) {
+  if (!curriculum) return;
+  const plans = load('elm_class_plans', {});
+  const current = plans[dateStr];
+  const dateLabel = new Date(dateStr + 'T12:00:00').toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'long' });
+
+  const lessonsWithContent = curriculum.units.flatMap(u =>
+    u.lessons.filter(l => (l.phases&&l.phases.length)||(l.exercises&&l.exercises.length))
+    .map(l => ({ lessonId: l.id, lessonTitle: l.title, unitTitle: u.title, level: u.level }))
+  );
+
+  const overlay = document.createElement('div');
+  overlay.className = 'picker-overlay open';
+  overlay.innerHTML = `<div class="picker-sheet">
+    <div class="picker-handle"></div>
+    <div class="picker-header">${esc(dateLabel)}</div>
+    ${current ? `<div style="background:#E1F5EE;border-radius:12px;padding:10px 14px;margin:0 16px 12px;font-size:13px;font-weight:800;color:#0F6E56">📅 Asignada: ${esc(current.lessonTitle)}</div>` : ''}
+    <div style="padding:0 16px 8px;font-size:12px;font-weight:800;color:var(--mauve-soft)">Seleccionar lección:</div>
+    <div style="max-height:300px;overflow-y:auto;padding:0 16px">
+      ${lessonsWithContent.map(l => `<div class="picker-item ${current?.lessonId===l.lessonId?'active':''}" data-lesson='${JSON.stringify(l).replace(/'/g,"&#39;")}'><span class="unit-badge" style="font-size:10px;padding:2px 7px">${esc(l.level)}</span> <span style="font-size:13px;font-weight:700;margin-left:6px">${esc(l.lessonTitle)}</span><br><span style="font-size:11px;color:var(--mauve-soft);padding-left:2px">${esc(l.unitTitle)}</span></div>`).join('')}
+    </div>
+    ${current ? `<button class="picker-cancel" id="planRemoveBtn" style="color:#C0392B;margin-top:8px">🗑 Quitar lección</button>` : ''}
+    <button class="picker-cancel" id="planCancelBtn">Cancelar</button>
+  </div>`;
+
+  document.body.appendChild(overlay);
+
+  overlay.querySelectorAll('.picker-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const data = JSON.parse(item.dataset.lesson);
+      plans[dateStr] = data;
+      store('elm_class_plans', plans);
+      overlay.remove();
+      renderPlanner();
+      showToast('Lección asignada ♡');
+    });
+  });
+
+  overlay.querySelector('#planCancelBtn').addEventListener('click', () => overlay.remove());
+  overlay.querySelector('#planRemoveBtn')?.addEventListener('click', () => {
+    delete plans[dateStr];
+    store('elm_class_plans', plans);
+    overlay.remove();
+    renderPlanner();
+    showToast('Lección quitada');
+  });
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
 
 // ══════════════════════════════════════
@@ -2420,8 +2784,10 @@ function renderFlashcard(ex, body) {
     <div class="flashcard-scene" id="fcScene">
       <div class="flashcard-inner" id="fcInner">
         <div class="fc-face fc-front">
+          ${ex.image ? `<img src="${ex.image}" style="width:100%;max-height:120px;object-fit:contain;border-radius:10px;margin-bottom:8px">` : ''}
           <div class="fc-front-word">${esc(ex.front || '')}</div>
           ${ex.phonetic ? `<div class="fc-front-phon">${esc(ex.phonetic)}</div>` : ''}
+          <button class="speak-btn" data-text="${esc(ex.front || '')}" title="Escuchar" style="margin-top:6px">${SPEAK_SVG}</button>
           <div class="fc-tap-hint">↻ tap to flip</div>
         </div>
         <div class="fc-face fc-back">
@@ -2436,6 +2802,8 @@ function renderFlashcard(ex, body) {
       <button class="fsrs-btn" data-rating="3">Good<div class="rating-label">~9d</div></button>
       <button class="fsrs-btn" data-rating="4">Easy<div class="rating-label">~15d</div></button>
     </div>`;
+
+  wireSpeakBtns(body);
 
   let flipped = false;
   document.getElementById('fcInner').addEventListener('click', () => {
@@ -2872,7 +3240,10 @@ function renderGuidedContent() {
       const target = item.repeat_target ?? 2;
       const done = repeatCount >= target;
       inner = `
-        <div class="pres-word">${esc(item.word||'')}</div>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px">
+          <div class="pres-word">${esc(item.word||'')}</div>
+          <button class="speak-btn" data-text="${esc(item.word||'')}" title="Escuchar">${SPEAK_SVG}</button>
+        </div>
         ${item.phonetic ? `<div class="pres-phonetic">${esc(item.phonetic)}</div>` : ''}
         <div class="pres-translation">${esc(item.translation||'')}</div>
         ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
@@ -2934,7 +3305,10 @@ function renderGuidedContent() {
         return `<div class="dl ${cls} ${side}">
           <div class="dl-body">
             <div class="dl-who ${ln.speaker==='teacher'?'t':'s'}">${ln.speaker==='teacher'?'👨‍🏫 Teacher':'👩‍🎓 Student'}</div>
-            <div class="dl-text">${esc(ln.text||'')}</div>
+            <div style="display:flex;align-items:flex-start;gap:6px">
+              <div class="dl-text">${esc(ln.text||'')}</div>
+              <button class="speak-btn" data-text="${esc(ln.text||'')}" title="Escuchar" style="flex-shrink:0;margin-top:2px">${SPEAK_SVG}</button>
+            </div>
             ${ln.translation?`<div class="dl-tr">${esc(ln.translation)}</div>`:''}
             ${isActive&&ln.teacher_notes?`<div class="teacher-notes" style="margin-top:8px">📝 ${esc(ln.teacher_notes)}</div>`:''}
           </div>
@@ -2991,6 +3365,12 @@ function renderGuidedContent() {
     ? `<button class="guided-skip" id="guidedSkipBtn">Skip ⟶</button>`
     : '';
 
+  // Show keyboard hints only for verbal_drill in teacher view
+  const kbdHintsEl = document.getElementById('kbdHints');
+  if (kbdHintsEl) {
+    kbdHintsEl.style.display = (item.type === 'verbal_drill' && view === 'teacher' && !drillAnswered) ? 'flex' : 'none';
+  }
+
   el.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 10px">
       <div class="phase-type-chip">${phaseIcons[phase.type]||'📝'} ${esc(phase.title||phaseLabels[phase.type]||phase.type)}</div>
@@ -2999,6 +3379,9 @@ function renderGuidedContent() {
     <div class="phase-card">${inner}</div>
     ${actions}
     ${skipBtn}`;
+
+  // Wire speak buttons
+  wireSpeakBtns(el);
 
   // Wire buttons
   document.getElementById('guidedNextBtn')?.addEventListener('click', advanceGuidedItem);
@@ -3185,6 +3568,9 @@ function showGuidedSummary() {
   });
 
   document.getElementById('guidedPhaseProgress').innerHTML = '';
+
+  // Mark lesson as done in the done map
+  markLessonDone(lessonId);
 
   let drillHtml = '', cpHtml = '', skipHtml = '';
   if (drillResults.length) {
@@ -3378,6 +3764,7 @@ function renderHomework(lesson, unitId, lessonId, unit) {
     else if (sec.type === 'writing_prompt') body = renderHwWritingPrompt(sec);
     else if (sec.type === 'listen_and_repeat') body = renderHwListenRepeat(sec);
     else if (sec.type === 'challenge')     body = renderHwChallenge(sec);
+    else if (sec.type === 'writing_free')  body = hwWritingFreeTeacher(sec);
     return `<div class="hw-section"><div class="hw-section-head">${esc(sec.title || '')}</div>${body}</div>`;
   }).join('');
 
@@ -3386,6 +3773,8 @@ function renderHomework(lesson, unitId, lessonId, unit) {
     : `<button class="hw-mark-complete-btn" id="hwMarkCompleteBtn">✅ Mark as Complete</button>`;
 
   el.innerHTML = `<div style="padding:8px 0 28px">${sectionsHtml}${markBtn}</div>`;
+
+  wireSpeakBtns(el);
 
   el.querySelectorAll('.vocab-item').forEach(card => {
     card.addEventListener('click', () => card.classList.toggle('flipped'));
@@ -3424,7 +3813,10 @@ function renderHwVocabList(sec) {
           <div class="vocab-word">${esc(item.word)}</div>
           ${item.phonetic ? `<div class="vocab-phon">${esc(item.phonetic)}</div>` : ''}
         </div>
-        <div class="vocab-flip-hint">↻ tap</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <button class="speak-btn" data-text="${esc(item.word)}" title="Escuchar">${SPEAK_SVG}</button>
+          <div class="vocab-flip-hint">↻ tap</div>
+        </div>
       </div>
       <div class="vocab-back">
         <div class="vocab-translation">${esc(item.translation)}</div>
@@ -3466,6 +3858,18 @@ function renderHwChallenge(sec) {
       <div class="challenge-star">⭐</div>
       <div class="challenge-text">${esc(sec.description || '')}</div>
     </div>`;
+}
+
+function hwWritingFreeTeacher(sec) {
+  const items = (sec.prompts || []).map((p, i) => {
+    const prompt = typeof p === 'string' ? p : (p.prompt || '');
+    const expected = typeof p === 'object' ? p.expected : '';
+    return `<div class="wft-item">
+      <div class="wft-prompt">${esc(prompt)}</div>
+      ${expected ? `<div class="wft-expected"><div class="wft-expected-label">Expected answer</div>${esc(expected)}</div>` : ''}
+    </div>`;
+  }).join('');
+  return `<div>${items}</div>`;
 }
 
 function exportHomework() {
@@ -4102,11 +4506,6 @@ document.getElementById('btnImportCurr').addEventListener('click', () => {
 });
 
 document.getElementById('btnStartApp').addEventListener('click', () => {
-  const name = document.getElementById('studentNameInput').value.trim();
-  if (name) {
-    studentName = name;
-    store(LS.studentName, studentName);
-  }
   if (!curriculum) { showToast('Please import your curriculum first ♡'); return; }
   document.getElementById('tabbar').style.display = 'flex';
   showScreen('screenHome');
@@ -4281,6 +4680,25 @@ document.getElementById('btnModeSolo').addEventListener('click', () => {
   pendingModeLesson = null;
   document.getElementById('modeDialog').classList.remove('open');
   startSession(unitId, lessonId, 'practice');
+});
+
+// Keyboard shortcuts during guided session
+document.addEventListener('keydown', e => {
+  if (!guidedSession || guidedSession.view !== 'teacher') return;
+  const item = gItem && gItem();
+  if (!item) return;
+  const tag = document.activeElement?.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
+  if (item.type === 'verbal_drill' && !guidedSession.drillAnswered) {
+    if (e.key === 'c' || e.key === 'C') { e.preventDefault(); recordDrill(true); }
+    if (e.key === 'x' || e.key === 'X' || e.key === 'w' || e.key === 'W') { e.preventDefault(); recordDrill(false); }
+  }
+  if (e.key === 'Enter' || e.key === 'ArrowRight') {
+    e.preventDefault();
+    const nextBtn = document.getElementById('guidedNextBtn') || document.getElementById('inlineNextBtn');
+    if (nextBtn && !nextBtn.disabled) nextBtn.click();
+  }
 });
 
 // ── INIT ──
