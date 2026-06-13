@@ -3661,7 +3661,14 @@ function showGuidedSummary() {
   if (currentSessionId) {
     const sid = currentSessionId;
     currentSessionId = null;
-    apiPost(`/sessions/${sid}/end`, { duration_secs: durationSec });
+    apiPost(`/sessions/${sid}/end`, { duration_secs: durationSec })
+      .then(() => {
+        backendOnline = true;
+        updateBackendDot();
+        const b = document.getElementById('gsOfflineBanner');
+        if (b) b.style.display = 'none';
+      })
+      .catch(() => {});
     const drillScore = drillResults.length > 0 ? dCorrect / drillResults.length : 1;
     apiPatch(`/lessons_status/${lesson.id}`, {
       status: drillScore >= 0.8 ? 'completed' : 'in_progress',
@@ -3729,7 +3736,7 @@ function showGuidedSummary() {
   const ss = String(durationSec % 60).padStart(2, '0');
   const allGood = drillResults.every(r => r.correct) && checkpointResults.every(r => r.passed);
   const offlineBanner = !backendOnline
-    ? `<div style="background:#FFF3CD;border:2px solid #E0C060;border-radius:14px;padding:12px 16px;margin-bottom:16px;font-size:14px;font-weight:800;color:#7A5A00;display:flex;align-items:flex-start;gap:8px">
+    ? `<div id="gsOfflineBanner" style="background:#FFF3CD;border:2px solid #E0C060;border-radius:14px;padding:12px 16px;margin-bottom:16px;font-size:14px;font-weight:800;color:#7A5A00;display:flex;align-items:flex-start;gap:8px">
         <span style="flex-shrink:0">⚠</span>
         <span>Backend offline — esta sesión no fue guardada. Inicia el backend y recarga para guardar el historial.</span>
        </div>` : '';
