@@ -2073,9 +2073,9 @@ function updateStreak() {
   }
   streak.last_date = t;
   store(LS.streak, streak);
-
-  practiceLog[t] = (practiceLog[t] || 0) + 1;
-  store(LS.practiceLog, practiceLog);
+  // NOTE: practiceLog is incremented by the callers (onAnswered / onFlashcardRated /
+  // showGuidedSummary), so it must NOT be incremented here too — doing both
+  // double-counted every exercise in the "Exercises" stat.
 }
 
 function countDueToday() {
@@ -3188,7 +3188,7 @@ function renderWordOrder(ex, body) {
         const idx = parseInt(chip.dataset.pool);
         const word = poolState.splice(idx, 1)[0];
         placed.push(word);
-        document.getElementById('checkBtn').disabled = false;
+        document.getElementById('checkBtn').disabled = placed.length < words.length;
         render();
       });
     });
@@ -3329,7 +3329,7 @@ function onFlashcardRated(rating, ex) {
   practiceLog[today()] = (practiceLog[today()] || 0) + 1;
   store(LS.practiceLog, practiceLog);
 
-  showFeedback(rating >= 3, ex);
+  showFeedback(rating >= 3, ex, { autoAdvance: true });
 
   setTimeout(() => {
     if (session.idx < session.queue.length - 1) {
@@ -3340,7 +3340,8 @@ function onFlashcardRated(rating, ex) {
   }, 1000);
 }
 
-function showFeedback(isCorrect, ex) {
+function showFeedback(isCorrect, ex, opts) {
+  const autoAdvance = !!(opts && opts.autoAdvance);
   const fb = document.getElementById('feedbackBar');
   const cont = document.getElementById('continueBtn');
   const hint = document.getElementById('hintText');
@@ -3358,11 +3359,11 @@ function showFeedback(isCorrect, ex) {
       hint.className = 'hint-text show';
       hint.innerHTML = `💡 Hint: ${esc(ex.hint)}`;
     }
-    cont.className = 'continue-btn show';
-    cont.onclick = () => {
-      if (session.idx < session.queue.length - 1) advanceExercise();
-      else showSessionComplete();
-    };
+    // Show the Continue button only when we are NOT also auto-advancing.
+    // The single click handler lives on #continueBtn (wired once at init) — we no
+    // longer set a second onclick here, which used to fire alongside it and skip
+    // an exercise on every wrong answer.
+    if (!autoAdvance) cont.className = 'continue-btn show';
   }
 }
 
