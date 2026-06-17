@@ -1,13 +1,15 @@
 # SweetEnglish — Electron / macOS
 
-Native macOS app that wraps the teacher web UI and the FastAPI backend into a single `.dmg` installer for Apple Silicon.
+Native macOS app that wraps the teacher web UI into a single `.dmg` installer for
+Apple Silicon. **Local-only: no Python, no backend, no network** — all data lives
+in the browser (`LocalDB`/localStorage) so the app starts instantly and works
+fully offline.
 
 ## Requirements
 
 | Requirement | Notes |
 |-------------|-------|
 | macOS 12+ (Apple Silicon) | arm64 target |
-| Python 3 | Must be on PATH (`python3` or `python`) |
 | Node 18+ | For building only |
 | pnpm | `npm i -g pnpm` |
 
@@ -34,30 +36,27 @@ pnpm start
 
 ## First-launch behaviour
 
-On first run the app will:
-- Detect Python 3 in `/opt/homebrew/bin`, `/usr/local/bin`, or `$PATH`
-- Install backend Python deps into `~/Library/Application Support/SweetEnglish/vendor/`
-- Start uvicorn on `localhost:8000`
-- Open the teacher interface automatically
-
-Subsequent launches skip the dep-install step (`.deps_installed` marker file).
+On launch the app simply opens the teacher interface. No dependency install, no
+server startup — it's ready immediately.
 
 ## Data & logs
 
 | Path | Contents |
 |------|----------|
-| `~/Library/Application Support/SweetEnglish/english_teacher.db` | SQLite database |
-| `~/Library/Application Support/SweetEnglish/vendor/` | Python dependencies |
-| `~/Library/Logs/SweetEnglish/backend.log` | uvicorn log |
+| Browser `localStorage` (`localdb_v1`) | Sessions, progress, weak words, lesson status |
+| `~/Library/Application Support/SweetEnglish/backups/` | Auto-backups (last 10 full snapshots) |
+| `~/Library/Logs/SweetEnglish/app.log` | App log |
 
-Use **SweetEnglish → Abrir carpeta de datos** from the menu bar to open the data folder in Finder.
+Use **SweetEnglish → Abrir carpeta de datos** from the menu bar to open the data
+folder in Finder. Use the in-app **Importar / Exportar progreso** buttons to move
+data between machines.
 
 ## Folder structure
 
 ```
 electron/
-├── main.js          ← Main process: Python discovery, uvicorn, windows
-├── preload.js       ← Minimal context bridge
+├── main.js          ← Main process: windows + auto-backup IPC
+├── preload.js       ← Context bridge (versions + backup API)
 ├── splash.html      ← 400×300 loading screen
 ├── package.json     ← electron-builder config
 ├── assets/

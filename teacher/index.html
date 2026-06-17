@@ -1163,6 +1163,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
         </div>
       </div>
       <div class="home-quick-stats" id="homeQuickStats"></div>
+      <div id="homeTodayCard"></div>
       <div id="homeRecentSession"></div>
       <div id="homeUnitCard"></div>
       <div class="home-guide">
@@ -1226,6 +1227,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
           <button class="history-btn" id="btnOpenHistory">📋 History</button>
         </div>
       </div>
+      <input id="lessonsSearch" class="lessons-search" placeholder="🔍 Buscar lección o tema…" autocomplete="off" style="width:100%;box-sizing:border-box;font-family:var(--font);font-weight:700;font-size:14px;border:2px solid var(--pink-border);border-radius:99px;padding:10px 16px;margin-bottom:12px;background:var(--white);color:var(--mauve)">
       <div id="lessonsList"></div>
     </div>
   </div>
@@ -1268,6 +1270,11 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
         Export progress.json
       </button>
+      <button class="export-prog-btn" id="btnImportProgress" style="margin-top:8px;background:#EEF4FF;color:#3A5BBF;border-color:#C7D6F5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 21V9m0 0 4 4m-4-4-4 4M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>
+        📥 Importar progreso
+      </button>
+      <input type="file" id="progressFileInput" accept="application/json,.json" style="display:none">
       <button class="export-prog-btn" id="btnExportBackup" style="margin-top:8px;background:#EAF8F0;color:#2A7A4E;border-color:#B8EDD1" title="Requiere backend en línea">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
         💾 Exportar backup
@@ -1511,6 +1518,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
     </div>
     <div style="text-align:center;font-size:11px;font-weight:800;color:var(--mauve-soft);margin:2px 0">— or paste directly —</div>
     <textarea class="paste-area" id="pasteArea" placeholder='Paste the JSON from Claude here…'></textarea>
+    <div class="paste-preview" id="pastePreview" style="display:none;margin-top:8px;font-size:12px;font-weight:800;background:#F3FAF6;border:1.5px solid #BfE8D4;border-radius:10px;padding:9px 12px;color:#2A7A4E"></div>
     <div class="paste-err" id="pasteErr"></div>
     <div class="paste-actions">
       <button class="paste-cancel" id="btnPasteCancel">Cancel</button>
@@ -1601,7 +1609,7 @@ function load(key, fallback) {
 //  STATE
 // ══════════════════════════════════════
 let curriculum = load(LS.curriculum, null);
-let studentName = 'Monche'; store(LS.studentName, studentName);
+let studentName = load(LS.studentName, 'Monche');
 let progress = load(LS.progress, {});
 let streak = load(LS.streak, { current: 0, last_date: null });
 let stats = load(LS.stats, { total_done: 0, total_correct: 0, xp: 0 });
@@ -1687,54 +1695,215 @@ const FSRS = {
 };
 
 // ══════════════════════════════════════
-//  BACKEND API
+//  LOCAL DATA LAYER  (replaces the Python/FastAPI backend)
+//  Single source of truth — no server, no Python, no network. Persisted in
+//  localStorage. Mirrors the exact endpoints/shapes the app used before so the
+//  rest of the code (apiGet/apiPost/apiPatch) keeps working unchanged.
 // ══════════════════════════════════════
-async function apiPost(path, body) {
-  try {
-    const res = await fetch(`${BACKEND_URL}${path}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+const LocalDB = {
+  KEY: 'localdb_v1',
+  _db: null,
+  _load() {
+    if (this._db) return this._db;
+    this._db = load(this.KEY, null) || {
+      sessions: [], weak_words: {}, lessons_status: {}, homework_log: [],
+      seq: { session: 0, homework: 0 }
+    };
+    return this._db;
+  },
+  _save() { store(this.KEY, this._db); },
+  _now() { return new Date().toISOString(); },
+
+  startSession(b) {
+    const db = this._load();
+    const id = ++db.seq.session;
+    db.sessions.push({
+      id, started_at: this._now(), ended_at: null,
+      lesson_id: b.lesson_id, lesson_title: b.lesson_title,
+      unit_id: b.unit_id, unit_title: b.unit_title, level: b.level,
+      duration_secs: null, mode: b.mode, notes: null, items: []
     });
-    if (res.ok) return await res.json();
-  } catch(e) { console.warn('[API POST]', path, e); }
+    const ls = db.lessons_status[b.lesson_id];
+    if (!ls) {
+      db.lessons_status[b.lesson_id] = {
+        lesson_id: b.lesson_id, unit_id: b.unit_id, level: b.level,
+        first_seen: this._now(), last_practiced: this._now(),
+        times_practiced: 1, best_score: null, status: 'in_progress'
+      };
+    } else {
+      ls.last_practiced = this._now();
+      ls.times_practiced += 1;
+      if (ls.status === 'not_started') ls.status = 'in_progress';
+    }
+    this._save();
+    return { session_id: id };
+  },
+
+  endSession(id, b) {
+    const db = this._load();
+    const s = db.sessions.find(x => x.id === id);
+    if (!s) return null;
+    s.ended_at = this._now();
+    s.duration_secs = b.duration_secs ?? null;
+    if (b.notes != null) s.notes = b.notes;
+    this._save();
+    return { ok: true };
+  },
+
+  addItem(id, b) {
+    const db = this._load();
+    const s = db.sessions.find(x => x.id === id);
+    if (!s) return null;
+    s.items.push({
+      item_id: b.item_id, item_type: b.item_type, phase: b.phase,
+      prompt: b.prompt, expected_answer: b.expected_answer,
+      student_answer: b.student_answer, correct: b.correct ? 1 : 0,
+      attempts: b.attempts || 1, response_secs: b.response_secs
+    });
+    if (b.expected_answer) {
+      const word = String(b.expected_answer).trim();
+      const translation = ['flashcard', 'verbal_drill'].includes(b.item_type) ? word : null;
+      const w = db.weak_words[word] || {
+        word, translation: null, phonetic: null, wrong_count: 0,
+        correct_count: 0, last_seen: null, lesson_id: null, unit_id: null
+      };
+      if (b.correct) w.correct_count += 1; else w.wrong_count += 1;
+      w.last_seen = this._now();
+      w.lesson_id = w.lesson_id || s.lesson_id;
+      w.unit_id = w.unit_id || s.unit_id;
+      w.translation = w.translation || translation;
+      db.weak_words[word] = w;
+    }
+    this._save();
+    return { ok: true };
+  },
+
+  listSessions(limit = 20) {
+    const db = this._load();
+    return [...db.sessions]
+      .sort((a, b) => (b.started_at || '').localeCompare(a.started_at || ''))
+      .slice(0, limit)
+      .map(({ items, ...rest }) => rest);
+  },
+
+  getSession(id) {
+    const db = this._load();
+    const s = db.sessions.find(x => x.id === id);
+    if (!s) return null;
+    return { ...s, items: (s.items || []).map((it, i) => ({ id: i + 1, session_id: id, ...it })) };
+  },
+
+  weakWords(limit = 20) {
+    const db = this._load();
+    return Object.values(db.weak_words)
+      .sort((a, b) => b.wrong_count - a.wrong_count)
+      .slice(0, limit);
+  },
+
+  progress() {
+    const db = this._load();
+    const sessions = db.sessions;
+    const totalSecs = sessions.reduce((t, s) => t + (s.duration_secs || 0), 0);
+    const statuses = Object.values(db.lessons_status);
+    const levelCounts = {};
+    sessions.forEach(s => { if (s.level) levelCounts[s.level] = (levelCounts[s.level] || 0) + 1; });
+    const currentLevel = Object.keys(levelCounts).sort((a, b) => levelCounts[b] - levelCounts[a])[0] || null;
+    const now = new Date();
+    const monday = new Date(now); monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    monday.setHours(0, 0, 0, 0);
+    const thisWeek = sessions.filter(s => s.started_at && new Date(s.started_at) >= monday).length;
+    return {
+      total_sessions: sessions.length,
+      total_minutes: Math.round(totalSecs / 60 * 10) / 10,
+      lessons_completed: statuses.filter(s => s.status === 'completed').length,
+      lessons_in_progress: statuses.filter(s => s.status === 'in_progress').length,
+      current_level: currentLevel,
+      weak_words_count: Object.keys(db.weak_words).length,
+      sessions_this_week: thisWeek
+    };
+  },
+
+  lessonsStatus() {
+    const db = this._load();
+    return Object.values(db.lessons_status).sort((a, b) => a.lesson_id.localeCompare(b.lesson_id));
+  },
+
+  patchLessonStatus(id, b) {
+    const db = this._load();
+    const ls = db.lessons_status[id];
+    if (!ls) return null;
+    if (b.status != null) ls.status = b.status;
+    if (b.best_score != null) ls.best_score = b.best_score;
+    this._save();
+    return { ok: true };
+  },
+
+  createHomework(b) {
+    const db = this._load();
+    const id = ++db.seq.homework;
+    db.homework_log.push({ id, lesson_id: b.lesson_id, assigned_at: this._now(), completed_at: null, notes: b.notes });
+    this._save();
+    return { homework_id: id };
+  },
+
+  completeHomework(id) {
+    const db = this._load();
+    const h = db.homework_log.find(x => x.id === id);
+    if (!h) return null;
+    h.completed_at = this._now();
+    this._save();
+    return { ok: true };
+  },
+
+  exportAll() {
+    const db = this._load();
+    return {
+      exported_at: this._now(), version: '1.0',
+      sessions: db.sessions.map(({ items, ...r }) => r),
+      session_items: db.sessions.flatMap(s => (s.items || []).map(it => ({ session_id: s.id, ...it }))),
+      weak_words: Object.values(db.weak_words).sort((a, b) => b.wrong_count - a.wrong_count),
+      lessons_status: Object.values(db.lessons_status),
+      homework_log: db.homework_log
+    };
+  }
+};
+
+// ── Router: keep the api* surface so callers are unchanged, but resolve locally ──
+function _route(method, path, body) {
+  let m;
+  if (method === 'POST' && path === '/sessions/start') return LocalDB.startSession(body);
+  if (method === 'POST' && (m = path.match(/^\/sessions\/(\d+)\/end$/))) return LocalDB.endSession(+m[1], body);
+  if (method === 'POST' && (m = path.match(/^\/sessions\/(\d+)\/items$/))) return LocalDB.addItem(+m[1], body);
+  if (method === 'GET'  && (m = path.match(/^\/sessions\?limit=(\d+)/))) return LocalDB.listSessions(+m[1]);
+  if (method === 'GET'  && path === '/sessions') return LocalDB.listSessions();
+  if (method === 'GET'  && (m = path.match(/^\/sessions\/(\d+)$/))) return LocalDB.getSession(+m[1]);
+  if (method === 'GET'  && (m = path.match(/^\/weak_words\?limit=(\d+)/))) return LocalDB.weakWords(+m[1]);
+  if (method === 'GET'  && path === '/weak_words') return LocalDB.weakWords();
+  if (method === 'GET'  && path === '/progress') return LocalDB.progress();
+  if (method === 'GET'  && path === '/lessons_status') return LocalDB.lessonsStatus();
+  if (method === 'PATCH'&& (m = path.match(/^\/lessons_status\/(.+)$/))) return LocalDB.patchLessonStatus(decodeURIComponent(m[1]), body);
+  if (method === 'POST' && path === '/homework') return LocalDB.createHomework(body);
+  if (method === 'PATCH'&& (m = path.match(/^\/homework\/(\d+)\/complete$/))) return LocalDB.completeHomework(+m[1]);
+  if (method === 'GET'  && path === '/export') return LocalDB.exportAll();
+  console.warn('[LocalDB] unrouted', method, path);
   return null;
 }
 
-async function apiGet(path) {
-  try {
-    const res = await fetch(`${BACKEND_URL}${path}`);
-    if (res.ok) return await res.json();
-  } catch(e) { console.warn('[API GET]', path, e); }
-  return null;
-}
-
-async function apiPatch(path, body) {
-  try {
-    const res = await fetch(`${BACKEND_URL}${path}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    if (res.ok) return await res.json();
-  } catch(e) { console.warn('[API PATCH]', path, e); }
-  return null;
-}
+async function apiPost(path, body)  { try { return _route('POST', path, body); } catch (e) { console.error('[LocalDB POST]', path, e); return null; } }
+async function apiGet(path)         { try { return _route('GET', path); }        catch (e) { console.error('[LocalDB GET]', path, e); return null; } }
+async function apiPatch(path, body) { try { return _route('PATCH', path, body); } catch (e) { console.error('[LocalDB PATCH]', path, e); return null; } }
 
 function updateBackendDot() {
   const dot = document.getElementById('backendDot');
   const tip = document.getElementById('backendTooltip');
   if (!dot) return;
-  dot.className = 'backend-dot ' + (backendOnline ? 'online' : 'offline');
-  if (tip) tip.textContent = backendOnline
-    ? `Backend connected · ${BACKEND_URL}`
-    : `Backend offline · Run: uvicorn main:app --reload`;
+  dot.className = 'backend-dot online';
+  if (tip) tip.textContent = 'Datos guardados localmente ✓';
 }
 
 function checkBackendStatus() {
-  fetch(`${BACKEND_URL}/progress`, { signal: AbortSignal.timeout(3000) })
-    .then(r => { backendOnline = r.ok; updateBackendDot(); })
-    .catch(() => { backendOnline = false; updateBackendDot(); });
+  backendOnline = true;
+  updateBackendDot();
 }
 
 // ══════════════════════════════════════
@@ -1749,6 +1918,129 @@ function getAllExercises() {
 
 function getExerciseProgress(exId) {
   return progress[exId] || null;
+}
+
+// ══════════════════════════════════════
+//  NORMALIZATION — make any AI-generated / imported JSON safe for the player
+// ══════════════════════════════════════
+const LETTERS = ['A','B','C','D','E','F','G','H'];
+
+function normalizeExercise(ex) {
+  if (!ex || typeof ex !== 'object') return ex;
+
+  // Field aliases: AI sometimes emits "choices" instead of "options"
+  if (!Array.isArray(ex.options) && Array.isArray(ex.choices)) ex.options = ex.choices;
+
+  // Type aliases: a generic "translate"/"translation" maps to the directional types
+  if (ex.type === 'translate' || ex.type === 'translation') {
+    ex.type = ex.direction === 'en_es' ? 'translation_en_es'
+            : ex.direction === 'es_en' ? 'translation_es_en'
+            : 'translate'; // kept; the player handles it with a neutral label
+  }
+  if (ex.type === 'mc' || ex.type === 'multiplechoice') ex.type = 'multiple_choice';
+  if (ex.type === 'fill_in_blank' || ex.type === 'fillblank' || ex.type === 'gap_fill') ex.type = 'fill_blank';
+  if (ex.type === 'order' || ex.type === 'sentence_order' || ex.type === 'reorder') ex.type = 'word_order';
+  if (ex.type === 'card' || ex.type === 'vocab') ex.type = 'flashcard';
+
+  // multiple_choice: if the answer is a letter label (A/B/C…), resolve it to the option text
+  if (ex.type === 'multiple_choice' && Array.isArray(ex.options) && typeof ex.answer === 'string') {
+    const trimmed = ex.answer.trim();
+    if (!ex.options.includes(ex.answer)) {
+      const li = LETTERS.indexOf(trimmed.toUpperCase());
+      if (li >= 0 && li < ex.options.length) ex.answer = ex.options[li];
+      else {
+        const idx = parseInt(trimmed, 10);
+        if (!isNaN(idx) && idx >= 0 && idx < ex.options.length) ex.answer = ex.options[idx];
+      }
+    }
+  }
+
+  // word_order: derive words from the answer if missing
+  if (ex.type === 'word_order' && !Array.isArray(ex.words) && typeof ex.answer === 'string') {
+    ex.words = ex.answer.split(/\s+/).filter(Boolean);
+  }
+
+  // flashcard: tolerate front/back aliases
+  if (ex.type === 'flashcard') {
+    if (!ex.front && ex.word) ex.front = ex.word;
+    if (!ex.back && ex.translation) ex.back = ex.translation;
+  }
+
+  return ex;
+}
+
+function normalizeLesson(l) {
+  if (!l || typeof l !== 'object') return l;
+  if (Array.isArray(l.exercises)) l.exercises = l.exercises.map(normalizeExercise);
+  // Derive mode from available content if not set
+  const hasPh = Array.isArray(l.phases) && l.phases.length;
+  const hasEx = Array.isArray(l.exercises) && l.exercises.length;
+  if (!l.mode) {
+    if (hasPh && hasEx) l.mode = 'both';
+    else if (hasPh) l.mode = 'guided';
+  }
+  return l;
+}
+
+const LEVEL_BY_UNIT = (() => {
+  const m = {};
+  try { (SYLLABUS.units || []).forEach(u => { m[u.id] = u.level; }); } catch (_) {}
+  return m;
+})();
+
+function normalizeCurriculum(data) {
+  if (!data || !Array.isArray(data.units)) return data;
+  data.units.forEach(u => {
+    if (!u.level) u.level = LEVEL_BY_UNIT[u.id] || '';
+    if (!Array.isArray(u.lessons)) u.lessons = [];
+    u.lessons.forEach(normalizeLesson);
+  });
+  return data;
+}
+
+// Deep, non-destructive merge: keep everything already loaded, add/overlay incoming content.
+function mergeCurricula(base, incoming) {
+  const out = JSON.parse(JSON.stringify(base || { version: incoming.version || 1, units: [] }));
+  if (!Array.isArray(out.units)) out.units = [];
+  const unitById = new Map(out.units.map(u => [u.id, u]));
+
+  (incoming.units || []).forEach(iu => {
+    let bu = unitById.get(iu.id);
+    if (!bu) {
+      bu = JSON.parse(JSON.stringify(iu));
+      out.units.push(bu);
+      unitById.set(bu.id, bu);
+      return;
+    }
+    // Overlay unit-level fields (keep existing if incoming missing)
+    bu.title  = iu.title  || bu.title;
+    bu.level  = iu.level  || bu.level;
+    bu.order  = iu.order  ?? bu.order;
+    if (Array.isArray(iu.grammar) && iu.grammar.length) bu.grammar = iu.grammar;
+    if (iu.vocabulary_target != null) bu.vocabulary_target = iu.vocabulary_target;
+    if (!Array.isArray(bu.lessons)) bu.lessons = [];
+
+    const lessonById = new Map(bu.lessons.map(l => [l.id, l]));
+    (iu.lessons || []).forEach(il => {
+      let bl = lessonById.get(il.id);
+      if (!bl) {
+        bu.lessons.push(JSON.parse(JSON.stringify(il)));
+        return;
+      }
+      // Overlay lesson content only when incoming actually provides it
+      bl.title = il.title || bl.title;
+      if (Array.isArray(il.topics) && il.topics.length) bl.topics = il.topics;
+      if (Array.isArray(il.exercises) && il.exercises.length) bl.exercises = il.exercises;
+      if (Array.isArray(il.phases) && il.phases.length)       bl.phases    = il.phases;
+      if (il.homework) bl.homework = il.homework;
+      if (il.mode)     bl.mode     = il.mode;
+    });
+    // Keep lessons ordered by their `order`/id
+    bu.lessons.sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || String(a.id).localeCompare(String(b.id)));
+  });
+  // Keep units ordered
+  out.units.sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || String(a.id).localeCompare(String(b.id)));
+  return out;
 }
 
 function today() { return new Date().toISOString().slice(0, 10); }
@@ -1819,9 +2111,47 @@ function isLessonDone(lessonId) {
   return !!lessonDoneMap[lessonId];
 }
 
+function lessonHasContent(l) {
+  return !!((l.phases && l.phases.length) || (l.exercises && l.exercises.length));
+}
+
+function findLessonById(id) {
+  if (!curriculum) return null;
+  for (const u of curriculum.units) {
+    const l = u.lessons.find(x => x.id === id);
+    if (l) return { unit: u, lesson: l };
+  }
+  return null;
+}
+
+// The ONE class to do right now:
+//   1. the lesson planned for today (if it has content and isn't finished), else
+//   2. the next incomplete lesson with content — so once lesson 1 is done it
+//      automatically points to lesson 2, and so on.
+function getTodaysClass() {
+  if (!curriculum) return null;
+  const plans = load('elm_class_plans', {});
+  const tp = plans[today()];
+  if (tp && tp.lessonId) {
+    const f = findLessonById(tp.lessonId);
+    if (f && lessonHasContent(f.lesson) && lessonCompletion(f.lesson) < 100) {
+      return { ...f, source: 'planned' };
+    }
+  }
+  for (const u of curriculum.units) {
+    for (const l of u.lessons) {
+      if (lessonHasContent(l) && lessonCompletion(l) < 100) {
+        return { unit: u, lesson: l, source: 'next' };
+      }
+    }
+  }
+  return null; // everything with content is finished
+}
+
 function typeLabel(t) {
   const m = { multiple_choice:'Multiple Choice', fill_blank:'Fill Blank',
     translation_es_en:'ES → EN', translation_en_es:'EN → ES',
+    translate:'Translation', translation:'Translation',
     word_order:'Word Order', flashcard:'Flashcard' };
   return m[t] || t;
 }
@@ -1862,16 +2192,32 @@ function showScreen(id) {
     n.classList.toggle('active', n.dataset.screen === id);
   });
 
-  if (id === 'screenHome') renderHome();
-  else if (id === 'screenLessons') renderLessons();
-  else if (id === 'screenFlashcards') renderFlashcards();
-  else if (id === 'screenProgress') renderProgress();
-  else if (id === 'screenVocab') renderVocabBank();
-  else if (id === 'screenPlanner') renderPlanner();
-  else if (id === 'screenGenerator') {
-    genLessonStatuses = null; // reset cache on each screen open
-    genWeakWords = null;
-    renderGenerator();
+  const renderers = {
+    screenHome: renderHome,
+    screenLessons: renderLessons,
+    screenFlashcards: renderFlashcards,
+    screenProgress: renderProgress,
+    screenVocab: renderVocabBank,
+    screenPlanner: renderPlanner,
+    screenGenerator: () => { genLessonStatuses = null; genWeakWords = null; renderGenerator(); }
+  };
+  const fn = renderers[id];
+  if (fn) {
+    try {
+      fn();
+    } catch (err) {
+      // Never leave the user staring at a blank screen — show a recoverable error card.
+      console.error('[render]', id, err);
+      const screenEl = document.getElementById(id);
+      const host = screenEl?.querySelector('.scroll-area, .content, .screen-body') || screenEl;
+      if (host) {
+        host.innerHTML = `<div style="text-align:center;padding:40px 20px;color:var(--mauve-soft);font-weight:800;font-size:14px">
+          Algo salió mal al mostrar esta pantalla ♡<br>
+          <span style="font-weight:600;font-size:12px;color:var(--rose-deep)">${esc(err.message || String(err))}</span><br>
+          <button onclick="location.reload()" style="margin-top:14px;font-family:var(--font);font-weight:800;background:var(--rose);color:#fff;border:none;border-radius:99px;padding:10px 20px;cursor:pointer">Recargar</button>
+        </div>`;
+      }
+    }
   }
 }
 
@@ -2006,10 +2352,49 @@ function renderHome() {
     lessonsEl.innerHTML = '';
   }
 
-  // Update start button — show picker if multiple lessons with content, else go directly
+  // ── Start button: one tap to today's class (resume > planned > next) ──
   const btn = document.getElementById('btnStartPractice');
-  btn.innerHTML = `Start Guided Session <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
-  btn.onclick = () => openLessonPicker();
+  const arrow = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+  const resume = getResumableSession();
+  const todays = getTodaysClass();
+
+  if (resume) {
+    btn.innerHTML = `▶ Reanudar: ${esc(resume.lessonTitle)} ${arrow}`;
+    btn.onclick = () => resumeGuidedSession();
+  } else if (todays) {
+    const label = todays.source === 'planned' ? 'Clase de hoy' : 'Siguiente clase';
+    btn.innerHTML = `▶ ${label}: ${esc(todays.lesson.title)} ${arrow}`;
+    btn.onclick = () => handleLessonClick(todays.unit.id, todays.lesson.id);
+  } else if (withContent.length) {
+    btn.innerHTML = `🎉 ¡Todo al día! Repasar una lección ${arrow}`;
+    btn.onclick = () => openLessonPicker();
+  } else {
+    btn.innerHTML = `Genera contenido para empezar ${arrow}`;
+    btn.onclick = () => showScreen('screenGenerator');
+  }
+
+  // ── "Clase de hoy" highlight card above the unit card ──
+  const todayCardEl = document.getElementById('homeTodayCard');
+  if (todayCardEl) {
+    if (resume) {
+      todayCardEl.innerHTML = `<div class="today-card resume" style="background:linear-gradient(135deg,#FFF3D6,#FFE7C2);border:2px solid #F3C77A;border-radius:18px;padding:16px 18px;margin-bottom:14px;cursor:pointer">
+        <div style="font-size:11px;font-weight:900;letter-spacing:.5px;color:#B7791F">⏸ SESIÓN EN PAUSA</div>
+        <div style="font-size:17px;font-weight:900;color:var(--mauve);margin-top:2px">${esc(resume.lessonTitle)}</div>
+        <div style="font-size:12px;font-weight:700;color:var(--mauve-soft);margin-top:2px">Toca para reanudar donde lo dejaste ♡</div>
+      </div>`;
+      todayCardEl.querySelector('.today-card').onclick = () => resumeGuidedSession();
+    } else if (todays) {
+      const label = todays.source === 'planned' ? '📅 CLASE DE HOY' : '➡ SIGUIENTE CLASE';
+      todayCardEl.innerHTML = `<div class="today-card" style="background:linear-gradient(135deg,var(--rose),#F48FAD);border-radius:18px;padding:16px 18px;margin-bottom:14px;cursor:pointer;box-shadow:0 6px 18px rgba(210,74,117,.25)">
+        <div style="font-size:11px;font-weight:900;letter-spacing:.5px;color:#fff;opacity:.9">${label}</div>
+        <div style="font-size:18px;font-weight:900;color:#fff;margin-top:3px">${esc(todays.lesson.title)}</div>
+        <div style="font-size:12px;font-weight:700;color:#fff;opacity:.9;margin-top:2px">${esc(todays.unit.level || '')} · ${esc(todays.unit.title)} — toca para empezar ▶</div>
+      </div>`;
+      todayCardEl.querySelector('.today-card').onclick = () => handleLessonClick(todays.unit.id, todays.lesson.id);
+    } else {
+      todayCardEl.innerHTML = '';
+    }
+  }
 }
 
 // ══════════════════════════════════════
@@ -2019,10 +2404,21 @@ function renderLessons() {
   const el = document.getElementById('lessonsList');
   if (!curriculum) { el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mauve-soft);font-weight:800">No curriculum loaded</div>'; return; }
 
+  // Global search (#10): match lesson title, id, unit title or topics
+  const q = (document.getElementById('lessonsSearch')?.value || '').toLowerCase().trim();
+  const matches = (u, l) => {
+    if (!q) return true;
+    const hay = [l.title, l.id, u.title, u.level, ...(l.topics || [])].join(' ').toLowerCase();
+    return hay.includes(q);
+  };
+
   let prevLessonCompleted = true;
   el.innerHTML = curriculum.units.map(u => {
-    const badgeCls = u.level === 'A2' ? 'a2' : (u.level.startsWith('B') ? 'b1' : '');
-    const lessonsHtml = (u.lessons || []).map(l => {
+    const lvl = u.level || '';
+    const badgeCls = lvl === 'A2' ? 'a2' : (lvl.startsWith('B') ? 'b1' : '');
+    const visibleLessons = (u.lessons || []).filter(l => matches(u, l));
+    if (q && !visibleLessons.length) return '';
+    const lessonsHtml = visibleLessons.map(l => {
       const pct = lessonCompletion(l);
       const done = isLessonDone(l.id);
       const locked = false; // could enforce sequencing
@@ -2067,6 +2463,11 @@ function renderLessons() {
         ${lessonsHtml}
       </div>`;
   }).join('');
+
+  if (q && !el.innerHTML.trim()) {
+    el.innerHTML = `<div style="text-align:center;padding:40px;color:var(--mauve-soft);font-weight:800">Sin resultados para "${esc(q)}" ♡</div>`;
+    return;
+  }
 
   el.querySelectorAll('.lesson-row:not(.locked)').forEach(row => {
     row.addEventListener('click', () => handleLessonClick(row.dataset.unit, row.dataset.lesson));
@@ -2580,6 +2981,8 @@ function renderExercise() {
     fill_blank: 'Fill in the blank, then check ♪',
     translation_es_en: 'Translate to English ♡',
     translation_en_es: 'Traduce al español ♡',
+    translate: 'Translate the sentence ♡',
+    translation: 'Translate the sentence ♡',
     word_order: 'Tap the words to build the sentence ♪',
     flashcard: 'Tap the card to flip it ♡'
   };
@@ -2591,14 +2994,28 @@ function renderExercise() {
 
   if (type === 'multiple_choice') renderMC(ex, body);
   else if (type === 'fill_blank') renderFillBlank(ex, body);
-  else if (type === 'translation_es_en' || type === 'translation_en_es') renderTranslation(ex, body);
+  else if (type === 'translation_es_en' || type === 'translation_en_es' || type === 'translate' || type === 'translation') renderTranslation(ex, body);
   else if (type === 'word_order') renderWordOrder(ex, body);
   else if (type === 'flashcard') renderFlashcard(ex, body);
+  else renderUnsupported(ex, body);
+}
+
+// Fallback so an unexpected exercise type never leaves a blank screen / stuck session
+function renderUnsupported(ex, body) {
+  body.innerHTML = `
+    <div class="ex-q">${esc(ex.prompt || ex.front || ex.word || 'Exercise')}</div>
+    <div style="background:#FFF6FA;border:2px dashed var(--pink-border);border-radius:var(--r-md);padding:16px;color:var(--mauve-soft);font-weight:800;font-size:14px;text-align:center;margin-top:10px">
+      Este ejercicio no se puede mostrar (tipo no reconocido: ${esc(ex.type || '—')}). Puedes continuar ♡
+    </div>`;
+  // Let the student move on — counts as skipped, no scoring.
+  const cont = document.getElementById('continueBtn');
+  cont.className = 'continue-btn show';
 }
 
 function renderMC(ex, body) {
-  const opts = ex.options || [];
-  const letters = ['A','B','C','D','E'];
+  const opts = ex.options || ex.choices || [];
+  const letters = ['A','B','C','D','E','F'];
+  if (!opts.length) { renderUnsupported(ex, body); return; }
   body.innerHTML = `
     <div class="ex-q">${esc(ex.prompt || '')}</div>
     ${ex.hint ? '' : ''}
@@ -2676,7 +3093,9 @@ function renderFillBlank(ex, body) {
 }
 
 function renderTranslation(ex, body) {
-  const dir = ex.type === 'translation_es_en' ? 'Translate to English:' : 'Traduce al español:';
+  const dir = ex.type === 'translation_es_en' ? 'Translate to English:'
+            : ex.type === 'translation_en_es' ? 'Traduce al español:'
+            : 'Translate / Traduce:';
   body.innerHTML = `
     <div class="trans-prompt">${esc(ex.prompt || '')}</div>
     <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:6px">${dir}</div>
@@ -2956,6 +3375,10 @@ function showSessionComplete() {
   burstConfetti();
   addSparkles();
 
+  // Mark the lesson done so "today's class" advances to the next one, and back it up (#5/#7)
+  if (session?.lessonId) markLessonDone(session.lessonId);
+  autoBackup(true);
+
   document.getElementById('celebrateBtn').onclick = () => {
     cel.classList.remove('show');
     clearCelebration();
@@ -3013,10 +3436,12 @@ function handleCurriculumFile(file) {
   reader.onload = e => {
     try {
       const data = JSON.parse(e.target.result);
-      if (!data.version || !Array.isArray(data.units)) throw new Error('Invalid schema: missing version or units');
+      if (!Array.isArray(data.units)) throw new Error('Invalid schema: missing "units" array');
+      if (!data.version) data.version = 1;
       data.units.forEach(u => {
-        if (!u.id || !u.title) throw new Error('Invalid unit: missing id or title');
-        if (!Array.isArray(u.lessons)) throw new Error('Invalid unit: lessons must be an array');
+        if (!u.id) throw new Error('Invalid unit: missing id');
+        if (!u.title) u.title = u.id;
+        if (!Array.isArray(u.lessons)) u.lessons = [];
       });
       const exCount = data.units.reduce((t, u) => t + u.lessons.reduce((tt, l) => tt + (l.exercises||[]).length, 0), 0);
       const summary = `${data.units.length} unit${data.units.length===1?'':'s'}, ${exCount} exercise${exCount===1?'':'s'}`;
@@ -3039,23 +3464,15 @@ function handleCurriculumFile(file) {
 }
 
 function applyCurriculum(data, merge) {
+  normalizeCurriculum(data);
   if (merge && curriculum) {
-    // Keep progress for matching exercise IDs, add new exercises
-    const existingIds = new Set(getAllExercises().map(e => e.id));
-    data.units.forEach(u => {
-      u.lessons.forEach(l => {
-        (l.exercises || []).forEach(ex => {
-          if (!existingIds.has(ex.id)) {
-            // New exercise, progress starts fresh (already not in progress)
-          }
-          // Don't touch existing progress entries
-        });
-      });
-    });
-    curriculum = data;
+    // Non-destructive deep merge: existing units/lessons/content are preserved,
+    // incoming units/lessons are added and incoming content overlays matching lessons.
+    // Exercise-keyed progress is stored separately, so it is never lost here.
+    curriculum = normalizeCurriculum(mergeCurricula(curriculum, data));
   } else {
     curriculum = data;
-    // Keep progress? On replace, clear progress
+    // Replace = fresh start: clear exercise progress that no longer maps to anything.
     if (!merge) progress = {};
   }
   store(LS.curriculum, curriculum);
@@ -3065,21 +3482,152 @@ function applyCurriculum(data, merge) {
 // ══════════════════════════════════════
 //  EXPORT PROGRESS
 // ══════════════════════════════════════
-function exportProgress() {
-  const data = {
-    version: '1.0',
+// Full snapshot of all learner state so nothing is ever lost on device migration.
+function buildSnapshot() {
+  return {
+    version: '2.0',
     exported_at: new Date().toISOString(),
     student_name: studentName,
     streak: streak,
     stats: stats,
-    exercises: progress
+    exercises: progress,                                  // exercise/FSRS cards (kept as "exercises" for back-compat)
+    practice_log: practiceLog,
+    lesson_done: lessonDoneMap,
+    homework_history: homeworkHistory,
+    session_history: load('session_history', []),
+    class_plans: load('elm_class_plans', {}),
+    copied_lessons: genCopiedLessons,
+    localdb: load('localdb_v1', null),                    // sessions / weak words / lesson status
+    curriculum: curriculum                                // include curriculum so a full restore rebuilds everything
   };
+}
+
+// Silent auto-backup: writes to a file in userData (Electron) and keeps a
+// localStorage fallback copy. Called after every finished session (#7).
+let _lastAutoBackup = 0;
+function autoBackup(force) {
+  const now = Date.now();
+  if (!force && now - _lastAutoBackup < 60000) return; // throttle to once/min
+  _lastAutoBackup = now;
+  const json = JSON.stringify(buildSnapshot());
+  try { store('auto_backup_local', json); } catch (_) {}
+  try { window.sweetEnglish?.backupSave?.(json); } catch (_) {}
+}
+
+function exportProgress() {
+  const data = buildSnapshot();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'progress.json'; a.click();
+  a.href = url; a.download = `progress_${studentName || 'student'}_${today()}.json`; a.click();
   URL.revokeObjectURL(url);
-  showToast('progress.json downloaded ♡');
+  showToast('progress.json descargado ♡');
+}
+
+// Merge two FSRS card maps, keeping the most-recently-reviewed (most advanced) card per exercise.
+function mergeProgressMaps(base, incoming) {
+  const out = { ...(base || {}) };
+  for (const [id, card] of Object.entries(incoming || {})) {
+    const cur = out[id];
+    if (!cur) { out[id] = card; continue; }
+    const t1 = cur.last_review ? new Date(cur.last_review).getTime() : 0;
+    const t2 = card.last_review ? new Date(card.last_review).getTime() : 0;
+    out[id] = t2 >= t1 ? card : cur;
+  }
+  return out;
+}
+
+function importProgress(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    let data;
+    try { data = JSON.parse(e.target.result); }
+    catch (err) { showToast('Archivo inválido — no es JSON ♡'); return; }
+    if (!data || typeof data !== 'object' || (!data.exercises && !data.curriculum && !data.stats)) {
+      showToast('Este archivo no parece un progress.json ♡'); return;
+    }
+
+    // ── Merge (never overwrite blindly) ──
+    if (data.exercises) { progress = mergeProgressMaps(progress, data.exercises); store(LS.progress, progress); }
+
+    if (data.stats) {
+      stats = {
+        total_done:    Math.max(stats.total_done || 0,    data.stats.total_done || 0),
+        total_correct: Math.max(stats.total_correct || 0, data.stats.total_correct || 0),
+        xp:            Math.max(stats.xp || 0,             data.stats.xp || 0)
+      };
+      store(LS.stats, stats);
+    }
+
+    if (data.streak) {
+      const inc = data.streak;
+      if ((inc.current || 0) > (streak.current || 0)) streak = inc;
+      store(LS.streak, streak);
+    }
+
+    if (data.practice_log) {
+      const merged = { ...practiceLog };
+      for (const [d, n] of Object.entries(data.practice_log)) merged[d] = Math.max(merged[d] || 0, n || 0);
+      practiceLog = merged; store(LS.practiceLog, practiceLog);
+    }
+
+    if (data.lesson_done) {
+      lessonDoneMap = { ...data.lesson_done, ...lessonDoneMap }; // keep earliest/own marks, add incoming
+      store(LS.lessonDone, lessonDoneMap);
+    }
+
+    if (Array.isArray(data.homework_history)) {
+      const seen = new Set(homeworkHistory.map(h => JSON.stringify([h.lessonId, h.date])));
+      data.homework_history.forEach(h => { const k = JSON.stringify([h.lessonId, h.date]); if (!seen.has(k)) { homeworkHistory.push(h); seen.add(k); } });
+      store('homework_history', homeworkHistory);
+    }
+
+    if (Array.isArray(data.session_history)) {
+      const sh = load('session_history', []);
+      const seen = new Set(sh.map(s => s.date + '|' + (s.lesson_title || '')));
+      data.session_history.forEach(s => { const k = s.date + '|' + (s.lesson_title || ''); if (!seen.has(k)) sh.push(s); });
+      sh.sort((a, b) => new Date(b.date) - new Date(a.date));
+      store('session_history', sh);
+    }
+
+    if (data.class_plans) {
+      const plans = load('elm_class_plans', {});
+      store('elm_class_plans', { ...data.class_plans, ...plans });
+    }
+
+    if (Array.isArray(data.copied_lessons)) {
+      genCopiedLessons = Array.from(new Set([...genCopiedLessons, ...data.copied_lessons]));
+      store('generator_copied_lessons', genCopiedLessons);
+    }
+
+    // Sessions / weak words / lesson status (LocalDB). Adopt only if the current
+    // device has none yet, to avoid session-id collisions when merging two devices.
+    if (data.localdb && typeof data.localdb === 'object') {
+      const cur = load('localdb_v1', null);
+      if (!cur || !(cur.sessions || []).length) {
+        store('localdb_v1', data.localdb);
+        LocalDB._db = null; // force reload from storage
+      }
+    }
+
+    if (data.student_name && (!studentName || studentName === 'Monche')) {
+      studentName = data.student_name; store(LS.studentName, studentName);
+    }
+
+    // Curriculum: merge non-destructively so existing classes/content survive
+    if (data.curriculum && Array.isArray(data.curriculum.units)) {
+      curriculum = curriculum
+        ? normalizeCurriculum(mergeCurricula(curriculum, data.curriculum))
+        : normalizeCurriculum(data.curriculum);
+      store(LS.curriculum, curriculum);
+      document.getElementById('tabbar').style.display = 'flex';
+    }
+
+    showToast('✅ Progreso importado y combinado ♡');
+    showScreen(currentScreen === 'screenWelcome' ? 'screenHome' : currentScreen);
+  };
+  reader.readAsText(file);
 }
 
 function roundRect(ctx, x, y, w, h, r) {
@@ -3307,6 +3855,65 @@ function startGuidedSession(unitId, lessonId) {
   }).then(data => { if (data?.session_id) currentSessionId = data.session_id; });
 }
 
+// ── Resume support (#4): persist the in-progress guided session so it survives
+//    closing the app or navigating away, and can be picked up where it left off ──
+const RESUME_KEY = 'resume_guided';
+
+function saveResume() {
+  if (!guidedSession) return;
+  const g = guidedSession;
+  store(RESUME_KEY, {
+    unitId: g.unitId, lessonId: g.lessonId, lessonTitle: g.lesson?.title || '',
+    phaseIdx: g.phaseIdx, itemIdx: g.itemIdx, lineIdx: g.lineIdx, view: g.view,
+    drillResults: g.drillResults, checkpointResults: g.checkpointResults, skipResults: g.skipResults,
+    sessionId: currentSessionId, elapsedMs: Date.now() - g.startTime, savedAt: Date.now()
+  });
+}
+
+function clearResume() { try { localStorage.removeItem(RESUME_KEY); } catch (_) {} }
+
+function getResumableSession() {
+  const r = load(RESUME_KEY, null);
+  if (!r || !r.lessonId) return null;
+  const f = findLessonById(r.lessonId);
+  if (!f || !(f.lesson.phases && f.lesson.phases.length)) { clearResume(); return null; }
+  return r;
+}
+
+function resumeGuidedSession() {
+  const r = getResumableSession();
+  if (!r) { showToast('No hay sesión para reanudar'); return; }
+  const { unit, lesson } = findLessonById(r.lessonId);
+  guidedSession = {
+    lesson, unit, unitId: r.unitId, lessonId: r.lessonId,
+    phases: lesson.phases,
+    phaseIdx: Math.min(r.phaseIdx || 0, lesson.phases.length - 1),
+    itemIdx: r.itemIdx || 0, lineIdx: r.lineIdx || 0,
+    view: r.view || 'teacher',
+    drillResults: r.drillResults || [], checkpointResults: r.checkpointResults || [], skipResults: r.skipResults || [],
+    drillAnswered: false, checkpointAnswered: false,
+    repeatCount: 0, hintShown: false, drillExpanded: false, cpExpanded: false,
+    showingIntro: false,
+    startTime: Date.now() - (r.elapsedMs || 0), timerInterval: null
+  };
+  currentSessionId = r.sessionId || null;
+  // If the original session row is gone (app was restarted), open a fresh one so
+  // progress keeps being recorded correctly.
+  if (!currentSessionId) {
+    apiPost('/sessions/start', {
+      lesson_id: lesson.id, lesson_title: lesson.title, unit_id: unit.id,
+      unit_title: unit.title || '', level: unit.level || '', mode: 'guided'
+    }).then(d => { if (d?.session_id) currentSessionId = d.session_id; });
+  }
+  document.getElementById('guidedLessonTitle').textContent = lesson.title;
+  document.getElementById('btnViewTeacher').className = guidedSession.view === 'teacher' ? 'vtb active-teacher' : 'vtb';
+  document.getElementById('btnViewStudent').className = guidedSession.view === 'student' ? 'vtb active-student' : 'vtb';
+  showScreen('screenGuided');
+  startGuidedTimer();
+  renderGuidedSession();
+  showToast('Sesión reanudada ♡');
+}
+
 function gPhase() { return guidedSession.phases[guidedSession.phaseIdx]; }
 function gItem() {
   const phase = gPhase();
@@ -3379,6 +3986,7 @@ function renderGuidedContent() {
         </div>
         ${item.phonetic ? `<div class="pres-phonetic">${esc(item.phonetic)}</div>` : ''}
         <div class="pres-translation">${esc(item.translation||'')}</div>
+        ${item.example ? `<div class="pres-example" style="font-style:italic;color:var(--mauve-soft);font-weight:700;text-align:center;margin-top:6px">"${esc(item.example)}"</div>` : ''}
         ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
         <button class="repeat-btn${done?' done':''}" id="repeatBtn">
           ${done ? `✅ Done (${repeatCount} / ${target})` : `🔁 Repeat (${repeatCount} / ${target})`}
@@ -3532,6 +4140,9 @@ function renderGuidedContent() {
     document.getElementById('cpPass')?.addEventListener('click', () => recordCheckpoint(true));
     document.getElementById('cpReview')?.addEventListener('click', () => recordCheckpoint(false));
   }
+
+  // Persist progress so the session can be resumed after closing the app (#4)
+  saveResume();
 }
 
 function nextBtn(disabled) {
@@ -3657,24 +4268,20 @@ function showGuidedSummary() {
   clearInterval(guidedSession.timerInterval);
   guidedSession.timerInterval = null;
 
-  // Backend: end session + update lesson status
+  // Session finished — clear the resume snapshot so it doesn't reappear (#4)
+  clearResume();
+
+  // End the session row (if any) and ALWAYS persist the lesson status/score (#6)
+  const drillScore = drillResults.length > 0 ? dCorrect / drillResults.length : 1;
   if (currentSessionId) {
     const sid = currentSessionId;
     currentSessionId = null;
-    apiPost(`/sessions/${sid}/end`, { duration_secs: durationSec })
-      .then(() => {
-        backendOnline = true;
-        updateBackendDot();
-        const b = document.getElementById('gsOfflineBanner');
-        if (b) b.style.display = 'none';
-      })
-      .catch(() => {});
-    const drillScore = drillResults.length > 0 ? dCorrect / drillResults.length : 1;
-    apiPatch(`/lessons_status/${lesson.id}`, {
-      status: drillScore >= 0.8 ? 'completed' : 'in_progress',
-      best_score: Math.round(drillScore * 100) / 100
-    });
+    apiPost(`/sessions/${sid}/end`, { duration_secs: durationSec });
   }
+  apiPatch(`/lessons_status/${lesson.id}`, {
+    status: drillScore >= 0.8 ? 'completed' : 'in_progress',
+    best_score: Math.round(drillScore * 100) / 100
+  });
 
   // Update streak + practiceLog for guided session (counts each drill+checkpoint as practice)
   const totalItems = drillResults.length + checkpointResults.length + (skipResults || []).length;
@@ -3711,6 +4318,9 @@ function showGuidedSummary() {
 
   // Mark lesson as done in the done map
   markLessonDone(lessonId);
+
+  // Auto-backup the full snapshot after a finished session (#7)
+  autoBackup(true);
 
   let drillHtml = '', cpHtml = '', skipHtml = '';
   if (drillResults.length) {
@@ -3996,7 +4606,7 @@ function renderHwChallenge(sec) {
   return `
     <div class="challenge-card">
       <div class="challenge-star">⭐</div>
-      <div class="challenge-text">${esc(sec.description || '')}</div>
+      <div class="challenge-text">${esc(sec.task || sec.description || '')}</div>
     </div>`;
 }
 
@@ -4136,12 +4746,26 @@ function renderGenerator() {
   let sHtml = '';
   let selHtml = '<option value="">— Select a unit —</option>';
 
+  // ── Coverage stat (#8): how much of the syllabus still needs content ──
+  const allSyl = SYLLABUS.units.flatMap(u => u.lessons.map(l => l.id));
+  const hasContentId = id => { const f = findLessonById(id); return !!(f && lessonHasContent(f.lesson)); };
+  const withC = allSyl.filter(hasContentId).length;
+  const missing = allSyl.length - withC;
+  const covPct = Math.round(100 * withC / (allSyl.length || 1));
+  sHtml += `<div class="gen-coverage" style="background:#FFF1F6;border:1.5px solid var(--pink-border);border-radius:12px;padding:10px 12px;margin-bottom:10px">
+    <div style="font-size:12px;font-weight:900;color:var(--mauve)">${withC} / ${allSyl.length} con contenido</div>
+    <div style="height:6px;background:var(--track);border-radius:99px;margin:6px 0;overflow:hidden"><div style="width:${covPct}%;height:100%;background:var(--rose)"></div></div>
+    <div style="font-size:11px;font-weight:800;color:${missing ? 'var(--rose-deep)' : '#2A7A4E'}">${missing ? `Faltan ${missing} lecciones por generar` : '¡Todo generado! 🎉'}</div>
+  </div>`;
+
   for (const level of SYLLABUS.levels) {
     sHtml += `<div class="gen-level-head">${level.id} — ${esc(level.title)}</div>`;
     for (const uid of level.units) {
       const u = SYLLABUS.units.find(x => x.id === uid);
       if (!u) continue;
       const active = genSelectedUnit?.id === uid ? ' active' : '';
+      const unitDone = u.lessons.filter(l => hasContentId(l.id)).length;
+      const unitCount = `<span class="gen-unit-count" style="font-size:10px;font-weight:800;color:${unitDone === u.lessons.length ? '#2A7A4E' : 'var(--mauve-soft)'};margin-left:auto;padding-left:6px">${unitDone}/${u.lessons.length}</span>`;
 
       // Unit progress bar (Feature 2)
       let barHtml = '';
@@ -4156,7 +4780,7 @@ function renderGenerator() {
         }
       }
 
-      sHtml += `<button class="gen-unit-btn${active}" data-unit="${uid}"><span class="gen-unit-id">${uid}</span>${esc(u.title)}${barHtml}</button>`;
+      sHtml += `<button class="gen-unit-btn${active}" data-unit="${uid}" style="display:flex;align-items:center"><span class="gen-unit-id">${uid}</span>${esc(u.title)}${unitCount}${barHtml}</button>`;
       selHtml += `<option value="${uid}"${genSelectedUnit?.id === uid ? ' selected' : ''}>${uid} — ${esc(u.title)}</option>`;
     }
   }
@@ -4391,9 +5015,9 @@ ESTRUCTURA REQUERIDA (clase de 1 hora):
 - ~5 min  · Homework (homework object) — contenido de estudio autónomo en casa
 
 SCHEMA EXERCISE TYPES (array "exercises"):
-{"type":"multiple_choice","prompt":"...","choices":["A","B","C","D"],"answer":"A","hint":"..."}
-{"type":"fill_blank","prompt":"She ___ a teacher.","answer":"is","hint":"..."}
-{"type":"translate","prompt":"...","answer":"...","hint":"..."}
+{"type":"multiple_choice","prompt":"...","options":["opt1","opt2","opt3","opt4"],"answer":"opt2","hint":"..."}   // "answer" = TEXTO EXACTO de la opción correcta (no la letra)
+{"type":"fill_blank","prompt":"She ___ a teacher.","answer":"is","acceptable_answers":["is"],"hint":"..."}
+{"type":"translate","prompt":"...","answer":"...","acceptable_answers":["..."],"hint":"..."}
 {"type":"word_order","prompt":"Ordena las palabras:","words":["am","I","María"],"answer":"I am María","hint":"..."}
 {"type":"flashcard","front":"hello","back":"hola","phonetic":"/həˈloʊ/"}
 
@@ -4483,8 +5107,55 @@ function openPasteModal() {
   document.getElementById('pasteArea').value = '';
   document.getElementById('pasteErr').className = 'paste-err';
   document.getElementById('pasteErr').textContent = '';
+  document.getElementById('pastePreview').style.display = 'none';
   document.getElementById('pasteOverlay').classList.add('open');
   setTimeout(() => document.getElementById('pasteArea').focus(), 100);
+}
+
+// Live validation/preview of pasted JSON before saving (#9)
+function updatePastePreview() {
+  const raw = document.getElementById('pasteArea').value.trim();
+  const prev = document.getElementById('pastePreview');
+  if (!raw) { prev.style.display = 'none'; return; }
+  let parsed;
+  try {
+    const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+    parsed = JSON.parse(cleaned);
+  } catch (e) {
+    prev.style.display = 'block';
+    prev.style.background = '#FFF3F3'; prev.style.borderColor = '#F5C2C2'; prev.style.color = '#C0392B';
+    prev.textContent = `⚠ JSON aún inválido: ${e.message}`;
+    return;
+  }
+  const c = extractLessonContent(parsed);
+  if (!c) {
+    prev.style.display = 'block';
+    prev.style.background = '#FFF3F3'; prev.style.borderColor = '#F5C2C2'; prev.style.color = '#C0392B';
+    prev.textContent = '⚠ No se encontraron exercises ni phases en este JSON.';
+    return;
+  }
+  const exs = (c.exercises || []).map(e => ({ ...e }));
+  exs.forEach(normalizeExercise);
+  const drills = (c.phases || []).filter(p => p.type === 'verbal_drill').reduce((t, p) => t + (p.items?.length || 0), 0);
+  const dialogues = (c.phases || []).filter(p => p.type === 'dialogue').reduce((t, p) => t + (p.lines?.length || 0), 0);
+  const presItems = (c.phases || []).filter(p => p.type === 'presentation').reduce((t, p) => t + (p.items?.length || 0), 0);
+  const cps = (c.phases || []).filter(p => p.type === 'checkpoint').reduce((t, p) => t + (p.items?.length || 0), 0);
+  const hwSecs = c.homework?.sections?.length || 0;
+
+  const warns = [];
+  if (!exs.length) warns.push('sin ejercicios escritos');
+  exs.forEach((e, i) => {
+    if (e.type === 'multiple_choice' && !(e.options || []).length) warns.push(`MC #${i + 1} sin opciones`);
+    if ((e.type === 'fill_blank' || e.type === 'translate' || e.type.startsWith('translation')) && !e.answer) warns.push(`#${i + 1} sin answer`);
+  });
+  if (!presItems) warns.push('sin presentation');
+  if (!cps) warns.push('sin checkpoint');
+
+  prev.style.display = 'block';
+  if (warns.length) { prev.style.background = '#FFF8E8'; prev.style.borderColor = '#F3D98A'; prev.style.color = '#9A7B1F'; }
+  else { prev.style.background = '#F3FAF6'; prev.style.borderColor = '#BfE8D4'; prev.style.color = '#2A7A4E'; }
+  prev.innerHTML = `✓ ${exs.length} ejercicios · ${presItems} vocab · ${drills} drills · ${dialogues} líneas · ${cps} checkpoint · ${hwSecs} tarea`
+    + (warns.length ? `<br><span style="font-weight:700">⚠ ${esc(warns.slice(0, 4).join(' · '))}${warns.length > 4 ? '…' : ''}</span>` : '');
 }
 
 function closePasteModal() {
@@ -4558,44 +5229,58 @@ function savePastedJson() {
     return;
   }
 
-  // Find the lesson in curriculum and inject content
-  let found = false;
+  // Normalize incoming content so the player can always read it
+  content.exercises = (content.exercises || []).map(normalizeExercise);
+
+  // Find the lesson in curriculum; if it isn't there yet, create it from the syllabus
+  // skeleton so pasting always works (no "not in curriculum" dead-end).
+  let lesson = null;
   for (const u of curriculum.units) {
-    const lesson = u.lessons.find(l => l.id === genSelectedLesson.id);
-    if (lesson) {
-      if (content.exercises.length) lesson.exercises = content.exercises;
-      if (content.phases.length)    lesson.phases    = content.phases;
-      if (content.homework)         lesson.homework  = content.homework;
-      // Set mode so Lessons/Home screen offers guided session
-      if (content.phases.length && content.exercises.length) lesson.mode = 'both';
-      else if (content.phases.length) lesson.mode = 'guided';
-
-      // Also inject presentation vocab as flashcard exercises so flashcard screen shows them
-      const presPhase = content.phases.find(p => p.type === 'presentation');
-      if (presPhase && (presPhase.items || []).length) {
-        const fcExercises = (presPhase.items || []).map(item => ({
-          id: `${genSelectedLesson.id}_fc_${item.word || item.id || Math.random().toString(36).slice(2)}`,
-          type: 'flashcard',
-          front: item.word || '',
-          back: item.translation || '',
-          phonetic: item.phonetic || ''
-        })).filter(fc => fc.front);
-        // Merge with existing exercises (don't duplicate)
-        const existingIds = new Set((lesson.exercises || []).map(e => e.id));
-        const newFcs = fcExercises.filter(fc => !existingIds.has(fc.id));
-        lesson.exercises = [...(lesson.exercises || []), ...newFcs];
-      }
-
-      found = true;
-      break;
+    const l = u.lessons.find(x => x.id === genSelectedLesson.id);
+    if (l) { lesson = l; break; }
+  }
+  if (!lesson) {
+    let unit = curriculum.units.find(u => u.id === genSelectedUnit.id);
+    if (!unit) {
+      unit = {
+        id: genSelectedUnit.id, title: genSelectedUnit.title,
+        level: genSelectedUnit.level, order: genSelectedUnit.order,
+        grammar: genSelectedUnit.grammar || [], lessons: []
+      };
+      curriculum.units.push(unit);
+      curriculum.units.sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || String(a.id).localeCompare(String(b.id)));
     }
+    lesson = {
+      id: genSelectedLesson.id, title: genSelectedLesson.title,
+      order: genSelectedLesson.order, topics: genSelectedLesson.topics || []
+    };
+    unit.lessons.push(lesson);
+    unit.lessons.sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || String(a.id).localeCompare(String(b.id)));
   }
 
-  if (!found) {
-    // Lesson not in curriculum yet — ask if we should add it
-    errEl.textContent = `Lesson ${genSelectedLesson.id} is not in the loaded curriculum. Import the curriculum.json for this lesson first.`;
-    errEl.className = 'paste-err show';
-    return;
+  if (content.exercises.length) lesson.exercises = content.exercises;
+  if (content.phases.length)    lesson.phases    = content.phases;
+  if (content.homework)         lesson.homework  = content.homework;
+  // Set mode so Lessons/Home screen offers guided session
+  const hasPh = (lesson.phases || []).length, hasEx = (lesson.exercises || []).length;
+  if (hasPh && hasEx) lesson.mode = 'both';
+  else if (hasPh)     lesson.mode = 'guided';
+  else                lesson.mode = 'solo';
+
+  // Also inject presentation vocab as flashcard exercises so flashcard screen shows them
+  const presPhase = content.phases.find(p => p.type === 'presentation');
+  if (presPhase && (presPhase.items || []).length) {
+    const fcExercises = (presPhase.items || []).map(item => ({
+      id: `${genSelectedLesson.id}_fc_${item.word || item.id || Math.random().toString(36).slice(2)}`,
+      type: 'flashcard',
+      front: item.word || '',
+      back: item.translation || '',
+      phonetic: item.phonetic || ''
+    })).filter(fc => fc.front);
+    // Merge with existing exercises (don't duplicate)
+    const existingIds = new Set((lesson.exercises || []).map(e => e.id));
+    const newFcs = fcExercises.filter(fc => !existingIds.has(fc.id));
+    lesson.exercises = [...(lesson.exercises || []), ...newFcs];
   }
 
   store(LS.curriculum, curriculum);
@@ -4647,6 +5332,8 @@ document.getElementById('btnImportCurr').addEventListener('click', () => {
 
 document.getElementById('btnStartApp').addEventListener('click', () => {
   if (!curriculum) { showToast('Please import your curriculum first ♡'); return; }
+  const nm = document.getElementById('studentNameInput').value.trim();
+  if (nm) { studentName = nm; store(LS.studentName, studentName); }
   document.getElementById('tabbar').style.display = 'flex';
   showScreen('screenHome');
 });
@@ -4688,6 +5375,17 @@ document.getElementById('btnStudyAll').addEventListener('click', () => {
 // Progress export
 document.getElementById('btnExportProgress').addEventListener('click', exportProgress);
 document.getElementById('btnShareReport').addEventListener('click', exportProgressReport);
+
+// Import progress
+document.getElementById('lessonsSearch').addEventListener('input', renderLessons);
+
+document.getElementById('btnImportProgress').addEventListener('click', () => {
+  document.getElementById('progressFileInput').click();
+});
+document.getElementById('progressFileInput').addEventListener('change', e => {
+  importProgress(e.target.files[0]);
+  e.target.value = '';
+});
 
 // Backend backup export
 document.getElementById('btnExportBackup').addEventListener('click', async () => {
@@ -4771,6 +5469,7 @@ document.getElementById('btnGenPaste').addEventListener('click', openPasteModal)
 document.getElementById('btnGenStart').addEventListener('click', startSessionFromGenerator);
 document.getElementById('btnPasteCancel').addEventListener('click', closePasteModal);
 document.getElementById('btnPasteOk').addEventListener('click', savePastedJson);
+document.getElementById('pasteArea').addEventListener('input', updatePastePreview);
 document.getElementById('pasteOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closePasteModal(); });
 document.getElementById('lessonPickerCancel').addEventListener('click', closeLessonPicker);
 document.getElementById('lessonPickerOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeLessonPicker(); });
@@ -4783,6 +5482,7 @@ document.getElementById('pasteFileInput').addEventListener('change', function() 
     document.getElementById('pasteFileLabel').style.borderColor = 'var(--rose)';
     document.getElementById('pasteFileLabel').style.color = 'var(--rose)';
     document.getElementById('pasteErr').className = 'paste-err';
+    updatePastePreview();
   };
   reader.readAsText(file);
   this.value = ''; // allow re-upload of same file
@@ -4863,17 +5563,20 @@ document.getElementById('btnPlanNext').addEventListener('click', () => {
 });
 
 // ── INIT ──
+// Repair any previously-saved curriculum (fills missing levels, normalizes exercise
+// fields/types) so old/partial data never crashes a render or breaks the player.
+if (curriculum) {
+  try { normalizeCurriculum(curriculum); store(LS.curriculum, curriculum); }
+  catch (err) { console.error('[init normalize]', err); }
+}
 checkBackendStatus();
-setInterval(checkBackendStatus, 30000);
 updateTeacherModeUI();
-if (curriculum && studentName) {
+// Auto-backup safety net (#7): snapshot when leaving and every 5 minutes.
+window.addEventListener('beforeunload', () => { try { autoBackup(true); } catch (_) {} });
+setInterval(() => { try { autoBackup(true); } catch (_) {} }, 300000);
+if (curriculum) {
   document.getElementById('tabbar').style.display = 'flex';
   showScreen('screenHome');
-} else if (curriculum && !studentName) {
-  document.getElementById('tabbar').style.display = 'flex';
-  document.getElementById('importStatus').className = 'import-status ok';
-  document.getElementById('importStatus').textContent = '✓ Curriculum already loaded ♡';
-  document.getElementById('btnStartApp').style.display = 'flex';
 }
 </script>
 </body>

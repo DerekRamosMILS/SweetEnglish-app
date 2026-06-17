@@ -1,183 +1,41 @@
 'use strict';
 
-const { app, BrowserWindow, Menu, shell, dialog } = require('electron');
-const path  = require('path');
-const fs    = require('fs');
-const http  = require('http');
-const { spawn, spawnSync } = require('child_process');
+const { app, BrowserWindow, Menu, shell, dialog, ipcMain } = require('electron');
+const path = require('path');
+const fs   = require('fs');
 
 // ── Paths ──────────────────────────────────────────────────────────────────────
 
-const IS_DEV       = !app.isPackaged;
-const BACKEND_DIR  = IS_DEV
-  ? path.join(__dirname, '..', 'backend')
-  : path.join(process.resourcesPath, 'backend');
-const TEACHER_DIR  = IS_DEV
+const IS_DEV      = !app.isPackaged;
+const TEACHER_DIR = IS_DEV
   ? path.join(__dirname, '..', 'teacher')
   : path.join(process.resourcesPath, 'teacher');
 
-const APP_SUPPORT_DIR = app.getPath('userData');
-const VENDOR_DIR      = path.join(APP_SUPPORT_DIR, 'vendor');
-const DB_PATH         = path.join(APP_SUPPORT_DIR, 'english_teacher.db');
-const DEPS_MARKER     = path.join(APP_SUPPORT_DIR, '.deps_installed');
-const LOG_FILE        = path.join(app.getPath('logs'), 'backend.log');
+const LOG_FILE = path.join(app.getPath('logs'), 'app.log');
 
-// Ensure dirs exist
-fs.mkdirSync(APP_SUPPORT_DIR, { recursive: true });
 fs.mkdirSync(path.dirname(LOG_FILE), { recursive: true });
 
 // ── State ──────────────────────────────────────────────────────────────────────
 
-let splashWin   = null;
-let mainWin     = null;
-let backendProc = null;
-let logStream   = null;
+let splashWin = null;
+let mainWin   = null;
 
-// ── Global error guard (prevents ugly Electron error dialogs) ─────────────────
+// ── Error guard ──────────────────────────────────────────────────────────────
 
-process.on('uncaughtException', (err) => {
-  logToFile(`[uncaughtException] ${err.stack || err.message}`);
-  showBackendError(`Error inesperado:\n${err.message}`);
-});
-
-process.on('unhandledRejection', (reason) => {
-  logToFile(`[unhandledRejection] ${reason}`);
-});
+process.on('uncaughtException',  (err)    => logToFile(`[uncaughtException] ${err.stack || err.message}`));
+process.on('unhandledRejection', (reason) => logToFile(`[unhandledRejection] ${reason}`));
 
 function logToFile(msg) {
-  try {
-    fs.appendFileSync(LOG_FILE, `${msg}\n`);
-  } catch (_) {}
-}
-
-// ── Python discovery ───────────────────────────────────────────────────────────
-
-function findPython() {
-  const candidates = ['python3', 'python'];
-  const extraPaths = [
-    '/usr/local/bin',
-    '/opt/homebrew/bin',
-    '/opt/homebrew/opt/python3/bin',
-    '/usr/bin',
-    '/bin',
-  ];
-  const PATH = [...extraPaths, ...(process.env.PATH || '').split(':')].join(':');
-
-  for (const cmd of candidates) {
-    try {
-      // spawnSync avoids the stdin-pipe EPIPE that execFileSync triggers
-      const r = spawnSync(cmd, ['--version'], {
-        env:      { ...process.env, PATH },
-        timeout:  5000,
-        encoding: 'utf8',
-      });
-      const out = (r.stdout || r.stderr || '').trim();
-      if (out.startsWith('Python 3') && r.status === 0) return { cmd, PATH };
-    } catch (_) {
-      // try next candidate
-    }
-  }
-  return null;
-}
-
-// ── Dependency install (async — must not block the event loop) ────────────────
-
-function installDeps(pythonCmd, envPATH) {
-  return new Promise((resolve, reject) => {
-    if (fs.existsSync(DEPS_MARKER)) return resolve();
-
-    const reqFile = path.join(BACKEND_DIR, 'requirements.txt');
-    if (!fs.existsSync(reqFile)) return resolve();
-
-    logToFile(`[${new Date().toISOString()}] Installing Python deps into ${VENDOR_DIR}`);
-
-    const pip = spawn(
-      pythonCmd,
-      ['-m', 'pip', 'install', '-r', reqFile, '--target', VENDOR_DIR, '--quiet'],
-      { env: { ...process.env, PATH: envPATH } },
-    );
-
-    pip.stderr.on('data', d => logToFile(d.toString().trimEnd()));
-
-    pip.on('close', (code) => {
-      if (code === 0) {
-        fs.writeFileSync(DEPS_MARKER, new Date().toISOString());
-        logToFile(`[${new Date().toISOString()}] Deps installed OK`);
-        resolve();
-      } else {
-        reject(new Error(`pip exited with code ${code}`));
-      }
-    });
-
-    pip.on('error', reject);
-  });
-}
-
-// ── Backend spawn ──────────────────────────────────────────────────────────────
-
-function startBackend(pythonCmd, envPATH) {
-  logStream = fs.createWriteStream(LOG_FILE, { flags: 'a' });
-  logStream.write(`\n[${new Date().toISOString()}] Starting backend\n`);
-  logStream.write(`  BACKEND_DIR : ${BACKEND_DIR}\n`);
-  logStream.write(`  TEACHER_DIR : ${TEACHER_DIR}\n`);
-  logStream.write(`  VENDOR_DIR  : ${VENDOR_DIR}\n`);
-  logStream.write(`  DB_PATH     : ${DB_PATH}\n`);
-
-  backendProc = spawn(
-    pythonCmd,
-    ['-m', 'uvicorn', 'main:app', '--port', '8000', '--host', '127.0.0.1', '--log-level', 'info'],
-    {
-      cwd: BACKEND_DIR,
-      env: {
-        ...process.env,
-        PATH:       envPATH,
-        PYTHONPATH: VENDOR_DIR,
-        DB_PATH,
-      },
-    },
-  );
-
-  backendProc.stdout.on('data', d => logStream.write(d));
-  backendProc.stderr.on('data', d => logStream.write(d));
-  backendProc.on('exit', (code, sig) =>
-    logStream.write(`[${new Date().toISOString()}] Backend exited code=${code} signal=${sig}\n`),
-  );
-}
-
-// ── Health check ───────────────────────────────────────────────────────────────
-
-function waitForBackend(retries = 40, delayMs = 500) {
-  return new Promise((resolve, reject) => {
-    let attempts = 0;
-    const check = () => {
-      http.get('http://localhost:8000/progress', res => {
-        res.resume(); // consume response body to free socket
-        if (res.statusCode < 500) return resolve();
-        retry();
-      }).on('error', retry);
-    };
-    const retry = () => {
-      attempts++;
-      if (attempts >= retries) return reject(new Error('Backend did not start in time'));
-      setTimeout(check, delayMs);
-    };
-    check();
-  });
+  try { fs.appendFileSync(LOG_FILE, `[${new Date().toISOString()}] ${msg}\n`); } catch (_) {}
 }
 
 // ── Splash window ──────────────────────────────────────────────────────────────
 
 function createSplash() {
   splashWin = new BrowserWindow({
-    width:  400,
-    height: 300,
-    frame:  false,
-    center: true,
-    resizable:       false,
-    movable:         true,
-    alwaysOnTop:     true,
-    transparent:     true,
-    webPreferences:  { nodeIntegration: false },
+    width: 400, height: 300, frame: false, center: true,
+    resizable: false, movable: true, alwaysOnTop: true, transparent: true,
+    webPreferences: { nodeIntegration: false },
   });
   splashWin.loadFile(path.join(__dirname, 'splash.html'));
 }
@@ -186,24 +44,19 @@ function createSplash() {
 
 function createMain() {
   mainWin = new BrowserWindow({
-    width:  1200,
-    height: 800,
-    show:   false,
+    width: 1200, height: 800, show: false,
     titleBarStyle: 'hiddenInset',
     webPreferences: {
-      preload:            path.join(__dirname, 'preload.js'),
-      contextIsolation:   true,
-      nodeIntegration:    false,
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
     },
   });
 
   mainWin.loadFile(path.join(TEACHER_DIR, 'index.html'));
 
   mainWin.once('ready-to-show', () => {
-    if (splashWin && !splashWin.isDestroyed()) {
-      splashWin.close();
-      splashWin = null;
-    }
+    if (splashWin && !splashWin.isDestroyed()) { splashWin.close(); splashWin = null; }
     mainWin.show();
     if (IS_DEV) mainWin.webContents.openDevTools();
   });
@@ -218,14 +71,9 @@ function buildMenu() {
     {
       label: 'SweetEnglish',
       submenu: [
-        {
-          label: 'Abrir carpeta de datos',
-          click: () => shell.openPath(APP_SUPPORT_DIR),
-        },
+        { label: 'Abrir carpeta de datos', click: () => shell.openPath(app.getPath('userData')) },
         { type: 'separator' },
-        { role: 'hide' },
-        { role: 'hideOthers' },
-        { role: 'unhide' },
+        { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' },
         { type: 'separator' },
         { role: 'quit' },
       ],
@@ -233,105 +81,69 @@ function buildMenu() {
     {
       label: 'Editar',
       submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
-        { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
-        { role: 'selectAll' },
+        { role: 'undo' }, { role: 'redo' }, { type: 'separator' },
+        { role: 'cut' }, { role: 'copy' }, { role: 'paste' }, { role: 'selectAll' },
       ],
     },
     {
       label: 'Ver',
       submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
+        { role: 'reload' }, { role: 'forceReload' }, { type: 'separator' },
+        { role: 'resetZoom' }, { role: 'zoomIn' }, { role: 'zoomOut' }, { type: 'separator' },
         { role: 'togglefullscreen' },
       ],
     },
     {
       label: 'Ventana',
-      submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
-        { role: 'front' },
-      ],
+      submenu: [{ role: 'minimize' }, { role: 'zoom' }, { role: 'front' }],
     },
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
 }
 
-// ── Error dialog ───────────────────────────────────────────────────────────────
+// ── Auto-backup to disk (IPC) ────────────────────────────────────────────────
+// Keeps the last 10 snapshots in userData/backups so progress survives even a
+// full localStorage wipe.
 
-function showBackendError(message) {
-  let detail = message;
+const BACKUP_DIR = path.join(app.getPath('userData'), 'backups');
+
+ipcMain.handle('backup:save', (_evt, json) => {
   try {
-    if (fs.existsSync(LOG_FILE)) {
-      const lines = fs.readFileSync(LOG_FILE, 'utf8').split('\n').filter(Boolean);
-      detail += '\n\nLog:\n' + lines.slice(-10).join('\n');
-    }
-  } catch (_) {}
+    fs.mkdirSync(BACKUP_DIR, { recursive: true });
+    const name = `backup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    fs.writeFileSync(path.join(BACKUP_DIR, name), json, 'utf8');
+    // Rotate: keep newest 10
+    const files = fs.readdirSync(BACKUP_DIR).filter(f => f.endsWith('.json')).sort();
+    while (files.length > 10) fs.unlinkSync(path.join(BACKUP_DIR, files.shift()));
+    return { ok: true, name };
+  } catch (err) {
+    logToFile(`[backup:save] ${err.message}`);
+    return { ok: false, error: err.message };
+  }
+});
 
-  dialog.showMessageBoxSync({
-    type:    'error',
-    title:   'SweetEnglish — Error de inicio',
-    message: 'No se pudo iniciar el backend',
-    detail,
-    buttons: ['Cerrar'],
-  });
-  app.quit();
-}
+ipcMain.handle('backup:list', () => {
+  try {
+    if (!fs.existsSync(BACKUP_DIR)) return [];
+    return fs.readdirSync(BACKUP_DIR).filter(f => f.endsWith('.json')).sort().reverse();
+  } catch (_) { return []; }
+});
+
+ipcMain.handle('backup:read', (_evt, name) => {
+  try {
+    const safe = path.basename(name); // prevent path traversal
+    return fs.readFileSync(path.join(BACKUP_DIR, safe), 'utf8');
+  } catch (_) { return null; }
+});
 
 // ── Bootstrap ──────────────────────────────────────────────────────────────────
+// No Python, no backend, no dependency install. The app stores all data locally
+// (localStorage via LocalDB), so it starts instantly and offline.
 
-app.whenReady().then(async () => {
+app.whenReady().then(() => {
   buildMenu();
   createSplash();
-
-  // 1. Find Python
-  const python = findPython();
-  if (!python) {
-    if (splashWin && !splashWin.isDestroyed()) splashWin.close();
-    const choice = dialog.showMessageBoxSync({
-      type:    'error',
-      title:   'Python no encontrado',
-      message: 'SweetEnglish necesita Python 3',
-      detail:  'No se encontró Python 3. Instálalo desde python.org y vuelve a abrir la app.',
-      buttons: ['Abrir python.org', 'Cerrar'],
-    });
-    if (choice === 0) shell.openExternal('https://www.python.org/downloads/');
-    app.quit();
-    return;
-  }
-
-  logToFile(`[${new Date().toISOString()}] Python found: ${python.cmd}`);
-
-  // 2. Install deps async (does NOT block the event loop)
-  try {
-    await installDeps(python.cmd, python.PATH);
-  } catch (err) {
-    showBackendError(`No se pudieron instalar las dependencias:\n${err.message}`);
-    return;
-  }
-
-  // 3. Start uvicorn
-  startBackend(python.cmd, python.PATH);
-
-  // 4. Wait for backend ready
-  try {
-    await waitForBackend();
-  } catch (err) {
-    showBackendError('El servidor no respondió a tiempo.');
-    return;
-  }
-
-  // 5. Show main window
+  logToFile('App ready — local-only mode (no backend)');
   createMain();
 });
 
@@ -342,18 +154,3 @@ app.on('activate', () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
-
-// ── Graceful shutdown ──────────────────────────────────────────────────────────
-
-function killBackend() {
-  if (!backendProc) return;
-  try {
-    backendProc.kill('SIGTERM');
-    setTimeout(() => {
-      try { backendProc.kill('SIGKILL'); } catch (_) {}
-    }, 3000);
-  } catch (_) {}
-}
-
-app.on('before-quit', killBackend);
-process.on('exit', killBackend);

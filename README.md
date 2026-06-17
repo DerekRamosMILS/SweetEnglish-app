@@ -16,17 +16,14 @@ Password protected. Default password: `teacher123`
 
 The password is stored in `sessionStorage` — it clears when the tab is closed.
 
-## Backend (local only)
+## Data storage
 
-The teacher backend runs on the teacher's machine only. It is never hosted publicly.
-
-```bash
-cd backend
-pip3 install -r requirements.txt
-uvicorn main:app --reload
-```
-
-API available at http://localhost:8000 · Docs at http://localhost:8000/docs
+The teacher app is **fully local and offline** — there is no server or Python
+backend. All learner data (sessions, progress, weak words, lesson status,
+curriculum) lives in the browser via `LocalDB` (localStorage). When packaged with
+Electron, an auto-backup of the full snapshot is written to
+`~/Library/Application Support/SweetEnglish/backups/`. Use the in-app
+**Importar / Exportar progreso** buttons to move data between machines.
 
 ## File structure
 
@@ -36,16 +33,14 @@ student/
   manifest.json     ← PWA manifest
   sw.js             ← service worker
 teacher/
-  index.html        ← teacher PWA (password gated)
+  index.html        ← teacher PWA (the app Electron ships; local-only, no backend)
   manifest.json     ← PWA manifest
   sw.js             ← service worker
   syllabus.json     ← 32-unit A1–C1 syllabus
   syllabus.md       ← human-readable syllabus
-backend/
-  main.py           ← FastAPI app (13 endpoints)
-  database.py       ← SQLite schema + connection
-  models.py         ← Pydantic request models
-  requirements.txt
+electron/
+  main.js           ← Electron main process (loads teacher/, auto-backup IPC)
+  preload.js        ← context bridge
 admin.html          ← Lesson Studio (create/edit/export lessons)
 app.html            ← legacy student app
 .nojekyll           ← disables Jekyll on GitHub Pages

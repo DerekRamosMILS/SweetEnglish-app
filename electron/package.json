@@ -32,11 +32,6 @@
         "from": "../teacher",
         "to": "teacher",
         "filter": ["**/*"]
-      },
-      {
-        "from": "../backend",
-        "to": "backend",
-        "filter": ["**/*", "!english_teacher.db*", "!**/__pycache__/**", "!**/*.pyc"]
       }
     ]
   },
