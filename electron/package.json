@@ -11,6 +11,9 @@
   "build": {
     "appId": "com.sweetenglish.teacher",
     "productName": "SweetEnglish",
+    "publish": [
+      { "provider": "github", "owner": "DerekRamosMILS", "repo": "SweetEnglish-app" }
+    ],
     "mac": {
       "target": [{ "target": "dmg", "arch": ["arm64"] }],
       "icon": "assets/icon.icns",

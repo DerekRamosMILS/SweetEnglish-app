@@ -39,6 +39,29 @@ pnpm start
 On launch the app simply opens the teacher interface. No dependency install, no
 server startup — it's ready immediately.
 
+## Updates (free, no code-signing)
+
+The app checks **GitHub Releases** ~4s after launch (and via menu
+**SweetEnglish → Buscar actualizaciones…**). If the latest release tag is newer
+than the running version, an in-app banner appears with a one-click button that
+downloads the new `.dmg`. Install it and choose **Replace** — user data lives in
+`Application Support`, so nothing is lost. (Seamless silent auto-update is *not*
+used because that requires an Apple Developer ID / notarization.)
+
+### Publishing a new version
+
+1. Bump `"version"` in `electron/package.json` (e.g. `1.0.0` → `1.1.0`).
+2. Build **and** publish to GitHub Releases in one step:
+   ```bash
+   cd electron
+   export GH_TOKEN=ghp_xxx        # a GitHub token with repo scope
+   pnpm exec electron-builder --mac --arm64 --publish always
+   ```
+   This uploads the `.dmg` as a release asset tagged `v<version>`.
+   (Or build locally with `bash scripts/build.sh` and create the GitHub Release
+   manually, attaching the `.dmg` — the tag must match the version, e.g. `v1.1.0`.)
+3. Open apps detect the new release and show the update banner automatically.
+
 ## Data & logs
 
 | Path | Contents |

@@ -1,8 +1,57 @@
 'use strict';
 
 const { app, BrowserWindow, Menu, shell, dialog, ipcMain } = require('electron');
-const path = require('path');
-const fs   = require('fs');
+const path  = require('path');
+const fs    = require('fs');
+const https = require('https');
+
+// ── Update checking (free, no signing) ──────────────────────────────────────
+// Asks GitHub Releases for the latest version; if it's newer than the running
+// app, tells the renderer to show an in-app "update available" card with a
+// one-click download link to the new .dmg.
+const UPDATE_REPO = 'DerekRamosMILS/SweetEnglish-app';
+
+function compareVersions(a, b) {
+  const pa = String(a).replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+  const pb = String(b).replace(/^v/, '').split('.').map(n => parseInt(n, 10) || 0);
+  for (let i = 0; i < 3; i++) { const d = (pa[i] || 0) - (pb[i] || 0); if (d) return d > 0 ? 1 : -1; }
+  return 0;
+}
+
+function checkForUpdates(win, { notifyIfCurrent = false } = {}) {
+  const opts = {
+    hostname: 'api.github.com',
+    path: `/repos/${UPDATE_REPO}/releases/latest`,
+    headers: { 'User-Agent': 'SweetEnglish-Updater', 'Accept': 'application/vnd.github+json' },
+  };
+  https.get(opts, (res) => {
+    if (res.statusCode !== 200) { res.resume(); if (notifyIfCurrent) win?.webContents.send('update:none'); return; }
+    let data = '';
+    res.on('data', d => { data += d; });
+    res.on('end', () => {
+      try {
+        const rel = JSON.parse(data);
+        const latest = rel.tag_name || rel.name || '';
+        if (!latest) return;
+        if (compareVersions(latest, app.getVersion()) > 0) {
+          const dmg = (rel.assets || []).find(a => /\.dmg$/i.test(a.name));
+          win?.webContents.send('update:available', {
+            version: String(latest).replace(/^v/, ''),
+            current: app.getVersion(),
+            url: dmg ? dmg.browser_download_url : rel.html_url,
+            notes: rel.body || '',
+          });
+        } else if (notifyIfCurrent) {
+          win?.webContents.send('update:none');
+        }
+      } catch (err) { logToFile(`[checkForUpdates] ${err.message}`); }
+    });
+  }).on('error', (err) => { logToFile(`[checkForUpdates] ${err.message}`); });
+}
+
+ipcMain.handle('app:version', () => app.getVersion());
+ipcMain.handle('shell:open', (_evt, url) => { if (/^https?:\/\//i.test(url)) shell.openExternal(url); });
+ipcMain.handle('update:check', () => { if (mainWin) checkForUpdates(mainWin, { notifyIfCurrent: true }); });
 
 // ── Paths ──────────────────────────────────────────────────────────────────────
 
@@ -59,6 +108,8 @@ function createMain() {
     if (splashWin && !splashWin.isDestroyed()) { splashWin.close(); splashWin = null; }
     mainWin.show();
     if (IS_DEV) mainWin.webContents.openDevTools();
+    // Check for a newer release a few seconds after launch (non-blocking).
+    setTimeout(() => checkForUpdates(mainWin), 4000);
   });
 
   mainWin.on('closed', () => { mainWin = null; });
@@ -71,6 +122,7 @@ function buildMenu() {
     {
       label: 'SweetEnglish',
       submenu: [
+        { label: 'Buscar actualizaciones…', click: () => { if (mainWin) checkForUpdates(mainWin, { notifyIfCurrent: true }); } },
         { label: 'Abrir carpeta de datos', click: () => shell.openPath(app.getPath('userData')) },
         { type: 'separator' },
         { role: 'hide' }, { role: 'hideOthers' }, { role: 'unhide' },

@@ -1570,6 +1570,22 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- In-app update banner (shown by the Electron updater when a newer release exists) -->
+<div id="updateBanner" style="display:none;position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:9000;max-width:420px;width:calc(100% - 32px);background:linear-gradient(135deg,#fff,#FFF3F8);border:2px solid var(--rose);border-radius:16px;box-shadow:0 10px 30px rgba(210,74,117,.28);padding:14px 16px;font-family:var(--font)">
+  <div style="display:flex;align-items:flex-start;gap:10px">
+    <div style="font-size:22px;line-height:1">✨</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:14px;font-weight:900;color:var(--mauve)">Hay una actualización ♡</div>
+      <div id="updateBannerSub" style="font-size:12px;font-weight:700;color:var(--mauve-soft);margin-top:1px"></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button id="updateDownloadBtn" style="flex:1;font-family:var(--font);font-weight:800;font-size:13px;background:var(--rose);color:#fff;border:none;border-radius:99px;padding:9px 14px;cursor:pointer">Descargar e instalar</button>
+        <button id="updateLaterBtn" style="font-family:var(--font);font-weight:800;font-size:13px;background:none;color:var(--mauve-soft);border:none;border-radius:99px;padding:9px 12px;cursor:pointer">Ahora no</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="fileInput" accept=".json" style="display:none">
 
 <script>
@@ -5561,6 +5577,25 @@ document.getElementById('btnPlanNext').addEventListener('click', () => {
   plannerCurrentDate = new Date(plannerCurrentDate.getFullYear(), plannerCurrentDate.getMonth() + 1, 1);
   renderPlanner();
 });
+
+// ── IN-APP UPDATES (Electron) ──
+let _pendingUpdateUrl = null;
+function showUpdateBanner(info) {
+  if (!info || !info.url) return;
+  _pendingUpdateUrl = info.url;
+  document.getElementById('updateBannerSub').textContent = `v${info.current} → v${info.version}`;
+  document.getElementById('updateBanner').style.display = 'block';
+}
+document.getElementById('updateDownloadBtn').addEventListener('click', () => {
+  if (_pendingUpdateUrl) window.sweetEnglish?.openExternal?.(_pendingUpdateUrl);
+  document.getElementById('updateBanner').style.display = 'none';
+  showToast('Abriendo la descarga… instálala y elige "Reemplazar" ♡');
+});
+document.getElementById('updateLaterBtn').addEventListener('click', () => {
+  document.getElementById('updateBanner').style.display = 'none';
+});
+window.sweetEnglish?.onUpdateAvailable?.(showUpdateBanner);
+window.sweetEnglish?.onUpdateNone?.(() => showToast('Ya tienes la última versión ♡'));
 
 // ── INIT ──
 // Repair any previously-saved curriculum (fills missing levels, normalizes exercise
