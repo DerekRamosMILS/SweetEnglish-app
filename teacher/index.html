@@ -3150,6 +3150,32 @@ function renderExercise() {
   else if (type === 'flashcard') renderFlashcard(ex, body);
   else if (type === 'listening' || type === 'dictation') renderListening(ex, body);
   else renderUnsupported(ex, body);
+
+  // Live session footer so the screen doesn't feel empty
+  renderExerciseFooter();
+}
+
+function renderExerciseFooter() {
+  let footer = document.getElementById('exFooter');
+  if (!footer) {
+    footer = document.createElement('div');
+    footer.id = 'exFooter';
+    footer.style.cssText = 'margin:12px 0 0;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;font-family:var(--font);font-weight:800;font-size:12px;color:var(--mauve-soft)';
+    document.getElementById('exCard').after(footer);
+  }
+  if (!session) { footer.innerHTML = ''; return; }
+  const total = session.queue.length;
+  const acc = session.total ? Math.round(100 * session.correct / session.total) : 0;
+  const remaining = total - session.idx;
+  const lessonTitle = (session.lessonId && findLessonById(session.lessonId)?.lesson.title) || '';
+  const chip = (s) => `<span style="background:var(--white);border:1.5px solid var(--pink-border);border-radius:99px;padding:6px 12px">${s}</span>`;
+  footer.innerHTML = [
+    lessonTitle ? chip(`📚 ${esc(lessonTitle)}`) : '',
+    chip(`✓ ${session.correct} / ${session.total || 0}${session.total ? ` · ${acc}%` : ''}`),
+    chip(`⏭ ${remaining} restantes`),
+    chip(`♡ ${session.xp || 0} XP`),
+    chip(`🔥 ${streak.current || 0}d`)
+  ].join('');
 }
 
 // Listening / dictation: play a phrase with TTS, the student types what they heard.
@@ -3162,7 +3188,9 @@ function renderListening(ex, body) {
       ${SPEAK_SVG} Reproducir audio
     </button>
     <input class="blank-input" id="listenInput" placeholder="Type what you heard…" autocomplete="off" autocorrect="off" spellcheck="false">
-    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>
+    ${teacherPanel(ex, { answer: ex.answer || target })}`;
+  wireTeacherPanel(body);
 
   const play = () => speak(target, 'en-US');
   document.getElementById('listenPlayBtn').addEventListener('click', play);
@@ -3191,6 +3219,50 @@ function renderListening(ex, body) {
 }
 
 // Fallback so an unexpected exercise type never leaves a blank screen / stuck session
+// ── Teacher peek panel: shared footer for every solo exercise. Lets you reveal
+//    the answer on demand (eye button), shows hint + lesson context, and fills
+//    the dead space below the question card so it feels less empty.
+function teacherPanel(ex, opts) {
+  if (session && session.exam) return ''; // exam mode: nothing visible
+  const o = opts || {};
+  const ans = o.answer != null ? String(o.answer) : '';
+  const accepted = (ex.acceptable_answers || []).filter(a => a && a !== ex.answer);
+  const lessonTitle = (session && session.lessonId && findLessonById(session.lessonId)?.lesson.title) || '';
+  const unitTitle = (session && session.unitId && curriculum?.units.find(u => u.id === session.unitId)?.title) || '';
+  return `
+    <div class="teacher-panel" style="margin-top:14px;background:linear-gradient(135deg,#FFF8FC,#FFF1F6);border:1.5px solid var(--pink-border);border-radius:14px;padding:11px 14px">
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:900;color:var(--mauve-soft);letter-spacing:.4px;margin-bottom:6px">
+        <span>👩‍🏫 PANEL DEL MAESTRO</span>
+        ${lessonTitle ? `<span style="margin-left:auto;font-weight:800;color:var(--mauve);text-transform:none;letter-spacing:0">${esc(unitTitle ? unitTitle + ' · ' : '')}${esc(lessonTitle)}</span>` : ''}
+      </div>
+      ${ans ? `
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="peek-btn" type="button" aria-pressed="false"
+          style="display:flex;align-items:center;gap:6px;background:var(--white);border:1.5px solid var(--pink-border);border-radius:99px;padding:6px 12px;font-family:var(--font);font-weight:800;font-size:12px;color:var(--mauve);cursor:pointer">
+          <span class="peek-icon">👁</span><span class="peek-label">Mostrar respuesta</span>
+        </button>
+        <div class="peek-answer" style="display:none;flex:1;background:var(--white);border:1.5px dashed var(--rose);border-radius:10px;padding:6px 12px;font-family:var(--font);font-weight:900;font-size:14px;color:var(--rose-deep)">
+          ${esc(ans)}${accepted.length ? `<span style="font-weight:700;color:var(--mauve-soft);font-size:12px"> · también: ${accepted.map(esc).join(' / ')}</span>` : ''}
+        </div>
+      </div>` : ''}
+      ${ex.hint ? `<div style="margin-top:8px;font-size:12px;font-weight:700;color:var(--mauve-soft)">💡 <b style="color:var(--mauve)">Hint:</b> ${esc(ex.hint)}</div>` : ''}
+      ${ex.note_for_teacher ? `<div style="margin-top:6px;font-size:12px;font-weight:700;color:var(--mauve-soft)">📝 ${esc(ex.note_for_teacher)}</div>` : ''}
+    </div>`;
+}
+
+function wireTeacherPanel(host) {
+  const btn = host.querySelector('.peek-btn');
+  const ans = host.querySelector('.peek-answer');
+  if (!btn || !ans) return;
+  btn.addEventListener('click', () => {
+    const shown = ans.style.display !== 'none';
+    ans.style.display = shown ? 'none' : 'block';
+    btn.setAttribute('aria-pressed', shown ? 'false' : 'true');
+    btn.querySelector('.peek-icon').textContent = shown ? '👁' : '🙈';
+    btn.querySelector('.peek-label').textContent = shown ? 'Mostrar respuesta' : 'Ocultar respuesta';
+  });
+}
+
 function renderUnsupported(ex, body) {
   body.innerHTML = `
     <div class="ex-q">${esc(ex.prompt || ex.front || ex.word || 'Exercise')}</div>
@@ -3217,7 +3289,9 @@ function renderMC(ex, body) {
           <span class="mark"></span>
         </button>`).join('')}
     </div>
-    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>
+    ${teacherPanel(ex, { answer: ex.answer })}`;
+  wireTeacherPanel(body);
 
   let selected = null;
   body.querySelectorAll('.choice').forEach(btn => {
@@ -3256,7 +3330,9 @@ function renderFillBlank(ex, body) {
   body.innerHTML = `
     <div class="fill-display">${prompt}</div>
     <input class="blank-input" id="blankInput" placeholder="Type your answer…" autocomplete="off" autocorrect="off" spellcheck="false">
-    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>
+    ${teacherPanel(ex, { answer: ex.answer })}`;
+  wireTeacherPanel(body);
 
   const inp = document.getElementById('blankInput');
   inp.addEventListener('input', () => {
@@ -3290,7 +3366,9 @@ function renderTranslation(ex, body) {
     <div class="trans-prompt">${esc(ex.prompt || '')}</div>
     <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:6px">${dir}</div>
     <textarea class="trans-input" id="transInput" placeholder="Your translation…" rows="3" autocorrect="off" spellcheck="false"></textarea>
-    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>
+    ${teacherPanel(ex, { answer: ex.answer })}`;
+  wireTeacherPanel(body);
 
   const inp = document.getElementById('transInput');
   inp.addEventListener('input', () => {
@@ -3372,7 +3450,9 @@ function renderWordOrder(ex, body) {
     <div class="ex-q" style="font-size:15px;margin-bottom:10px">Arrange the words in the correct order:</div>
     <div class="word-drop-area" id="woDrop"><span class="placeholder-text">Tap words below to build your answer</span></div>
     <div class="word-pool" id="woPool"></div>
-    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>
+    ${teacherPanel(ex, { answer: ex.answer || words.join(' ') })}`;
+  wireTeacherPanel(body);
   render();
 
   document.getElementById('checkBtn').addEventListener('click', () => {
