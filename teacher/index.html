@@ -1118,6 +1118,23 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 </head>
 <body>
 
+<style>
+/* ── Presenter mode: large text for screen-sharing in class ── */
+body.presenter-mode .guided-timer,
+body.presenter-mode .kbd-hints,
+body.presenter-mode .backend-dot-wrap { display:none !important; }
+body.presenter-mode #guidedScrollArea { max-width: 960px; margin: 0 auto; }
+body.presenter-mode #guidedContent { font-size: 1.3em; line-height: 1.55; }
+body.presenter-mode .pres-word, body.presenter-mode .student-word { font-size: 4rem !important; }
+body.presenter-mode .pres-translation { font-size: 1.9rem !important; }
+body.presenter-mode .pres-phonetic, body.presenter-mode .pres-example { font-size: 1.4rem !important; }
+body.presenter-mode .drill-prompt, body.presenter-mode .cp-prompt,
+body.presenter-mode .dl-text, body.presenter-mode .student-prompt-text,
+body.presenter-mode .intro-text { font-size: 2.1rem !important; line-height: 1.45; }
+body.presenter-mode .drill-answer, body.presenter-mode .cp-expected-val,
+body.presenter-mode .dl-tr { font-size: 1.5rem !important; }
+body.presenter-mode #btnPresenter { background: var(--rose); color:#fff; }
+</style>
 
 <div id="app">
 
@@ -1341,6 +1358,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
         <span class="backend-dot" id="backendDot" title="Backend status"></span>
         <div class="backend-tooltip" id="backendTooltip">Checking backend…</div>
       </div>
+      <button class="vtb" id="btnPresenter" title="Modo presentador (texto grande)">🖥️</button>
       <div class="view-toggle">
         <button class="vtb active-teacher" id="btnViewTeacher">👨‍🏫 Teacher</button>
         <button class="vtb" id="btnViewStudent">👩‍🎓 Student</button>
@@ -1366,6 +1384,10 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
         <div class="hw-heading">Homework</div>
       </div>
       <span class="hw-time-chip" id="hwTimeChip"></span>
+      <button class="hw-export-btn" id="btnHwPrint" title="Imprimir / Guardar PDF" style="margin-right:6px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg>
+        PDF
+      </button>
       <button class="hw-export-btn" id="btnHwExport" title="Export homework">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 15V3m0 12l-4-4m4 4l4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17"/></svg>
         Export
@@ -1395,6 +1417,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
     <div class="gen-bottombar">
       <button class="gen-copy-btn" id="btnGenCopy" disabled>📋 Copy prompt</button>
       <button class="gen-paste-btn" id="btnGenPaste" disabled>📥 Paste JSON</button>
+      <button class="gen-paste-btn" id="btnGenEdit" disabled style="display:none">✏️ Editar</button>
       <button class="gen-start-btn" id="btnGenStart" disabled>▶ Start</button>
       <div class="gen-status" id="genStatus">Select a lesson to generate its prompt</div>
     </div>
@@ -2200,6 +2223,7 @@ function showToast(msg) {
 //  ROUTER
 // ══════════════════════════════════════
 function showScreen(id) {
+  if (id !== 'screenGuided') exitPresenterMode();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   currentScreen = id;
@@ -4149,6 +4173,9 @@ function renderGuidedContent() {
   const phase = gPhase();
   const item = gItem();
   if (!phase || !item) { showGuidedSummary(); return; }
+  // Robustness: if a phase item omits its own "type", inherit it from the phase
+  // so the card always renders (never a blank phase-card).
+  if (!item.type && phase.type && phase.type !== 'dialogue') item.type = phase.type;
 
   const phaseLabels = { presentation:'Presentation', verbal_drill:'Verbal Drill', dialogue:'Dialogue', checkpoint:'Checkpoint' };
   const phaseIcons  = { presentation:'📚', verbal_drill:'🎯', dialogue:'💬', checkpoint:'✅' };
@@ -4849,6 +4876,59 @@ function exportHomework() {
   showToast('Homework exported ♡');
 }
 
+// ── Printable / PDF homework (#feature) ──
+function buildHomeworkPrintHTML(lesson, unit) {
+  const hw = lesson.homework || {};
+  const line = (n = 1) => '<div style="border-bottom:1px solid #bbb;height:26px;margin:6px 0"></div>'.repeat(n);
+  const sections = (hw.sections || []).map(sec => {
+    let body = '';
+    if (sec.type === 'vocabulary_list') {
+      body = `<table style="width:100%;border-collapse:collapse">
+        <tr><th style="text-align:left;border-bottom:2px solid #333;padding:4px">Word</th><th style="text-align:left;border-bottom:2px solid #333;padding:4px">Fonética</th><th style="text-align:left;border-bottom:2px solid #333;padding:4px">Significado</th></tr>
+        ${(sec.items || []).map(i => `<tr><td style="padding:4px;border-bottom:1px solid #ddd">${esc(i.word || '')}</td><td style="padding:4px;border-bottom:1px solid #ddd">${esc(i.phonetic || '')}</td><td style="padding:4px;border-bottom:1px solid #ddd">${esc(i.translation || '')}</td></tr>`).join('')}
+      </table>`;
+    } else if (sec.type === 'reading') {
+      body = `<p style="line-height:1.6">${esc(sec.text || '')}</p>`;
+    } else if (sec.type === 'writing_prompt') {
+      body = (sec.prompts || []).map(p => `<div style="margin:8px 0"><b>•</b> ${esc(p)}${line(2)}</div>`).join('');
+    } else if (sec.type === 'listen_and_repeat') {
+      body = (sec.items || []).map(i => `<div style="margin:4px 0">${esc(i.phrase || '')} <span style="color:#777">${esc(i.phonetic || '')}</span></div>`).join('');
+    } else if (sec.type === 'challenge') {
+      body = `<p>${esc(sec.task || sec.description || '')}${line(3)}</p>`;
+    } else {
+      body = `<p>${esc(JSON.stringify(sec.items || sec.prompts || ''))}</p>`;
+    }
+    return `<section style="margin:0 0 22px"><h2 style="font-size:16px;border-left:4px solid #E8638C;padding-left:8px;margin:0 0 8px">${esc(sec.title || sec.type)}</h2>${body}</section>`;
+  }).join('');
+
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Tarea — ${esc(lesson.title)}</title>
+    <style>@page{margin:18mm} body{font-family:-apple-system,Helvetica,Arial,sans-serif;color:#222;max-width:720px;margin:0 auto;padding:10px}
+    h1{font-size:20px;margin:0 0 2px} .sub{color:#777;font-size:13px;margin:0 0 18px}
+    .meta{display:flex;justify-content:space-between;border-bottom:2px solid #E8638C;padding-bottom:8px;margin-bottom:18px;font-size:13px}</style>
+    </head><body>
+    <h1>📚 Tarea: ${esc(lesson.title)}</h1>
+    <div class="sub">${esc(unit?.title || '')} · ${esc(unit?.level || '')}${hw.estimated_minutes ? ' · ~' + hw.estimated_minutes + ' min' : ''}</div>
+    <div class="meta"><span>Nombre: _______________________</span><span>Fecha: ____________</span></div>
+    ${sections || '<p>Esta lección no tiene tarea.</p>'}
+    </body></html>`;
+}
+
+function printHomework() {
+  if (!currentHwContext || !currentHwContext.lesson.homework) { showToast('No hay tarea para imprimir ♡'); return; }
+  const { lesson, unit } = currentHwContext;
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+  document.body.appendChild(iframe);
+  const doc = iframe.contentWindow.document;
+  doc.open(); doc.write(buildHomeworkPrintHTML(lesson, unit)); doc.close();
+  iframe.contentWindow.focus();
+  setTimeout(() => {
+    try { iframe.contentWindow.print(); } catch (_) {}
+    setTimeout(() => iframe.remove(), 1500);
+  }, 350);
+  showToast('Abriendo impresión — elige "Guardar como PDF" ♡');
+}
+
 function markHomeworkComplete(unitId, lessonId, lesson, unit) {
   // Backend: mark homework complete
   if (currentHomeworkId) {
@@ -5006,7 +5086,7 @@ function selectGeneratorUnit(unitId) {
 }
 
 function genStatusBadge(lessonId) {
-  const st = genLessonStatuses.find(s => s.lesson_id === lessonId);
+  const st = (genLessonStatuses || []).find(s => s.lesson_id === lessonId);
   if (!st) return '';
   const score = st.best_score != null ? ` ${Math.round(st.best_score * 100)}%` : '';
   if (st.status === 'completed')  return `<span class="gen-badge status-done">✅${score}</span>`;
@@ -5119,11 +5199,13 @@ function updateGenBottomBar() {
   const copyBtn  = document.getElementById('btnGenCopy');
   const pasteBtn = document.getElementById('btnGenPaste');
   const startBtn = document.getElementById('btnGenStart');
+  const editBtn  = document.getElementById('btnGenEdit');
   const status   = document.getElementById('genStatus');
   if (!genSelectedLesson) {
     copyBtn.disabled  = true;
     pasteBtn.disabled = true;
     startBtn.disabled = true;
+    if (editBtn) { editBtn.disabled = true; editBtn.style.display = 'none'; }
     status.textContent = genSelectedUnit ? 'Select a lesson to generate its prompt' : 'Select a unit to get started ♡';
   } else {
     copyBtn.disabled  = false;
@@ -5139,6 +5221,7 @@ function updateGenBottomBar() {
       }
       return false;
     })();
+    if (editBtn) { editBtn.disabled = !hasContent; editBtn.style.display = hasContent ? '' : 'none'; }
     if (hasContent) {
       status.textContent = `✅ ${genSelectedLesson.id} — has content · copy prompt to regenerate`;
     } else if (copied) {
@@ -5310,6 +5393,27 @@ function openPasteModal() {
   document.getElementById('pasteErr').textContent = '';
   document.getElementById('pastePreview').style.display = 'none';
   document.getElementById('pasteOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('pasteArea').focus(), 100);
+}
+
+// Edit already-generated content in-app: prefill the paste modal with the lesson's
+// current content as JSON so it can be edited and re-saved without regenerating.
+function editLessonContent() {
+  if (!genSelectedLesson) return;
+  const found = findLessonById(genSelectedLesson.id);
+  if (!found || !lessonHasContent(found.lesson)) { showToast('Esta lección aún no tiene contenido para editar ♡'); return; }
+  const l = found.lesson;
+  const content = {
+    exercises: (l.exercises || []).filter(e => !String(e.id || '').includes('_fc_')), // auto-injected flashcards regenerate on save
+    phases: l.phases || [],
+    homework: l.homework || null
+  };
+  document.getElementById('pasteLessonName').textContent = `${l.id} — ${l.title} (editando)`;
+  document.getElementById('pasteArea').value = JSON.stringify(content, null, 2);
+  document.getElementById('pasteErr').className = 'paste-err';
+  document.getElementById('pasteErr').textContent = '';
+  document.getElementById('pasteOverlay').classList.add('open');
+  updatePastePreview();
   setTimeout(() => document.getElementById('pasteArea').focus(), 100);
 }
 
@@ -5613,9 +5717,13 @@ document.getElementById('celebrateBtn').addEventListener('click', () => {
 
 // Guided session back
 document.getElementById('btnGuidedBack').addEventListener('click', () => {
+  exitPresenterMode();
   if (guidedSession) { clearInterval(guidedSession.timerInterval); guidedSession = null; }
   showScreen('screenHome');
 });
+
+// Presenter mode
+document.getElementById('btnPresenter').addEventListener('click', togglePresenterMode);
 
 // View toggle
 document.getElementById('btnViewTeacher').addEventListener('click', () => {
@@ -5642,6 +5750,7 @@ document.getElementById('btnCloseHistory').addEventListener('click', closeHistor
 // Homework back button
 document.getElementById('btnHwBack').addEventListener('click', () => showScreen('screenLessons'));
 document.getElementById('btnHwExport').addEventListener('click', exportHomework);
+document.getElementById('btnHwPrint').addEventListener('click', printHomework);
 
 // Homework history panel
 document.getElementById('btnOpenHwHistory').addEventListener('click', openHwHistoryPanel);
@@ -5667,6 +5776,7 @@ document.getElementById('sdmOverlay').addEventListener('click', e => {
 document.getElementById('btnGenBack').addEventListener('click', () => showScreen('screenHome'));
 document.getElementById('btnGenCopy').addEventListener('click', copyLessonPrompt);
 document.getElementById('btnGenPaste').addEventListener('click', openPasteModal);
+document.getElementById('btnGenEdit').addEventListener('click', editLessonContent);
 document.getElementById('btnGenStart').addEventListener('click', startSessionFromGenerator);
 document.getElementById('btnPasteCancel').addEventListener('click', closePasteModal);
 document.getElementById('btnPasteOk').addEventListener('click', savePastedJson);
@@ -5765,6 +5875,53 @@ document.getElementById('btnPlanNext').addEventListener('click', () => {
   renderPlanner();
 });
 
+// ── PRESENTER MODE (large text + fullscreen for screen-sharing) ──
+function togglePresenterMode() {
+  const on = document.body.classList.toggle('presenter-mode');
+  if (on) {
+    document.documentElement.requestFullscreen?.().catch(() => {});
+    showToast('Modo presentador activado 🖥️');
+  } else if (document.fullscreenElement) {
+    document.exitFullscreen?.().catch(() => {});
+  }
+  if (guidedSession) renderGuidedContent();
+}
+function exitPresenterMode() {
+  if (document.body.classList.contains('presenter-mode')) {
+    document.body.classList.remove('presenter-mode');
+    if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
+  }
+}
+
+// ── STREAK REMINDER (native notification while the app is open) ──
+let _streakReminderShown = false;
+function checkStreakReminder() {
+  if (_streakReminderShown) return;
+  const n = streak.current || 0;
+  if (n < 2) return;                          // only nag once there's a streak worth keeping
+  if (streak.last_date === today()) return;   // already practiced today — nothing to lose
+  _streakReminderShown = true;
+  const title = `¡No rompas tu racha de ${n} días! 🔥`;
+  const bodyMsg = 'Practica hoy para mantenerla ♡';
+  try {
+    if ('Notification' in window) {
+      if (Notification.permission === 'granted') {
+        const nt = new Notification(title, { body: bodyMsg });
+        nt.onclick = () => window.focus();
+        return;
+      }
+      if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(p => {
+          if (p === 'granted') { const nt = new Notification(title, { body: bodyMsg }); nt.onclick = () => window.focus(); }
+          else showToast(title);
+        });
+        return;
+      }
+    }
+  } catch (_) {}
+  showToast(title); // fallback if notifications unavailable/denied
+}
+
 // ── IN-APP UPDATES (Electron) ──
 let _pendingUpdateUrl = null;
 function showUpdateBanner(info) {
@@ -5796,6 +5953,9 @@ updateTeacherModeUI();
 // Auto-backup safety net (#7): snapshot when leaving and every 5 minutes.
 window.addEventListener('beforeunload', () => { try { autoBackup(true); } catch (_) {} });
 setInterval(() => { try { autoBackup(true); } catch (_) {} }, 300000);
+// Streak reminder: a few seconds after launch, and re-check hourly while open.
+setTimeout(() => { try { checkStreakReminder(); } catch (_) {} }, 6000);
+setInterval(() => { try { checkStreakReminder(); } catch (_) {} }, 3600000);
 if (curriculum) {
   document.getElementById('tabbar').style.display = 'flex';
   showScreen('screenHome');
