@@ -1119,6 +1119,19 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 <body>
 
 <style>
+/* ── Per-level accent: a subtle tint behind the question card so each CEFR
+   level feels visually distinct without overhauling the palette. ── */
+body[data-level="A1"] #screenExercise .screen-bg,
+body[data-level="A1"] #screenGuided .screen-bg { background: radial-gradient(120% 80% at 50% 0%, #FFE7D9 0%, transparent 60%), var(--bg) !important; }
+body[data-level="A2"] #screenExercise .screen-bg,
+body[data-level="A2"] #screenGuided .screen-bg { background: radial-gradient(120% 80% at 50% 0%, #FFE0EF 0%, transparent 60%), var(--bg) !important; }
+body[data-level="B1"] #screenExercise .screen-bg,
+body[data-level="B1"] #screenGuided .screen-bg { background: radial-gradient(120% 80% at 50% 0%, #E5DEFF 0%, transparent 60%), var(--bg) !important; }
+body[data-level="B2"] #screenExercise .screen-bg,
+body[data-level="B2"] #screenGuided .screen-bg { background: radial-gradient(120% 80% at 50% 0%, #DDF0E8 0%, transparent 60%), var(--bg) !important; }
+body[data-level="C1"] #screenExercise .screen-bg,
+body[data-level="C1"] #screenGuided .screen-bg { background: radial-gradient(120% 80% at 50% 0%, #FFF3C6 0%, transparent 60%), var(--bg) !important; }
+
 /* ── Presenter mode: large text for screen-sharing in class ── */
 body.presenter-mode .guided-timer,
 body.presenter-mode .kbd-hints,
@@ -2966,6 +2979,12 @@ function openPlannerDayModal(dateStr) {
 // ══════════════════════════════════════
 //  SESSION MANAGEMENT
 // ══════════════════════════════════════
+// Set/clear per-level body attribute so the screen background tints accordingly.
+function setLevelAccent(level) {
+  if (level) document.body.setAttribute('data-level', String(level).toUpperCase());
+  else document.body.removeAttribute('data-level');
+}
+
 function startSession(unitId, lessonId, mode) {
   const unit = curriculum?.units.find(u => u.id === unitId);
   const lesson = unit?.lessons.find(l => l.id === lessonId);
@@ -2991,6 +3010,7 @@ function startSession(unitId, lessonId, mode) {
   if (!queue.length) { showToast('All exercises up to date ♡'); return; }
 
   session = { queue, idx: 0, unitId, lessonId, mode, xp: 0, correct: 0, total: 0, answered: false };
+  setLevelAccent(unit.level);
   showScreen('screenExercise');
   renderExercise();
 }
@@ -3056,6 +3076,7 @@ function startExam(unitId, lessonId) {
     lesson_id: lesson.id, lesson_title: lesson.title, unit_id: unit.id,
     unit_title: unit.title || '', level: unit.level || '', mode: 'exam'
   }).then(d => { if (d?.session_id) currentSessionId = d.session_id; });
+  setLevelAccent(unit.level);
   showScreen('screenExercise');
   renderExercise();
 }
@@ -3124,20 +3145,21 @@ function renderExercise() {
   document.getElementById('hintText').textContent = '';
   document.getElementById('continueBtn').className = 'continue-btn';
 
-  // Bubble tip
-  const tips = {
-    multiple_choice: 'Tap the correct answer, then check ♪',
-    fill_blank: 'Fill in the blank, then check ♪',
-    translation_es_en: 'Translate to English ♡',
-    translation_en_es: 'Traduce al español ♡',
-    translate: 'Translate the sentence ♡',
-    translation: 'Translate the sentence ♡',
-    listening: 'Escucha y escribe lo que oíste 🎧',
-    dictation: 'Escucha y escribe lo que oíste 🎧',
-    word_order: 'Tap the words to build the sentence ♪',
-    flashcard: 'Tap the card to flip it ♡'
+  // Reactive bubble: rotates phrases by exercise type so the mascot feels alive.
+  const tipBank = {
+    multiple_choice: ['Toca la opción correcta ♪','¿Cuál crees que es? ♡','Lee con calma y elige ♡','¡Tú puedes! Elige una opción ♪','Piensa antes de tocar ✨'],
+    fill_blank: ['Llena el espacio en blanco ♪','Escribe la palabra que falta ♡','¿Qué palabra completa la oración? ✨','Una palabra basta — escríbela ♡'],
+    translation_es_en: ['Traduce al inglés ♡','¿Cómo se dice esto en inglés? ♪','Tu turno: dilo en inglés ✨','Inglés please ♡'],
+    translation_en_es: ['Traduce al español ♡','¿Qué significa en español? ♪','Tu turno en español ✨','Dilo en español ♡'],
+    translate: ['Traduce la oración ♡','Tu turno de traducir ♪','¡Vamos! Traduce ✨'],
+    translation: ['Traduce la oración ♡','Tu turno de traducir ♪'],
+    listening: ['🎧 Escucha y escribe','¿Qué escuchaste? ♡','Audio listo — escribe lo que oyes 🎧','Presiona play si lo necesitas ♪'],
+    dictation: ['🎧 Escucha y escribe','¿Qué escuchaste? ♡'],
+    word_order: ['Toca las palabras en orden ♪','Arma la oración ✨','Ordena las palabras ♡','¡Como un rompecabezas! ♪'],
+    flashcard: ['Toca la tarjeta para voltearla ♡','¿Sabes el significado? ✨','Pensaste primero, ahora voltea ♪','Adivina antes de voltear ♡']
   };
-  document.getElementById('exBubble').innerHTML = `<b>${tips[ex.type] || 'Good luck! ♡'}</b>`;
+  const tipList = tipBank[ex.type] || ['¡Tú puedes! ♡','Vamos paso a paso ✨','Lo estás haciendo genial ♪'];
+  document.getElementById('exBubble').innerHTML = `<b>${tipList[Math.floor(Math.random() * tipList.length)]}</b>`;
 
   // Render by type
   const body = document.getElementById('exBody');
@@ -3219,6 +3241,23 @@ function renderListening(ex, body) {
 }
 
 // Fallback so an unexpected exercise type never leaves a blank screen / stuck session
+// Difficulty chip from FSRS card data (#3 indicador de dificultad).
+function difficultyChip(exId) {
+  const c = progress[exId];
+  if (!c || !c.reps) return '<span style="background:#EAF4FF;color:#2C5A88;border:1px solid #C6DCF1;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:900">✨ Nueva</span>';
+  if ((c.stability || 0) >= 9) return '<span style="background:#E1F5EE;color:#1F6E4F;border:1px solid #BfE8D4;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:900">🌟 Dominada</span>';
+  return '<span style="background:#FFF3D6;color:#8A6618;border:1px solid #F3D98A;border-radius:99px;padding:3px 9px;font-size:11px;font-weight:900">🌱 En aprendizaje</span>';
+}
+
+// Last-failure note (#4 última falla) — only shown when the card has prior failures.
+function lastFailNote(exId) {
+  const c = progress[exId];
+  if (!c || !c.incorrect || !c.last_review) return '';
+  const days = Math.floor((Date.now() - new Date(c.last_review).getTime()) / 86400000);
+  const ago = days <= 0 ? 'hoy' : days === 1 ? 'ayer' : `hace ${days} días`;
+  return `<div style="margin-top:6px;font-size:11px;font-weight:700;color:var(--mauve-soft)">⚠ Último intento: ${ago} · ${c.correct||0}✓ / ${c.incorrect||0}✗</div>`;
+}
+
 // ── Teacher peek panel: shared footer for every solo exercise. Lets you reveal
 //    the answer on demand (eye button), shows hint + lesson context, and fills
 //    the dead space below the question card so it feels less empty.
@@ -3231,36 +3270,51 @@ function teacherPanel(ex, opts) {
   const unitTitle = (session && session.unitId && curriculum?.units.find(u => u.id === session.unitId)?.title) || '';
   return `
     <div class="teacher-panel" style="margin-top:14px;background:linear-gradient(135deg,#FFF8FC,#FFF1F6);border:1.5px solid var(--pink-border);border-radius:14px;padding:11px 14px">
-      <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:900;color:var(--mauve-soft);letter-spacing:.4px;margin-bottom:6px">
+      <div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:900;color:var(--mauve-soft);letter-spacing:.4px;margin-bottom:6px;flex-wrap:wrap">
         <span>👩‍🏫 PANEL DEL MAESTRO</span>
+        ${difficultyChip(ex.id)}
         ${lessonTitle ? `<span style="margin-left:auto;font-weight:800;color:var(--mauve);text-transform:none;letter-spacing:0">${esc(unitTitle ? unitTitle + ' · ' : '')}${esc(lessonTitle)}</span>` : ''}
       </div>
       ${ans ? `
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <button class="peek-btn" type="button" aria-pressed="false"
           style="display:flex;align-items:center;gap:6px;background:var(--white);border:1.5px solid var(--pink-border);border-radius:99px;padding:6px 12px;font-family:var(--font);font-weight:800;font-size:12px;color:var(--mauve);cursor:pointer">
           <span class="peek-icon">👁</span><span class="peek-label">Mostrar respuesta</span>
         </button>
-        <div class="peek-answer" style="display:none;flex:1;background:var(--white);border:1.5px dashed var(--rose);border-radius:10px;padding:6px 12px;font-family:var(--font);font-weight:900;font-size:14px;color:var(--rose-deep)">
+        <button class="teacher-skip-btn" type="button"
+          style="background:var(--white);border:1.5px solid var(--pink-border);border-radius:99px;padding:6px 12px;font-family:var(--font);font-weight:800;font-size:12px;color:var(--mauve-soft);cursor:pointer">⏭ Saltar</button>
+        <div class="peek-answer" style="display:none;flex:1;min-width:160px;background:var(--white);border:1.5px dashed var(--rose);border-radius:10px;padding:6px 12px;font-family:var(--font);font-weight:900;font-size:14px;color:var(--rose-deep)">
           ${esc(ans)}${accepted.length ? `<span style="font-weight:700;color:var(--mauve-soft);font-size:12px"> · también: ${accepted.map(esc).join(' / ')}</span>` : ''}
         </div>
       </div>` : ''}
       ${ex.hint ? `<div style="margin-top:8px;font-size:12px;font-weight:700;color:var(--mauve-soft)">💡 <b style="color:var(--mauve)">Hint:</b> ${esc(ex.hint)}</div>` : ''}
       ${ex.note_for_teacher ? `<div style="margin-top:6px;font-size:12px;font-weight:700;color:var(--mauve-soft)">📝 ${esc(ex.note_for_teacher)}</div>` : ''}
+      ${lastFailNote(ex.id)}
     </div>`;
+}
+
+// #5 saltar inline: marks current solo exercise as skipped and advances.
+function skipCurrentExercise() {
+  if (!session || session.answered) return;
+  session.answered = true;
+  if (session.idx < session.queue.length - 1) advanceExercise();
+  else showSessionComplete();
 }
 
 function wireTeacherPanel(host) {
   const btn = host.querySelector('.peek-btn');
   const ans = host.querySelector('.peek-answer');
-  if (!btn || !ans) return;
-  btn.addEventListener('click', () => {
-    const shown = ans.style.display !== 'none';
-    ans.style.display = shown ? 'none' : 'block';
-    btn.setAttribute('aria-pressed', shown ? 'false' : 'true');
-    btn.querySelector('.peek-icon').textContent = shown ? '👁' : '🙈';
-    btn.querySelector('.peek-label').textContent = shown ? 'Mostrar respuesta' : 'Ocultar respuesta';
-  });
+  if (btn && ans) {
+    btn.addEventListener('click', () => {
+      const shown = ans.style.display !== 'none';
+      ans.style.display = shown ? 'none' : 'block';
+      btn.setAttribute('aria-pressed', shown ? 'false' : 'true');
+      btn.querySelector('.peek-icon').textContent = shown ? '👁' : '🙈';
+      btn.querySelector('.peek-label').textContent = shown ? 'Mostrar respuesta' : 'Ocultar respuesta';
+    });
+  }
+  const skip = host.querySelector('.teacher-skip-btn');
+  if (skip) skip.addEventListener('click', skipCurrentExercise);
 }
 
 function renderUnsupported(ex, body) {
@@ -3667,6 +3721,7 @@ function showSessionComplete() {
       cel.classList.remove('show');
       clearCelebration();
       session = null;
+      setLevelAccent(null);
       showScreen('screenProgress');
     };
     return;
@@ -3687,6 +3742,7 @@ function showSessionComplete() {
     cel.classList.remove('show');
     clearCelebration();
     session = null;
+    setLevelAccent(null);
     showScreen('screenHome');
   };
 }
@@ -4143,6 +4199,7 @@ function startGuidedSession(unitId, lessonId) {
   document.getElementById('guidedLessonTitle').textContent = lesson.title;
   document.getElementById('btnViewTeacher').className = 'vtb active-teacher';
   document.getElementById('btnViewStudent').className = 'vtb';
+  setLevelAccent(unit?.level);
   showScreen('screenGuided');
   startGuidedTimer();
   renderGuidedSession();
@@ -4212,6 +4269,7 @@ function resumeGuidedSession() {
   document.getElementById('guidedLessonTitle').textContent = lesson.title;
   document.getElementById('btnViewTeacher').className = guidedSession.view === 'teacher' ? 'vtb active-teacher' : 'vtb';
   document.getElementById('btnViewStudent').className = guidedSession.view === 'student' ? 'vtb active-student' : 'vtb';
+  setLevelAccent(unit?.level);
   showScreen('screenGuided');
   startGuidedTimer();
   renderGuidedSession();
@@ -5692,6 +5750,7 @@ document.getElementById('tabbar').querySelectorAll('.nav-item').forEach(btn => {
 // Back from exercise
 document.getElementById('btnExBack').addEventListener('click', () => {
   if (session) { session = null; }
+  setLevelAccent(null);
   showScreen('screenHome');
 });
 
@@ -5798,6 +5857,7 @@ document.getElementById('celebrateBtn').addEventListener('click', () => {
 // Guided session back
 document.getElementById('btnGuidedBack').addEventListener('click', () => {
   exitPresenterMode();
+  setLevelAccent(null);
   if (guidedSession) { clearInterval(guidedSession.timerInterval); guidedSession = null; }
   showScreen('screenHome');
 });
