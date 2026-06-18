@@ -1283,7 +1283,8 @@ body.presenter-mode #btnPresenter { background: var(--rose); color:#fff; }
     <div class="status-pad"></div>
     <div class="scroll-area">
       <div class="screen-head">My Progress</div>
-      <button id="btnLevelExam" style="width:100%;font-family:var(--font);font-weight:800;font-size:14px;background:linear-gradient(135deg,#6C5CE7,#A29BFE);color:#fff;border:none;border-radius:99px;padding:12px;margin-bottom:14px;cursor:pointer;box-shadow:0 4px 12px rgba(108,92,231,.22)">📝 Tomar examen de nivel</button>
+      <button id="btnLevelExam" style="width:100%;font-family:var(--font);font-weight:800;font-size:14px;background:linear-gradient(135deg,#6C5CE7,#A29BFE);color:#fff;border:none;border-radius:99px;padding:12px;margin-bottom:8px;cursor:pointer;box-shadow:0 4px 12px rgba(108,92,231,.22)">📝 Tomar examen de nivel</button>
+      <button id="btnAchievements" style="width:100%;font-family:var(--font);font-weight:800;font-size:14px;background:linear-gradient(135deg,#F5A623,#F8D177);color:#fff;border:none;border-radius:99px;padding:12px;margin-bottom:14px;cursor:pointer;box-shadow:0 4px 12px rgba(245,166,35,.22)">🏆 Ver logros</button>
       <div class="stats-grid" id="statsGrid"></div>
       <div class="section-title">Accuracy by Unit</div>
       <div class="unit-bars" id="unitBars"></div>
@@ -3013,6 +3014,14 @@ function startSession(unitId, lessonId, mode) {
   setLevelAccent(unit.level);
   showScreen('screenExercise');
   renderExercise();
+  // Surface the most recent teacher note for this lesson, if any
+  const notes = loadNotesForLesson(lessonId);
+  if (notes.length) {
+    const last = notes[0];
+    const days = Math.floor((Date.now() - new Date(last.date).getTime()) / 86400000);
+    const ago = days <= 0 ? 'hoy' : days === 1 ? 'ayer' : `hace ${days} días`;
+    setTimeout(() => showToast(`📝 Nota (${ago}): ${last.text.slice(0, 60)}${last.text.length > 60 ? '…' : ''}`), 500);
+  }
 }
 
 // ══════════════════════════════════════
@@ -3283,6 +3292,12 @@ function teacherPanel(ex, opts) {
         </button>
         <button class="teacher-skip-btn" type="button"
           style="background:var(--white);border:1.5px solid var(--pink-border);border-radius:99px;padding:6px 12px;font-family:var(--font);font-weight:800;font-size:12px;color:var(--mauve-soft);cursor:pointer">⏭ Saltar</button>
+        <button class="teacher-edit-btn" type="button" title="Editar este ejercicio"
+          style="background:var(--white);border:1.5px solid var(--pink-border);border-radius:99px;padding:6px 12px;font-family:var(--font);font-weight:800;font-size:12px;color:var(--mauve-soft);cursor:pointer">✏️ Editar</button>
+        <button class="teacher-flag-btn" type="button" title="Marcar para revisar después"
+          style="background:var(--white);border:1.5px solid var(--pink-border);border-radius:99px;padding:6px 12px;font-family:var(--font);font-weight:800;font-size:12px;color:var(--mauve-soft);cursor:pointer">🚩</button>
+        <button class="teacher-notes-btn" type="button" title="Notas del profesor"
+          style="background:var(--white);border:1.5px solid var(--pink-border);border-radius:99px;padding:6px 12px;font-family:var(--font);font-weight:800;font-size:12px;color:var(--mauve-soft);cursor:pointer">📝</button>
         <div class="peek-answer" style="display:none;flex:1;min-width:160px;background:var(--white);border:1.5px dashed var(--rose);border-radius:10px;padding:6px 12px;font-family:var(--font);font-weight:900;font-size:14px;color:var(--rose-deep)">
           ${esc(ans)}${accepted.length ? `<span style="font-weight:700;color:var(--mauve-soft);font-size:12px"> · también: ${accepted.map(esc).join(' / ')}</span>` : ''}
         </div>
@@ -3298,6 +3313,296 @@ function teacherPanel(ex, opts) {
       ${ex.note_for_teacher ? `<div style="margin-top:6px;font-size:12px;font-weight:700;color:var(--mauve-soft)">📝 ${esc(ex.note_for_teacher)}</div>` : ''}
       ${lastFailNote(ex.id)}
     </div>`;
+}
+
+// Live edit: opens a mini-modal to tweak the current exercise (prompt, answer,
+// acceptable_answers, options, hint) and saves it back to the curriculum.
+function openLiveEdit() {
+  if (!session) return;
+  const ex = session.queue[session.idx]?.exercise;
+  if (!ex) return;
+  const existing = document.getElementById('liveEditOverlay');
+  if (existing) existing.remove();
+
+  const isMC = ex.type === 'multiple_choice';
+  const overlay = document.createElement('div');
+  overlay.id = 'liveEditOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(60,30,50,.35);display:flex;align-items:center;justify-content:center;padding:20px;font-family:var(--font)';
+  overlay.innerHTML = `
+    <div style="background:var(--white);border:2px solid var(--pink-border);border-radius:18px;max-width:520px;width:100%;padding:18px 20px;box-shadow:0 16px 40px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto">
+      <div style="font-size:15px;font-weight:900;color:var(--mauve);margin-bottom:4px">✏️ Editar ejercicio</div>
+      <div style="font-size:11px;font-weight:800;color:var(--mauve-soft);margin-bottom:14px">${esc(ex.type)} · ${esc(ex.id || '')}</div>
+
+      <label style="display:block;font-size:11px;font-weight:900;color:var(--mauve-soft);margin-bottom:4px">Prompt</label>
+      <textarea id="leEditPrompt" rows="2" style="width:100%;box-sizing:border-box;font-family:var(--font);font-weight:700;font-size:14px;border:1.5px solid var(--pink-border);border-radius:10px;padding:8px 10px;color:var(--mauve);margin-bottom:10px">${esc(ex.prompt || '')}</textarea>
+
+      ${isMC ? `
+      <label style="display:block;font-size:11px;font-weight:900;color:var(--mauve-soft);margin-bottom:4px">Opciones (una por línea)</label>
+      <textarea id="leEditOptions" rows="4" style="width:100%;box-sizing:border-box;font-family:var(--font);font-weight:700;font-size:14px;border:1.5px solid var(--pink-border);border-radius:10px;padding:8px 10px;color:var(--mauve);margin-bottom:10px">${esc((ex.options || ex.choices || []).join('\n'))}</textarea>
+      ` : ''}
+
+      <label style="display:block;font-size:11px;font-weight:900;color:var(--mauve-soft);margin-bottom:4px">Respuesta correcta</label>
+      <input id="leEditAnswer" type="text" style="width:100%;box-sizing:border-box;font-family:var(--font);font-weight:700;font-size:14px;border:1.5px solid var(--pink-border);border-radius:10px;padding:8px 10px;color:var(--mauve);margin-bottom:10px" value="${esc(ex.answer || '')}">
+
+      <label style="display:block;font-size:11px;font-weight:900;color:var(--mauve-soft);margin-bottom:4px">Respuestas también aceptadas (separadas por coma)</label>
+      <input id="leEditAccepted" type="text" style="width:100%;box-sizing:border-box;font-family:var(--font);font-weight:700;font-size:14px;border:1.5px solid var(--pink-border);border-radius:10px;padding:8px 10px;color:var(--mauve);margin-bottom:10px" value="${esc((ex.acceptable_answers || []).join(', '))}">
+
+      <label style="display:block;font-size:11px;font-weight:900;color:var(--mauve-soft);margin-bottom:4px">Hint</label>
+      <input id="leEditHint" type="text" style="width:100%;box-sizing:border-box;font-family:var(--font);font-weight:700;font-size:14px;border:1.5px solid var(--pink-border);border-radius:10px;padding:8px 10px;color:var(--mauve);margin-bottom:14px" value="${esc(ex.hint || '')}">
+
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="leEditCancel" style="background:none;border:none;font-family:var(--font);font-weight:800;font-size:13px;color:var(--mauve-soft);padding:9px 16px;cursor:pointer">Cancelar</button>
+        <button id="leEditSave" style="background:var(--rose);color:#fff;border:none;border-radius:99px;font-family:var(--font);font-weight:800;font-size:13px;padding:9px 18px;cursor:pointer">💾 Guardar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#leEditCancel').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelector('#leEditSave').addEventListener('click', () => {
+    ex.prompt = document.getElementById('leEditPrompt').value.trim();
+    ex.answer = document.getElementById('leEditAnswer').value.trim();
+    const acc = document.getElementById('leEditAccepted').value
+      .split(',').map(s => s.trim()).filter(Boolean);
+    if (acc.length) ex.acceptable_answers = acc; else delete ex.acceptable_answers;
+    const hint = document.getElementById('leEditHint').value.trim();
+    if (hint) ex.hint = hint; else delete ex.hint;
+    if (isMC) {
+      const opts = document.getElementById('leEditOptions').value
+        .split('\n').map(s => s.trim()).filter(Boolean);
+      if (opts.length) ex.options = opts;
+    }
+    // Mirror into the curriculum copy and persist
+    const found = findLessonById(session.lessonId);
+    if (found) {
+      const cex = (found.lesson.exercises || []).find(e => e.id === ex.id);
+      if (cex) Object.assign(cex, ex);
+      store(LS.curriculum, curriculum);
+    }
+    overlay.remove();
+    session.answered = false;
+    renderExercise();
+    showToast('Ejercicio actualizado ♡');
+  });
+}
+
+// ══════════════════════════════════════
+//  ACHIEVEMENTS / BADGES (Feature 4)
+// ══════════════════════════════════════
+const ACHIEVEMENTS = [
+  { id: 'first_lesson', icon: '🌱', title: 'Primera lección',
+    desc: 'Completaste tu primera lección',
+    check: () => Object.keys(lessonDoneMap).length >= 1 },
+  { id: 'streak_3',  icon: '🔥', title: 'Racha de 3 días', desc: '¡3 días seguidos!',
+    check: () => (streak.current || 0) >= 3 },
+  { id: 'streak_7',  icon: '🔥🔥', title: 'Racha de una semana', desc: '7 días sin parar',
+    check: () => (streak.current || 0) >= 7 },
+  { id: 'streak_30', icon: '🔥🔥🔥', title: 'Racha legendaria', desc: '30 días, ¡increíble!',
+    check: () => (streak.current || 0) >= 30 },
+  { id: 'xp_100',  icon: '✨', title: '100 XP', desc: 'Primeros 100 puntos',
+    check: () => (stats.xp || 0) >= 100 },
+  { id: 'xp_500',  icon: '⭐', title: '500 XP', desc: 'Medio millar',
+    check: () => (stats.xp || 0) >= 500 },
+  { id: 'xp_1000', icon: '🌟', title: '1000 XP', desc: 'Cuatro dígitos',
+    check: () => (stats.xp || 0) >= 1000 },
+  { id: 'exercises_50',  icon: '📚', title: '50 ejercicios', desc: 'Vas tomando ritmo',
+    check: () => Object.values(practiceLog).reduce((a, b) => a + b, 0) >= 50 },
+  { id: 'exercises_200', icon: '📖', title: '200 ejercicios', desc: 'Práctica constante',
+    check: () => Object.values(practiceLog).reduce((a, b) => a + b, 0) >= 200 },
+  { id: 'exercises_1000', icon: '🎓', title: '1000 ejercicios', desc: '¡Eres una máquina!',
+    check: () => Object.values(practiceLog).reduce((a, b) => a + b, 0) >= 1000 },
+  { id: 'level_a1', icon: '🎓', title: 'Nivel A1 completado', desc: 'Superviviente del inglés básico',
+    check: () => unlockedLevel('A1') },
+  { id: 'level_a2', icon: '🎓', title: 'Nivel A2 completado', desc: 'Comunicación básica dominada',
+    check: () => unlockedLevel('A2') },
+  { id: 'level_b1', icon: '🎓', title: 'Nivel B1 completado', desc: 'Eres independiente en inglés',
+    check: () => unlockedLevel('B1') },
+  { id: 'level_b2', icon: '🎓', title: 'Nivel B2 completado', desc: 'Intermedio alto, ¡brutal!',
+    check: () => unlockedLevel('B2') },
+  { id: 'level_c1', icon: '🏆', title: 'Nivel C1 completado', desc: 'Maestría avanzada — ¡felicidades!',
+    check: () => unlockedLevel('C1') },
+  { id: 'perfect_session', icon: '💯', title: 'Sesión perfecta', desc: 'Una sesión sin errores',
+    check: () => !!load('flag_perfect_session', false) },
+  { id: 'exam_pass', icon: '📝', title: 'Examen aprobado', desc: 'Aprobaste un examen de nivel',
+    check: () => !!load('flag_exam_pass', false) },
+];
+
+function unlockedLevel(level) {
+  if (!curriculum) return false;
+  const units = curriculum.units.filter(u => (u.level || '') === level);
+  if (!units.length) return false;
+  const lessons = units.flatMap(u => u.lessons || []);
+  return lessons.length > 0 && lessons.every(l => lessonCompletion(l) === 100 || isLessonDone(l.id));
+}
+
+function checkAchievements() {
+  const unlocked = load('achievements_unlocked', {});
+  const newly = [];
+  for (const a of ACHIEVEMENTS) {
+    if (unlocked[a.id]) continue;
+    try {
+      if (a.check()) {
+        unlocked[a.id] = new Date().toISOString();
+        newly.push(a);
+      }
+    } catch (_) { /* defensive: missing data shouldn't block others */ }
+  }
+  if (newly.length) {
+    store('achievements_unlocked', unlocked);
+    // Show pop-ups sequentially so multiple unlocks don't collide
+    newly.forEach((a, i) => setTimeout(() => showAchievementPopup(a), i * 1800));
+  }
+}
+
+function showAchievementPopup(a) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;left:50%;top:80px;transform:translateX(-50%);z-index:8000;background:linear-gradient(135deg,#fff,#FFF3D6);border:2px solid #F3C77A;border-radius:16px;padding:14px 18px;box-shadow:0 10px 30px rgba(180,140,40,.28);max-width:340px;width:calc(100% - 32px);font-family:var(--font);animation:popIn .3s ease';
+  overlay.innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="font-size:34px;line-height:1;flex-shrink:0">${a.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11px;font-weight:900;color:#B7791F;letter-spacing:.5px">🏆 ¡DESBLOQUEADO!</div>
+        <div style="font-size:15px;font-weight:900;color:var(--mauve);margin-top:1px">${esc(a.title)}</div>
+        <div style="font-size:12px;font-weight:700;color:var(--mauve-soft);margin-top:1px">${esc(a.desc)}</div>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => { overlay.style.transition = 'opacity .4s'; overlay.style.opacity = '0'; }, 3500);
+  setTimeout(() => overlay.remove(), 4000);
+}
+
+function renderAchievementsScreen() {
+  const unlocked = load('achievements_unlocked', {});
+  const total = ACHIEVEMENTS.length;
+  const earned = Object.keys(unlocked).length;
+  const html = ACHIEVEMENTS.map(a => {
+    const got = !!unlocked[a.id];
+    return `<div style="background:${got ? 'linear-gradient(135deg,#FFF8FC,#FFF1F6)' : '#F8F8FA'};border:1.5px solid ${got ? 'var(--rose)' : '#E5E5EA'};border-radius:14px;padding:12px;display:flex;align-items:center;gap:12px;opacity:${got ? 1 : 0.45}">
+      <div style="font-size:30px;line-height:1;flex-shrink:0;${got ? '' : 'filter:grayscale(1)'}">${a.icon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:900;color:var(--mauve)">${esc(a.title)}</div>
+        <div style="font-size:11px;font-weight:700;color:var(--mauve-soft);margin-top:1px">${esc(a.desc)}</div>
+        ${got ? `<div style="font-size:10px;font-weight:800;color:var(--rose-deep);margin-top:3px">✓ ${new Date(unlocked[a.id]).toLocaleDateString('es-MX',{day:'numeric',month:'short',year:'numeric'})}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+  return `
+    <div style="background:linear-gradient(135deg,var(--rose),#F48FAD);color:#fff;border-radius:16px;padding:14px 18px;margin-bottom:14px">
+      <div style="font-size:11px;font-weight:900;letter-spacing:.5px;opacity:.9">🏆 LOGROS</div>
+      <div style="font-size:22px;font-weight:900;margin-top:2px">${earned} / ${total}</div>
+      <div style="font-size:12px;font-weight:700;opacity:.9;margin-top:2px">desbloqueados</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr;gap:8px">${html}</div>`;
+}
+
+// ── Teacher notes per lesson + date (Feature 3) ──
+function loadNotesForLesson(lessonId) {
+  if (!lessonId) return [];
+  const all = load('teacher_notes', {});
+  return all[lessonId] || [];
+}
+
+function saveNoteForLesson(lessonId, text) {
+  if (!lessonId || !text.trim()) return;
+  const all = load('teacher_notes', {});
+  if (!all[lessonId]) all[lessonId] = [];
+  all[lessonId].unshift({ date: new Date().toISOString(), text: text.trim() });
+  store('teacher_notes', all);
+}
+
+function deleteNote(lessonId, date) {
+  const all = load('teacher_notes', {});
+  if (!all[lessonId]) return;
+  all[lessonId] = all[lessonId].filter(n => n.date !== date);
+  if (!all[lessonId].length) delete all[lessonId];
+  store('teacher_notes', all);
+}
+
+function openTeacherNotes(lessonIdOverride) {
+  const lessonId = lessonIdOverride
+    || (session && session.lessonId)
+    || (guidedSession && guidedSession.lessonId);
+  if (!lessonId) { showToast('Abre una lección primero ♡'); return; }
+  const found = findLessonById(lessonId);
+  const lessonTitle = found?.lesson.title || lessonId;
+  const existing = document.getElementById('notesOverlay');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'notesOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(60,30,50,.35);display:flex;align-items:center;justify-content:center;padding:20px;font-family:var(--font)';
+
+  const renderList = () => {
+    const notes = loadNotesForLesson(lessonId);
+    return notes.length ? notes.map(n => {
+      const d = new Date(n.date);
+      const label = d.toLocaleDateString('es-MX', { month: 'short', day: 'numeric', year: 'numeric' });
+      return `<div class="note-row" style="background:#FFF8FC;border:1.5px solid var(--pink-border);border-radius:10px;padding:9px 12px;margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:11px;font-weight:900;color:var(--mauve-soft)">${esc(label)}</span>
+          <button class="note-delete" data-date="${esc(n.date)}" style="background:none;border:none;color:var(--mauve-soft);font-size:13px;cursor:pointer;padding:0">🗑</button>
+        </div>
+        <div style="font-size:13px;font-weight:700;color:var(--mauve);white-space:pre-wrap">${esc(n.text)}</div>
+      </div>`;
+    }).join('') : '<div style="text-align:center;padding:20px;color:var(--mauve-soft);font-weight:800;font-size:13px">Aún no hay notas para esta lección ♡</div>';
+  };
+
+  overlay.innerHTML = `
+    <div style="background:var(--white);border:2px solid var(--pink-border);border-radius:18px;max-width:520px;width:100%;padding:18px 20px;box-shadow:0 16px 40px rgba(0,0,0,.18);max-height:90vh;display:flex;flex-direction:column">
+      <div style="font-size:15px;font-weight:900;color:var(--mauve);margin-bottom:4px">📝 Notas del profesor</div>
+      <div style="font-size:11px;font-weight:800;color:var(--mauve-soft);margin-bottom:14px">${esc(lessonTitle)}</div>
+
+      <textarea id="newNoteText" rows="3" placeholder="Anota qué viste en esta clase…" style="width:100%;box-sizing:border-box;font-family:var(--font);font-weight:700;font-size:14px;border:1.5px solid var(--pink-border);border-radius:10px;padding:9px 12px;color:var(--mauve);margin-bottom:8px"></textarea>
+      <button id="saveNoteBtn" style="background:var(--rose);color:#fff;border:none;border-radius:99px;font-family:var(--font);font-weight:800;font-size:13px;padding:9px 18px;cursor:pointer;margin-bottom:14px;align-self:flex-end">💾 Guardar nota</button>
+
+      <div style="font-size:11px;font-weight:900;color:var(--mauve-soft);margin-bottom:6px">HISTORIAL</div>
+      <div id="noteList" style="overflow-y:auto;flex:1;min-height:0">${renderList()}</div>
+
+      <button id="closeNotes" style="background:none;border:none;font-family:var(--font);font-weight:800;font-size:13px;color:var(--mauve-soft);padding:10px;margin-top:8px;cursor:pointer;align-self:center">Cerrar</button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+  const refresh = () => { document.getElementById('noteList').innerHTML = renderList(); wireDeleteHandlers(); };
+  const wireDeleteHandlers = () => {
+    overlay.querySelectorAll('.note-delete').forEach(b => {
+      b.addEventListener('click', () => {
+        deleteNote(lessonId, b.dataset.date);
+        refresh();
+      });
+    });
+  };
+  wireDeleteHandlers();
+  overlay.querySelector('#saveNoteBtn').addEventListener('click', () => {
+    const t = overlay.querySelector('#newNoteText').value.trim();
+    if (!t) return;
+    saveNoteForLesson(lessonId, t);
+    overlay.querySelector('#newNoteText').value = '';
+    refresh();
+    showToast('Nota guardada ♡');
+  });
+  overlay.querySelector('#closeNotes').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+// Flag an exercise as problematic — appended to a local review queue.
+function flagCurrentExercise() {
+  if (!session) return;
+  const ex = session.queue[session.idx]?.exercise;
+  if (!ex) return;
+  const queue = load('review_queue', []);
+  const found = findLessonById(session.lessonId);
+  const entry = {
+    exercise_id: ex.id, type: ex.type,
+    prompt: ex.prompt || ex.front || '', answer: ex.answer || '',
+    lesson_id: session.lessonId,
+    lesson_title: found?.lesson.title || '',
+    flagged_at: new Date().toISOString()
+  };
+  // Dedup by exercise_id
+  if (!queue.find(q => q.exercise_id === ex.id)) {
+    queue.unshift(entry);
+    store('review_queue', queue);
+  }
+  showToast('🚩 Marcado para revisar después ♡');
 }
 
 // #5 saltar inline: marks current solo exercise as skipped and advances.
@@ -3322,6 +3627,12 @@ function wireTeacherPanel(host) {
   }
   const skip = host.querySelector('.teacher-skip-btn');
   if (skip) skip.addEventListener('click', skipCurrentExercise);
+  const editBtn = host.querySelector('.teacher-edit-btn');
+  if (editBtn) editBtn.addEventListener('click', openLiveEdit);
+  const flagBtn = host.querySelector('.teacher-flag-btn');
+  if (flagBtn) flagBtn.addEventListener('click', flagCurrentExercise);
+  const notesBtn = host.querySelector('.teacher-notes-btn');
+  if (notesBtn) notesBtn.addEventListener('click', () => openTeacherNotes());
   const hintBtn = host.querySelector('.peek-hint-btn');
   const hintBox = host.querySelector('.peek-hint');
   if (hintBtn && hintBox) {
@@ -3733,6 +4044,8 @@ function showSessionComplete() {
       best_score: pct / 100
     });
     if (passed && session.lessonId) markLessonDone(session.lessonId);
+    if (passed) store('flag_exam_pass', true);
+    checkAchievements();
     autoBackup(true);
 
     document.getElementById('celebrateBtn').onclick = () => {
@@ -3754,6 +4067,9 @@ function showSessionComplete() {
 
   // Mark the lesson done so "today's class" advances to the next one, and back it up (#5/#7)
   if (session?.lessonId) markLessonDone(session.lessonId);
+  // Flag a perfect session for achievements
+  if (session && session.total > 0 && session.correct === session.total) store('flag_perfect_session', true);
+  checkAchievements();
   autoBackup(true);
 
   document.getElementById('celebrateBtn').onclick = () => {
@@ -4701,6 +5017,7 @@ function showGuidedSummary() {
 
   // Mark lesson as done in the done map
   markLessonDone(lessonId);
+  checkAchievements();
 
   // Auto-backup the full snapshot after a finished session (#7)
   autoBackup(true);
@@ -5992,6 +6309,63 @@ document.getElementById('btnModeSolo').addEventListener('click', () => {
   startSession(unitId, lessonId, 'practice');
 });
 
+// Keyboard shortcuts during a solo session — teacher-friendly so you don't need
+// the mouse during class. Ignored when typing in an input/textarea (so the
+// student can still type answers normally).
+document.addEventListener('keydown', e => {
+  if (!session || guidedSession) return;
+  if (currentScreen !== 'screenExercise') return;
+  const tag = document.activeElement?.tagName;
+  const typing = tag === 'INPUT' || tag === 'TEXTAREA';
+
+  // Toggle answer peek (Space) and hint (H) — work even while typing
+  if ((e.key === ' ' || e.code === 'Space') && !typing) {
+    e.preventDefault();
+    document.querySelector('.peek-btn')?.click();
+    return;
+  }
+  if (e.key === 'h' || e.key === 'H') {
+    if (typing && e.altKey === false && e.metaKey === false) return; // don't steal "h" letter
+    e.preventDefault();
+    document.querySelector('.peek-hint-btn')?.click();
+    return;
+  }
+
+  // Skip current exercise (S) — only when not typing (so you can write "school")
+  if ((e.key === 's' || e.key === 'S') && !typing) {
+    e.preventDefault();
+    document.querySelector('.teacher-skip-btn')?.click();
+    return;
+  }
+
+  // Continue / next (Enter or →): trigger whichever button is currently visible.
+  if (e.key === 'Enter' || e.key === 'ArrowRight') {
+    const checkBtn = document.getElementById('checkBtn');
+    const cont = document.getElementById('continueBtn');
+    if (checkBtn && checkBtn.style.display !== 'none' && !checkBtn.disabled) {
+      e.preventDefault(); checkBtn.click(); return;
+    }
+    if (cont && cont.className.includes('show')) {
+      e.preventDefault(); cont.click(); return;
+    }
+  }
+
+  // Number keys 1-6: pick the Nth multiple-choice option (only when not typing)
+  if (!typing && /^[1-6]$/.test(e.key)) {
+    const choices = document.querySelectorAll('#mcChoices .choice');
+    const idx = parseInt(e.key, 10) - 1;
+    if (choices[idx] && !session.answered) {
+      e.preventDefault();
+      choices[idx].click();
+      // Auto-arm the check button: a second press of the same key checks.
+      const checkBtn = document.getElementById('checkBtn');
+      if (checkBtn && !checkBtn.disabled) {
+        // Stash last picked so the user can press Enter to check.
+      }
+    }
+  }
+});
+
 // Keyboard shortcuts during guided session
 document.addEventListener('keydown', e => {
   if (!guidedSession || guidedSession.view !== 'teacher') return;
@@ -6015,6 +6389,21 @@ document.addEventListener('keydown', e => {
 document.getElementById('vbSearch').addEventListener('input', renderVocabBank);
 document.getElementById('btnWeakWords').addEventListener('click', startWeakWordsSession);
 document.getElementById('btnLevelExam').addEventListener('click', openExamPicker);
+document.getElementById('btnAchievements').addEventListener('click', () => {
+  const existing = document.getElementById('achievementsOverlay');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'achievementsOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:2000;background:rgba(60,30,50,.35);display:flex;align-items:center;justify-content:center;padding:20px;font-family:var(--font)';
+  overlay.innerHTML = `<div style="background:var(--white);border:2px solid var(--pink-border);border-radius:18px;max-width:520px;width:100%;padding:18px 20px;box-shadow:0 16px 40px rgba(0,0,0,.18);max-height:90vh;display:flex;flex-direction:column">
+    <div id="achievementsBody" style="overflow-y:auto;flex:1;min-height:0"></div>
+    <button id="closeAchievements" style="background:none;border:none;font-family:var(--font);font-weight:800;font-size:13px;color:var(--mauve-soft);padding:10px;margin-top:8px;cursor:pointer;align-self:center">Cerrar</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('achievementsBody').innerHTML = renderAchievementsScreen();
+  overlay.querySelector('#closeAchievements').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+});
 document.getElementById('vbFilterRow').addEventListener('click', e => {
   const btn = e.target.closest('.vb-filter');
   if (!btn) return;
@@ -6118,6 +6507,8 @@ if (curriculum) {
   document.getElementById('tabbar').style.display = 'flex';
   showScreen('screenHome');
 }
+// Run on launch so any pre-existing progress unlocks the right badges
+setTimeout(() => { try { checkAchievements(); } catch (_) {} }, 1500);
 </script>
 </body>
 </html>
