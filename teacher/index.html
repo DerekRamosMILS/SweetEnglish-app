@@ -1253,6 +1253,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
     <div class="status-pad"></div>
     <div class="scroll-area">
       <div class="screen-head">My Progress</div>
+      <button id="btnLevelExam" style="width:100%;font-family:var(--font);font-weight:800;font-size:14px;background:linear-gradient(135deg,#6C5CE7,#A29BFE);color:#fff;border:none;border-radius:99px;padding:12px;margin-bottom:14px;cursor:pointer;box-shadow:0 4px 12px rgba(108,92,231,.22)">📝 Tomar examen de nivel</button>
       <div class="stats-grid" id="statsGrid"></div>
       <div class="section-title">Accuracy by Unit</div>
       <div class="unit-bars" id="unitBars"></div>
@@ -1414,6 +1415,7 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
         </div>
       </div>
       <input class="vb-search" id="vbSearch" placeholder="Search vocabulary..." type="text">
+      <button id="btnWeakWords" style="width:100%;font-family:var(--font);font-weight:800;font-size:14px;background:linear-gradient(135deg,var(--rose),#F48FAD);color:#fff;border:none;border-radius:99px;padding:12px;margin-bottom:12px;cursor:pointer;box-shadow:0 4px 12px rgba(210,74,117,.22)">🎯 Repasar palabras difíciles</button>
       <div id="vocabBankList"></div>
     </div>
   </div>
@@ -1957,6 +1959,7 @@ function normalizeExercise(ex) {
   if (ex.type === 'fill_in_blank' || ex.type === 'fillblank' || ex.type === 'gap_fill') ex.type = 'fill_blank';
   if (ex.type === 'order' || ex.type === 'sentence_order' || ex.type === 'reorder') ex.type = 'word_order';
   if (ex.type === 'card' || ex.type === 'vocab') ex.type = 'flashcard';
+  if (ex.type === 'dictation' || ex.type === 'listen') ex.type = 'listening';
 
   // multiple_choice: if the answer is a letter label (A/B/C…), resolve it to the option text
   if (ex.type === 'multiple_choice' && Array.isArray(ex.options) && typeof ex.answer === 'string') {
@@ -2168,7 +2171,8 @@ function typeLabel(t) {
   const m = { multiple_choice:'Multiple Choice', fill_blank:'Fill Blank',
     translation_es_en:'ES → EN', translation_en_es:'EN → ES',
     translate:'Translation', translation:'Translation',
-    word_order:'Word Order', flashcard:'Flashcard' };
+    word_order:'Word Order', flashcard:'Flashcard',
+    listening:'Listening', dictation:'Listening' };
   return m[t] || t;
 }
 
@@ -2177,6 +2181,7 @@ function typeIcon(t) {
   if (t === 'fill_blank') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 7h16M4 12h7M15 12h5M4 17h16"/></svg>';
   if (t === 'word_order') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><rect x="3" y="8" width="6" height="8" rx="1.5"/><rect x="11" y="8" width="6" height="8" rx="1.5"/></svg>';
   if (t === 'flashcard') return '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><rect x="3" y="6" width="13" height="11" rx="2"/></svg>';
+  if (t === 'listening' || t === 'dictation') return '🎧';
   return '⇄';
 }
 
@@ -2967,6 +2972,110 @@ function startSession(unitId, lessonId, mode) {
 }
 
 // ══════════════════════════════════════
+//  WEAK-WORDS PRACTICE
+// ══════════════════════════════════════
+// Look up a word's Spanish translation from the curriculum's flashcards, so the
+// review card shows a real meaning (weak_words.translation is often the word itself).
+function findWordTranslation(word) {
+  if (!curriculum) return null;
+  const w = String(word).toLowerCase().trim();
+  for (const u of curriculum.units) {
+    for (const l of u.lessons) {
+      for (const ex of (l.exercises || [])) {
+        if (ex.type === 'flashcard' && String(ex.front || '').toLowerCase().trim() === w && ex.back) {
+          return { back: ex.back, phonetic: ex.phonetic };
+        }
+      }
+    }
+  }
+  return null;
+}
+
+async function startWeakWordsSession() {
+  const all = await apiGet('/weak_words?limit=50');
+  const weak = (all || [])
+    .filter(w => (w.wrong_count || 0) > 0)
+    .sort((a, b) => (b.wrong_count - a.wrong_count) || (a.correct_count - b.correct_count))
+    .slice(0, 15);
+  if (!weak.length) { showToast('Aún no hay palabras difíciles ♡'); return; }
+
+  const queue = weak.map(w => {
+    const id = 'weak_' + w.word;
+    const tr = findWordTranslation(w.word);
+    const back = (tr && tr.back) || (w.translation && w.translation.toLowerCase() !== String(w.word).toLowerCase() ? w.translation : '') || '—';
+    return {
+      exercise: { id, type: 'flashcard', front: w.word, back, phonetic: (tr && tr.phonetic) || w.phonetic || '' },
+      card: progress[id] || FSRS.newCard(id)
+    };
+  });
+
+  session = { queue, idx: 0, unitId: null, lessonId: null, mode: 'weak', xp: 0, correct: 0, total: 0, answered: false };
+  document.getElementById('exTitle') && (document.getElementById('exTitle').textContent = 'Palabras difíciles 🎯');
+  showScreen('screenExercise');
+  renderExercise();
+}
+
+// ══════════════════════════════════════
+//  LEVEL EXAM MODE
+// ══════════════════════════════════════
+function startExam(unitId, lessonId) {
+  const found = findLessonById(lessonId);
+  if (!found) { showToast('Examen no encontrado'); return; }
+  const { unit, lesson } = found;
+  // Exams test production — skip auto-injected flashcards; keep scored question types.
+  const exs = (lesson.exercises || []).filter(e => e.type !== 'flashcard');
+  if (!exs.length) { showToast('Este examen aún no tiene preguntas. Genera su contenido primero ♡'); return; }
+  const queue = exs.map(e => ({ exercise: e, card: progress[e.id] || FSRS.newCard(e.id) }));
+  session = { queue, idx: 0, unitId, lessonId, mode: 'exam', exam: true, xp: 0, correct: 0, total: 0, answered: false };
+  currentSessionId = null;
+  apiPost('/sessions/start', {
+    lesson_id: lesson.id, lesson_title: lesson.title, unit_id: unit.id,
+    unit_title: unit.title || '', level: unit.level || '', mode: 'exam'
+  }).then(d => { if (d?.session_id) currentSessionId = d.session_id; });
+  showScreen('screenExercise');
+  renderExercise();
+}
+
+function openExamPicker() {
+  // Level-exam lessons from the syllabus, paired with their content status.
+  const exams = [];
+  for (const u of SYLLABUS.units) {
+    for (const l of (u.lessons || [])) {
+      if (l.is_level_exam) {
+        const f = findLessonById(l.id);
+        const ready = !!(f && (f.lesson.exercises || []).some(e => e.type !== 'flashcard'));
+        exams.push({ unitId: u.id, lessonId: l.id, title: l.title, level: u.level, ready });
+      }
+    }
+  }
+  const overlay = document.createElement('div');
+  overlay.className = 'picker-overlay open';
+  overlay.innerHTML = `<div class="picker-sheet">
+    <div class="picker-handle"></div>
+    <div class="picker-header">📝 Exámenes de nivel</div>
+    <div style="padding:0 16px 8px;font-size:12px;font-weight:800;color:var(--mauve-soft)">Sin pistas · puntaje y aprobado/reprobado al final</div>
+    <div style="max-height:340px;overflow-y:auto;padding:0 16px 8px">
+      ${exams.map(e => `<div class="picker-item${e.ready ? '' : ' disabled'}" data-unit="${e.unitId}" data-lesson="${e.lessonId}" data-ready="${e.ready}" style="${e.ready ? '' : 'opacity:.5'}">
+        <span class="unit-badge" style="font-size:10px;padding:2px 7px">${esc(e.level)}</span>
+        <span style="font-size:13px;font-weight:700;margin-left:6px">${esc(e.title)}</span>
+        <span style="float:right;font-size:11px;font-weight:800;color:${e.ready ? '#2A7A4E' : 'var(--mauve-soft)'}">${e.ready ? 'Listo ✓' : 'Sin contenido'}</span>
+      </div>`).join('')}
+    </div>
+    <button class="picker-cancel" id="examPickerCancel">Cancelar</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelectorAll('.picker-item').forEach(item => {
+    item.addEventListener('click', () => {
+      if (item.dataset.ready !== 'true') { showToast('Genera el contenido de este examen primero ♡'); return; }
+      overlay.remove();
+      startExam(item.dataset.unit, item.dataset.lesson);
+    });
+  });
+  overlay.querySelector('#examPickerCancel').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+// ══════════════════════════════════════
 //  EXERCISE PLAYER
 // ══════════════════════════════════════
 const CORRECT_MSGS = ['Correct! ♡', '¡Muy bien! ♡', 'Perfect! ♪', 'That\'s right! ♡', 'Excellent! ♡'];
@@ -2999,6 +3108,8 @@ function renderExercise() {
     translation_en_es: 'Traduce al español ♡',
     translate: 'Translate the sentence ♡',
     translation: 'Translate the sentence ♡',
+    listening: 'Escucha y escribe lo que oíste 🎧',
+    dictation: 'Escucha y escribe lo que oíste 🎧',
     word_order: 'Tap the words to build the sentence ♪',
     flashcard: 'Tap the card to flip it ♡'
   };
@@ -3013,7 +3124,46 @@ function renderExercise() {
   else if (type === 'translation_es_en' || type === 'translation_en_es' || type === 'translate' || type === 'translation') renderTranslation(ex, body);
   else if (type === 'word_order') renderWordOrder(ex, body);
   else if (type === 'flashcard') renderFlashcard(ex, body);
+  else if (type === 'listening' || type === 'dictation') renderListening(ex, body);
   else renderUnsupported(ex, body);
+}
+
+// Listening / dictation: play a phrase with TTS, the student types what they heard.
+function renderListening(ex, body) {
+  const target = ex.audio_text || ex.text || ex.answer || '';
+  const exam = session && session.exam;
+  body.innerHTML = `
+    <div class="ex-q" style="text-align:center">🎧 Escucha y escribe lo que oíste</div>
+    <button class="speak-btn" id="listenPlayBtn" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:14px 0;background:var(--rose);color:#fff;border:none;border-radius:99px;padding:13px;font-family:var(--font);font-weight:800;font-size:15px;cursor:pointer">
+      ${SPEAK_SVG} Reproducir audio
+    </button>
+    <input class="blank-input" id="listenInput" placeholder="Type what you heard…" autocomplete="off" autocorrect="off" spellcheck="false">
+    <button class="check-btn" id="checkBtn" disabled>Check answer</button>`;
+
+  const play = () => speak(target, 'en-US');
+  document.getElementById('listenPlayBtn').addEventListener('click', play);
+  setTimeout(play, 350); // auto-play once on load
+
+  const inp = document.getElementById('listenInput');
+  inp.addEventListener('input', () => { document.getElementById('checkBtn').disabled = !inp.value.trim(); });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter' && !document.getElementById('checkBtn').disabled) document.getElementById('checkBtn').click(); });
+  inp.focus();
+
+  const norm = s => String(s).toLowerCase().trim().replace(/[.,!?¡¿;:'"]/g, '').replace(/\s+/g, ' ');
+  document.getElementById('checkBtn').addEventListener('click', () => {
+    if (session.answered) return;
+    const expected = ex.answer || ex.text || target;
+    const isCorrect = norm(inp.value) === norm(expected) || similarity(norm(inp.value), norm(expected)) > 0.9;
+    session.answered = true;
+    inp.classList.add(isCorrect ? 'correct' : 'wrong');
+    document.getElementById('checkBtn').style.display = 'none';
+    if (!isCorrect && !exam) {
+      const corrEl = document.createElement('div');
+      corrEl.innerHTML = `<div style="font-size:13px;font-weight:800;color:var(--mauve-soft);margin-top:6px">Correct: <b style="color:var(--rose-deep)">${esc(expected)}</b></div>`;
+      inp.after(corrEl);
+    }
+    onAnswered(isCorrect, ex);
+  });
 }
 
 // Fallback so an unexpected exercise type never leaves a blank screen / stuck session
@@ -3067,7 +3217,7 @@ function renderMC(ex, body) {
     selected.classList.add(isCorrect ? 'correct' : 'wrong');
     selected.querySelector('.mark').innerHTML = isCorrect ? tick : cross;
 
-    if (!isCorrect) {
+    if (!isCorrect && !(session && session.exam)) {
       body.querySelectorAll('.choice').forEach(b => {
         if (b.dataset.correct === 'true') { b.classList.add('correct'); b.querySelector('.mark').innerHTML = tick; }
       });
@@ -3099,7 +3249,7 @@ function renderFillBlank(ex, body) {
     session.answered = true;
     inp.classList.add(isCorrect ? 'correct' : 'wrong');
     document.getElementById('checkBtn').style.display = 'none';
-    if (!isCorrect) {
+    if (!isCorrect && !(session && session.exam)) {
       const corrEl = document.createElement('div');
       corrEl.innerHTML = `<div style="font-size:13px;font-weight:800;color:var(--mauve-soft);margin-top:6px">Correct: <b style="color:var(--rose-deep)">${esc(ex.answer)}</b></div>`;
       inp.after(corrEl);
@@ -3134,7 +3284,7 @@ function renderTranslation(ex, body) {
     session.answered = true;
     inp.classList.add(isCorrect ? 'correct' : 'wrong');
     document.getElementById('checkBtn').style.display = 'none';
-    if (!isCorrect) {
+    if (!isCorrect && !(session && session.exam)) {
       const all = [ex.answer, ...(ex.acceptable_answers || [])].filter(Boolean);
       const acceptableEl = document.createElement('div');
       acceptableEl.className = 'acceptable-answers';
@@ -3210,7 +3360,7 @@ function renderWordOrder(ex, body) {
     const drop = document.getElementById('woDrop');
     drop.classList.add(isCorrect ? 'correct' : 'wrong');
     document.getElementById('checkBtn').style.display = 'none';
-    if (!isCorrect) {
+    if (!isCorrect && !(session && session.exam)) {
       const corrEl = document.createElement('div');
       corrEl.innerHTML = `<div style="font-size:13px;font-weight:800;color:var(--mauve-soft);margin-top:8px">Correct: <b style="color:var(--rose-deep)">${esc(correct)}</b></div>`;
       drop.after(corrEl);
@@ -3355,7 +3505,7 @@ function showFeedback(isCorrect, ex, opts) {
     fb.className = 'feedback-bar wrong show';
     fb.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#EC8C8C" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg> ${WRONG_MSGS[Math.floor(Math.random() * WRONG_MSGS.length)]}`;
     document.getElementById('exMascot').textContent = '😔';
-    if (ex.hint) {
+    if (ex.hint && !(session && session.exam)) {
       hint.className = 'hint-text show';
       hint.innerHTML = `💡 Hint: ${esc(ex.hint)}`;
     }
@@ -3385,6 +3535,39 @@ function showMiniCelebration() {
 
 function showSessionComplete() {
   const cel = document.getElementById('celebrate');
+
+  if (session.mode === 'exam') {
+    // ── Level-exam report: score + pass/fail (≥70%) ──
+    const total = session.total || session.queue.length;
+    const pct = total ? Math.round(100 * session.correct / total) : 0;
+    const passed = pct >= 70;
+    document.getElementById('celebrateTitle').textContent = passed ? '¡Aprobado! 🎉' : 'Examen terminado';
+    document.getElementById('celebrateSub').textContent = `${session.correct} / ${total} correctas · ${pct}%`;
+    document.getElementById('celebrateXP').innerHTML = passed
+      ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="#5FBF8A"><path d="M5 12l5 5 9-11"/></svg> Aprobado — ${pct}%`
+      : `<svg width="16" height="16" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 2v6m0 0 3-3m-3 3-3-3"/></svg> Necesita repaso — ${pct}% (mín. 70%)`;
+    cel.classList.add('show');
+    if (passed) { burstConfetti(); addSparkles(); }
+
+    // Persist exam result to LocalDB (session end + lesson status/score)
+    const sid = currentSessionId; currentSessionId = null;
+    if (sid) apiPost(`/sessions/${sid}/end`, { duration_secs: 0, notes: `exam ${pct}%` });
+    apiPatch(`/lessons_status/${session.lessonId}`, {
+      status: passed ? 'completed' : 'in_progress',
+      best_score: pct / 100
+    });
+    if (passed && session.lessonId) markLessonDone(session.lessonId);
+    autoBackup(true);
+
+    document.getElementById('celebrateBtn').onclick = () => {
+      cel.classList.remove('show');
+      clearCelebration();
+      session = null;
+      showScreen('screenProgress');
+    };
+    return;
+  }
+
   document.getElementById('celebrateTitle').textContent = session.correct === session.total ? 'Perfect Session! ♡' : `Session Complete! ♡`;
   document.getElementById('celebrateSub').textContent = `${session.correct} / ${session.total} correct · ${session.xp} XP earned`;
   document.getElementById('celebrateXP').innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="#E8638C"><path d="M12 2l2.6 6.6L21 9.3l-5 4.3 1.6 6.7L12 16.9 6.4 20.3 8 13.6l-5-4.3 6.4-.7z"/></svg>+${session.xp} XP earned!`;
@@ -5037,6 +5220,7 @@ SCHEMA EXERCISE TYPES (array "exercises"):
 {"type":"translate","prompt":"...","answer":"...","acceptable_answers":["..."],"hint":"..."}
 {"type":"word_order","prompt":"Ordena las palabras:","words":["am","I","María"],"answer":"I am María","hint":"..."}
 {"type":"flashcard","front":"hello","back":"hola","phonetic":"/həˈloʊ/"}
+{"type":"listening","text":"Good morning, how are you?","answer":"Good morning, how are you?","hint":"..."}   // se reproduce con voz; el alumno escribe lo que oye
 
 SCHEMA PHASE ITEMS:
 Presentation: {"type":"presentation","word":"hello","phonetic":"/həˈloʊ/","translation":"hola","example":"Hello! My name is María.","teacher_notes":"..."}
@@ -5561,6 +5745,8 @@ document.addEventListener('keydown', e => {
 
 // ── VOCAB BANK ──
 document.getElementById('vbSearch').addEventListener('input', renderVocabBank);
+document.getElementById('btnWeakWords').addEventListener('click', startWeakWordsSession);
+document.getElementById('btnLevelExam').addEventListener('click', openExamPicker);
 document.getElementById('vbFilterRow').addEventListener('click', e => {
   const btn = e.target.closest('.vb-filter');
   if (!btn) return;
