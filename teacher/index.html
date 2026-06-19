@@ -2619,7 +2619,11 @@ function showLessonMenu(lessonId, isDone, anchorBtn) {
   sheet.style.cssText = `position:fixed;top:${rect.bottom + 6}px;right:${window.innerWidth - rect.right}px;background:var(--white);border:2px solid var(--pink-border);border-radius:var(--r-md);box-shadow:var(--shadow-lg);min-width:180px;z-index:701;overflow:hidden;animation:popIn .15s ease`;
 
   const label = isDone ? 'Marcar como no hecha' : 'Marcar como hecha ✅';
-  sheet.innerHTML = `<button style="display:block;width:100%;text-align:left;font-family:var(--font);font-weight:800;font-size:14px;color:var(--mauve);background:none;border:none;padding:13px 16px;cursor:pointer;" id="lessonMenuAction">${label}</button>`;
+  const btnStyle = 'display:block;width:100%;text-align:left;font-family:var(--font);font-weight:800;font-size:14px;background:none;border:none;padding:13px 16px;cursor:pointer';
+  sheet.innerHTML = `
+    <button style="${btnStyle};color:var(--mauve)" id="lessonMenuAction">${label}</button>
+    <div style="height:1px;background:var(--pink-border);margin:0 8px"></div>
+    <button style="${btnStyle};color:#C0392B" id="lessonMenuReset">🗑 Reiniciar progreso</button>`;
 
   overlay.appendChild(sheet);
   document.body.appendChild(overlay);
@@ -2636,7 +2640,135 @@ function showLessonMenu(lessonId, isDone, anchorBtn) {
     renderLessons();
   });
 
+  sheet.querySelector('#lessonMenuReset').addEventListener('click', () => {
+    overlay.remove();
+    openLessonResetDialog(lessonId);
+  });
+
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+// Reset progress for a SINGLE lesson (not the whole curriculum). Mirrors the
+// global reset but scoped: clears FSRS cards for this lesson's exercises,
+// removes lesson-done mark, prunes session_history and homework_history for
+// this lesson, clears resume_guided if it belongs here.
+function performLessonReset(lessonId) {
+  const found = findLessonById(lessonId);
+  const lesson = found?.lesson;
+  if (!lesson) { showToast('Lección no encontrada'); return; }
+
+  // 1. Clear FSRS progress per exercise
+  const exIds = new Set((lesson.exercises || []).map(e => e.id));
+  let removed = 0;
+  for (const id of exIds) {
+    if (progress[id]) { delete progress[id]; removed++; }
+  }
+  store(LS.progress, progress);
+
+  // 2. Unmark lesson as done
+  if (lessonDoneMap[lessonId]) {
+    delete lessonDoneMap[lessonId];
+    store(LS.lessonDone, lessonDoneMap);
+  }
+
+  // 3. Prune session_history entries for this lesson
+  try {
+    const hist = load('session_history', []);
+    const pruned = hist.filter(r => r.lesson_id !== lessonId && r.lessonId !== lessonId);
+    if (pruned.length !== hist.length) store('session_history', pruned);
+  } catch (_) {}
+
+  // 4. Prune homework_history for this lesson
+  homeworkHistory = (homeworkHistory || []).filter(h => h.lessonId !== lessonId);
+  store('homework_history', homeworkHistory);
+
+  // 5. Clear in-progress resume if it points to this lesson
+  try {
+    const r = load('resume_guided', null);
+    if (r && r.lessonId === lessonId) localStorage.removeItem('resume_guided');
+  } catch (_) {}
+
+  // 6. Drop review_queue entries that target this lesson's exercises
+  try {
+    const rq = load('review_queue', []);
+    if (Array.isArray(rq)) {
+      const pruned = rq.filter(item => !exIds.has(item.id || item.exercise_id));
+      if (pruned.length !== rq.length) store('review_queue', pruned);
+    }
+  } catch (_) {}
+
+  // 7. Prune LocalDB session rows for this lesson (backend mirror)
+  try {
+    if (typeof LocalDB === 'object' && LocalDB._db) {
+      const db = LocalDB._db;
+      if (Array.isArray(db.sessions)) db.sessions = db.sessions.filter(s => s.lesson_id !== lessonId);
+      LocalDB._save?.();
+    }
+  } catch (_) {}
+
+  return removed;
+}
+
+function openLessonResetDialog(lessonId) {
+  const found = findLessonById(lessonId);
+  const lesson = found?.lesson;
+  const unit = found?.unit;
+  if (!lesson) { showToast('Lección no encontrada'); return; }
+
+  const existing = document.getElementById('lessonResetOverlay');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.id = 'lessonResetOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:3000;background:rgba(60,30,50,.45);display:flex;align-items:center;justify-content:center;padding:20px;font-family:var(--font)';
+  overlay.innerHTML = `
+    <div style="background:var(--white);border:2px solid #E69999;border-radius:18px;max-width:480px;width:100%;padding:20px;box-shadow:0 16px 40px rgba(0,0,0,.22)">
+      <div style="font-size:18px;font-weight:900;color:#C0392B;margin-bottom:6px">⚠ Reiniciar lección</div>
+      <div style="font-size:14px;font-weight:800;color:var(--mauve);margin-bottom:4px">${esc(lesson.title || lessonId)}</div>
+      <div style="font-size:12px;font-weight:700;color:var(--mauve-soft);margin-bottom:12px">${esc(unit?.title || '')}</div>
+      <div style="font-size:13px;font-weight:700;color:var(--mauve);line-height:1.5;margin-bottom:10px">
+        Esta acción borra el progreso <b>solo de esta lección</b>:
+      </div>
+      <ul style="font-size:12px;font-weight:700;color:var(--mauve-soft);line-height:1.6;padding-left:18px;margin:0 0 12px 0">
+        <li>Tarjetas FSRS de los ejercicios de la lección</li>
+        <li>Marca de "hecha" (si la tiene)</li>
+        <li>Historial de sesiones de esta lección</li>
+        <li>Historial de tareas de esta lección</li>
+        <li>Sesión en progreso (resume) si pertenece a esta lección</li>
+      </ul>
+      <div style="background:#E1F5EE;border:1.5px solid #BfE8D4;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:700;color:#1F6E4F;margin-bottom:14px;line-height:1.45">
+        ✓ <b>NO</b> se borra: el contenido de la lección, otras lecciones, XP, racha, logros, planner ni notas.
+      </div>
+      <div style="font-size:12px;font-weight:800;color:var(--mauve);margin-bottom:6px">Escribe <b style="color:#C0392B">BORRAR</b> para confirmar:</div>
+      <input id="lessonResetConfirmInput" type="text" autocomplete="off" autocorrect="off" spellcheck="false"
+        placeholder="BORRAR"
+        style="width:100%;box-sizing:border-box;font-family:var(--font);font-weight:800;font-size:14px;border:1.5px solid var(--pink-border);border-radius:10px;padding:10px 12px;color:var(--mauve);margin-bottom:14px;letter-spacing:1px">
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button id="lessonResetCancel" style="background:none;border:none;font-family:var(--font);font-weight:800;font-size:13px;color:var(--mauve-soft);padding:9px 16px;cursor:pointer">Cancelar</button>
+        <button id="lessonResetConfirm" disabled
+          style="background:#C0392B;color:#fff;border:none;border-radius:99px;font-family:var(--font);font-weight:800;font-size:13px;padding:9px 18px;cursor:pointer;opacity:.5">
+          🗑 Sí, reiniciar esta lección
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  const inp = overlay.querySelector('#lessonResetConfirmInput');
+  const ok  = overlay.querySelector('#lessonResetConfirm');
+  inp.addEventListener('input', () => {
+    const match = inp.value.trim().toUpperCase() === 'BORRAR';
+    ok.disabled = !match;
+    ok.style.opacity = match ? '1' : '.5';
+    ok.style.cursor = match ? 'pointer' : 'not-allowed';
+  });
+  setTimeout(() => inp.focus(), 50);
+  overlay.querySelector('#lessonResetCancel').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  ok.addEventListener('click', () => {
+    if (inp.value.trim().toUpperCase() !== 'BORRAR') return;
+    performLessonReset(lessonId);
+    overlay.remove();
+    showToast('🗑 Lección reiniciada ♡');
+    try { renderLessons(); } catch (_) {}
+  });
 }
 
 // ══════════════════════════════════════
