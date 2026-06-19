@@ -711,6 +711,15 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 .dl-next-inline:hover{background:var(--rose-deep)}
 .reveal-toggle-btn{display:flex;align-items:center;gap:6px;background:none;border:2px dashed var(--pink-border);border-radius:var(--r-md);padding:9px 14px;font-family:var(--font);font-size:13px;font-weight:800;color:var(--mauve-soft);cursor:pointer;width:100%;margin-bottom:12px;transition:all .14s}
 .reveal-toggle-btn:hover{border-color:var(--rose);color:var(--rose)}
+/* Vocab recap quiz */
+.vq-question{font-size:18px;font-weight:900;color:var(--mauve);text-align:center;padding:8px 0 18px;line-height:1.3}
+.vq-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px}
+.vq-opt{font-family:var(--font);font-weight:800;font-size:14px;border:2px solid var(--pink-border);border-radius:var(--r-md);padding:14px 10px;cursor:pointer;background:var(--white);color:var(--mauve);transition:all .14s;text-align:center;line-height:1.2}
+.vq-opt:hover:not([disabled]){border-color:var(--rose);background:#FFF0F6}
+.vq-opt.vq-correct{background:#EAF8F0;border-color:#5FBF8A;color:#2A7A4E}
+.vq-opt.vq-wrong{background:#FDEDED;border-color:#F0A0A0;color:#C0392B}
+.vq-opt.vq-dim{opacity:.4}
+.vq-opt[disabled]{cursor:default}
 .student-prompt-card{background:linear-gradient(160deg,#FFF6F9,#FFE7EF);border:2.5px solid var(--pink-border-strong);border-radius:var(--r-xl);padding:20px;box-shadow:var(--shadow-sm);margin-bottom:4px}
 .student-prompt-label{font-size:11px;font-weight:900;color:var(--rose);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
 .student-prompt-text{font-size:20px;font-weight:900;color:var(--mauve);line-height:1.3}
@@ -4990,16 +4999,19 @@ function startGuidedSession(unitId, lessonId) {
   if (!lesson || !lesson.phases || !lesson.phases.length) {
     showToast('No guided phases in this lesson'); return;
   }
+  const _recapPhase = buildVocabRecapPhase(lesson);
+  const _allPhases  = _recapPhase ? [...(lesson.phases || []), _recapPhase] : (lesson.phases || []);
   guidedSession = {
     lesson, unit, unitId, lessonId,
-    phases: lesson.phases,
+    phases: _allPhases,
     phaseIdx: 0, itemIdx: 0, lineIdx: 0,
     view: 'teacher',
     drillResults: [], checkpointResults: [], skipResults: [],
     drillAnswered: false, checkpointAnswered: false,
     repeatCount: 0, hintShown: false, notesShown: false,
     drillExpanded: false, cpExpanded: false,
-    showingIntro: !!(lesson.phases[0]?.intro_notes),
+    quizAnswered: false, quizSelected: null,
+    showingIntro: !!(_allPhases[0]?.intro_notes),
     startTime: Date.now(), timerInterval: null
   };
   document.getElementById('guidedLessonTitle').textContent = lesson.title;
@@ -5051,15 +5063,18 @@ function resumeGuidedSession() {
   const r = getResumableSession();
   if (!r) { showToast('No hay sesión para reanudar'); return; }
   const { unit, lesson } = findLessonById(r.lessonId);
+  const _recapPhaseR = buildVocabRecapPhase(lesson);
+  const _allPhasesR  = _recapPhaseR ? [...(lesson.phases || []), _recapPhaseR] : (lesson.phases || []);
   guidedSession = {
     lesson, unit, unitId: r.unitId, lessonId: r.lessonId,
-    phases: lesson.phases,
-    phaseIdx: Math.min(r.phaseIdx || 0, lesson.phases.length - 1),
+    phases: _allPhasesR,
+    phaseIdx: Math.min(r.phaseIdx || 0, _allPhasesR.length - 1),
     itemIdx: r.itemIdx || 0, lineIdx: r.lineIdx || 0,
     view: r.view || 'teacher',
     drillResults: r.drillResults || [], checkpointResults: r.checkpointResults || [], skipResults: r.skipResults || [],
     drillAnswered: false, checkpointAnswered: false,
     repeatCount: 0, hintShown: false, notesShown: false, drillExpanded: false, cpExpanded: false,
+    quizAnswered: false, quizSelected: null,
     showingIntro: false,
     startTime: Date.now() - (r.elapsedMs || 0), timerInterval: null
   };
@@ -5080,6 +5095,46 @@ function resumeGuidedSession() {
   startGuidedTimer();
   renderGuidedSession();
   showToast('Sesión reanudada ♡');
+}
+
+// Auto-generate a vocabulary recap phase from the lesson's presentation items.
+// Returns null if the lesson has fewer than 2 presentation words (not enough distractors).
+function buildVocabRecapPhase(lesson) {
+  const shuf = arr => [...arr].sort(() => Math.random() - .5);
+  const presItems = (lesson.phases || [])
+    .filter(p => p.type === 'presentation')
+    .flatMap(p => p.items || [])
+    .filter(it => it.word && it.translation);
+  if (presItems.length < 2) return null;
+
+  const pad_es = ['gracias','sí','no','hola','adiós','bien','malo','grande','pequeño'];
+  const pad_en = ['Hello','Goodbye','Yes','No','Good','Bad','Please','Sorry','Thanks'];
+  const items = [];
+
+  // EN → ES: "¿Qué significa 'word'?"
+  presItems.forEach(item => {
+    const wrong = shuf(presItems.filter(d => d.word !== item.word)).map(d => d.translation);
+    const fill = shuf(pad_es.filter(w => w !== item.translation));
+    while (wrong.length < 3) wrong.push(fill.shift() || '—');
+    items.push({ type:'vocab_quiz', prompt:`¿Qué significa "${item.word}"?`,
+      options: shuf([item.translation, ...wrong.slice(0,3)]), answer: item.translation });
+  });
+
+  // ES → EN: "¿Cómo se dice 'traducción' en inglés?"
+  shuf(presItems).slice(0, Math.min(presItems.length, 6)).forEach(item => {
+    const wrong = shuf(presItems.filter(d => d.word !== item.word)).map(d => d.word);
+    const fill = shuf(pad_en.filter(w => w !== item.word));
+    while (wrong.length < 3) wrong.push(fill.shift() || '—');
+    items.push({ type:'vocab_quiz', prompt:`¿Cómo se dice "${item.translation}" en inglés?`,
+      options: shuf([item.word, ...wrong.slice(0,3)]), answer: item.word });
+  });
+
+  const recapItems = shuf(items).slice(0, 10);
+  return {
+    type: 'vocab_recap', title: '🎯 Repaso', _auto: true,
+    intro_notes: `Repaso rápido de las palabras de hoy (${presItems.length} palabras). ¡Veamos cuántas recuerda!`,
+    items: recapItems,
+  };
 }
 
 function gPhase() { return guidedSession.phases[guidedSession.phaseIdx]; }
@@ -5113,7 +5168,7 @@ function renderGuidedPhaseProgress() {
 function renderGuidedContent() {
   if (!guidedSession) return;
   const { view, drillResults, drillAnswered, checkpointAnswered,
-          repeatCount, hintShown, notesShown, showingIntro } = guidedSession;
+          repeatCount, hintShown, notesShown, quizAnswered, quizSelected, showingIntro } = guidedSession;
   const phase = gPhase();
   const item = gItem();
   if (!phase || !item) { showGuidedSummary(); return; }
@@ -5279,6 +5334,22 @@ function renderGuidedContent() {
       </div>
       <div class="student-repeat-card" style="margin-top:10px">🗣️ Answer aloud ♪</div>`;
     }
+
+  // ── VOCAB RECAP QUIZ ─────────────────────────────────────────
+  } else if (item.type === 'vocab_quiz') {
+    const optBtns = (item.options || []).map(opt => {
+      let cls = 'vq-opt';
+      if (quizAnswered) {
+        if (opt === item.answer)       cls += ' vq-correct';
+        else if (opt === quizSelected) cls += ' vq-wrong';
+        else                           cls += ' vq-dim';
+      }
+      return `<button class="${cls}" data-opt="${esc(opt)}"${quizAnswered?' disabled':''}>${esc(opt)}</button>`;
+    }).join('');
+    const feedback = quizAnswered
+      ? `<div style="margin-top:10px;font-size:14px;font-weight:800;text-align:center;color:${quizSelected===item.answer?'#2A7A4E':'#C0392B'}">${quizSelected===item.answer?'✓ ¡Correcto! 🎉':'✗ Era: '+esc(item.answer)}</div>` : '';
+    inner = `<div class="vq-question">${esc(item.prompt||'')}</div><div class="vq-options">${optBtns}</div>${feedback}`;
+    actions = nextBtn(!quizAnswered);
   }
 
   const skipBtn = view === 'teacher'
@@ -5310,6 +5381,8 @@ function renderGuidedContent() {
   document.getElementById('repeatBtn')?.addEventListener('click', tapRepeat);
   document.getElementById('hintRevealBtn')?.addEventListener('click', showDrillHint);
   document.getElementById('notesRevealBtn')?.addEventListener('click', toggleDrillNotes);
+  document.querySelectorAll('.vq-opt').forEach(btn =>
+    btn.addEventListener('click', () => handleVocabQuizAnswer(btn.dataset.opt)));
   document.getElementById('toggleDrillBtn')?.addEventListener('click', () => { guidedSession.drillExpanded = !guidedSession.drillExpanded; renderGuidedContent(); });
   document.getElementById('toggleCpBtn')?.addEventListener('click', () => { guidedSession.cpExpanded = !guidedSession.cpExpanded; renderGuidedContent(); });
   if (item.type === 'verbal_drill' && view === 'teacher' && !drillAnswered) {
@@ -5388,6 +5461,8 @@ function advanceGuidedItem() {
   guidedSession.notesShown = false;
   guidedSession.drillExpanded = false;
   guidedSession.cpExpanded = false;
+  guidedSession.quizAnswered = false;
+  guidedSession.quizSelected = null;
   // Advance within phase or to next phase
   const phaseItems = phase.type === 'dialogue' ? [phase] : (phase.items || []);
   if (guidedSession.itemIdx < phaseItems.length - 1) {
@@ -5426,6 +5501,19 @@ function showDrillHint() {
 function toggleDrillNotes() {
   guidedSession.notesShown = !guidedSession.notesShown;
   renderGuidedContent();
+}
+
+function handleVocabQuizAnswer(opt) {
+  if (guidedSession.quizAnswered) return;
+  const item = gItem();
+  guidedSession.quizSelected = opt;
+  guidedSession.quizAnswered = true;
+  const correct = opt === item?.answer;
+  // Track in drillResults so the summary counts it
+  guidedSession.drillResults.push({ correct, label: item?.prompt || 'vocab' });
+  renderGuidedContent();
+  // Auto-advance after a short pause on correct answers
+  if (correct) setTimeout(() => { if (guidedSession?.quizAnswered) advanceGuidedItem(); }, 900);
 }
 
 function skipGuidedItem() {
@@ -6249,12 +6337,12 @@ GRAMÁTICA OBJETIVO: ${grammarStr}
 VOCABULARIO OBJETIVO: ~${unit.vocabulary_target} palabras
 TEMAS DE LA LECCIÓN: ${topicsStr}${notes}
 
-ESTRUCTURA REQUERIDA (clase de 1 hora):
-- ~10 min · Presentation (phase type: "presentation") — vocabulario nuevo con fonética
-- ~15 min · Verbal Drills (phase type: "verbal_drill") — práctica guiada con el profesor
-- ~15 min · Dialogue (phase type: "dialogue") — conversación real aplicada al contexto
-- ~10 min · Written Practice (exercises array) — ejercicios estilo Duolingo
-- ~5 min  · Checkpoint (phase type: "checkpoint") — 3 preguntas de evaluación final
+ESTRUCTURA REQUERIDA (clase de 45–55 min):
+- ~12 min · Presentation (phase type: "presentation") — MÍNIMO 8 palabras con fonética y ejemplo
+- ~15 min · Verbal Drills (phase type: "verbal_drill") — MÍNIMO 8 drills variados (preguntas, respuestas, completar)
+- ~12 min · Dialogue (phase type: "dialogue") — conversación real con MÍNIMO 10 líneas
+- ~10 min · Written Practice (exercises array) — MÍNIMO 10 ejercicios mixtos (MC, fill_blank, translate, word_order)
+- ~5 min  · Checkpoint (phase type: "checkpoint") — MÍNIMO 4 preguntas de evaluación final
 - ~5 min  · Homework (homework object) — contenido de estudio autónomo en casa
 
 SCHEMA EXERCISE TYPES (array "exercises"):
@@ -6304,7 +6392,9 @@ REGLAS:
 - Prompts de ejercicios en ${promptLang} para nivel ${level}
 - La estudiante es hispanohablante, meta: vivir en un país anglohablante
 - Vocabulario y gramática deben corresponder exactamente al nivel CEFR ${level}
-- Mínimo: 6 exercises, 3 presentation items, 4 verbal drills, 6 dialogue lines, 3 checkpoint items, 2 homework sections (incluye vocabulary_list)`;
+- MÍNIMO ESTRICTO: 10 exercises (incluye ≥3 de tipo translate), 8 presentation items, 8 verbal drills, 10 dialogue lines, 4 checkpoint items, 2 homework sections (incluye vocabulary_list)
+- Los exercises de tipo "translate" deben pedir traducir frases completas del tema de la lección, no solo palabras sueltas
+- Asegúrate de que los verbal drills cubran tanto preguntas abiertas como frases para completar y roleplay`;
 }
 
 async function copyLessonPrompt() {
