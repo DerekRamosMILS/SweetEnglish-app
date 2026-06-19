@@ -747,6 +747,45 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 .cp-review{font-family:var(--font);font-weight:900;font-size:15px;border:2.5px solid #E0C060;border-radius:var(--r-md);padding:16px;cursor:pointer;background:#FFF8DD;color:#8B6914;transition:all .14s}
 .cp-review:hover{background:#FFF3C0}
 .cp-scored{opacity:0.38;pointer-events:none}
+/* Checkpoint rubric chips */
+.cp-rubric{margin:10px 0 4px}
+.cp-rubric-label{font-size:11px;font-weight:800;color:var(--mauve-soft);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px}
+.cp-rubric-chips{display:flex;gap:6px;flex-wrap:wrap}
+.cp-chip{font-family:var(--font);font-weight:800;font-size:12px;border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:6px 12px;cursor:pointer;background:var(--cream);color:var(--mauve-soft);transition:all .14s}
+.cp-chip:hover{border-color:var(--pink-border-strong)}
+.cp-chip.active{background:#FFE0E8;border-color:var(--rose);color:var(--rose-deep)}
+/* Streak badge (verbal_drill & friends) */
+.streak-badge{font-size:12px;font-weight:900;color:#C97A1A;background:#FFF1DD;border:2px solid #E0B870;border-radius:var(--r-pill);padding:3px 10px;letter-spacing:0.3px}
+/* Listening exercise */
+.listen-big{display:flex;justify-content:center;margin:8px 0 14px}
+.listen-play-btn{display:flex;flex-direction:column;align-items:center;gap:6px;background:linear-gradient(160deg,#FFF6F9,#FFE0EC);border:2.5px solid var(--pink-border-strong);border-radius:var(--r-xl);padding:18px 28px;cursor:pointer;font-family:var(--font);transition:transform .12s}
+.listen-play-btn:hover{transform:scale(1.04)}
+.listen-play-btn:active{transform:scale(0.97)}
+.listen-emoji{font-size:38px;line-height:1}
+.listen-play-label{font-size:13px;font-weight:900;color:var(--rose-deep);text-transform:uppercase;letter-spacing:0.5px}
+.listen-transcript{background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 14px;margin-bottom:10px}
+.listen-transcript-label{font-size:11px;font-weight:800;color:var(--mauve-soft);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px}
+.listen-transcript-text{font-size:17px;font-weight:900;color:var(--mauve);line-height:1.3}
+.listen-transcript-tr{font-size:13px;font-weight:700;color:var(--mauve-soft);margin-top:4px}
+/* Minimal pairs */
+.mp-row{display:flex;align-items:center;justify-content:center;gap:10px;margin:6px 0 12px}
+.mp-card{flex:1;background:linear-gradient(160deg,#FFF6F9,#FFE7EF);border:2.5px solid var(--pink-border-strong);border-radius:var(--r-xl);padding:14px 10px;text-align:center;position:relative}
+.mp-word{font-size:24px;font-weight:900;color:var(--mauve);line-height:1.2;margin-bottom:4px}
+.mp-phonetic{font-size:12px;font-weight:700;color:var(--mauve-soft);font-style:italic;margin-bottom:6px}
+.mp-speak{margin:0 auto;display:inline-flex}
+.mp-vs{font-size:13px;font-weight:900;color:var(--rose);text-transform:uppercase;letter-spacing:0.6px}
+.mp-contrast{font-size:13px;font-weight:700;color:var(--mauve-soft);background:var(--cream);border:2px dashed var(--pink-border);border-radius:var(--r-md);padding:8px 12px;text-align:center;margin-bottom:10px}
+/* Sentence build */
+.sb-chips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:var(--cream);border:2px dashed var(--pink-border);border-radius:var(--r-md);padding:12px;margin-bottom:10px}
+.sb-chip{display:inline-block;background:var(--white);border:2px solid var(--pink-border-strong);border-radius:var(--r-pill);padding:6px 12px;font-size:14px;font-weight:900;color:var(--mauve);font-family:var(--font)}
+.sb-hint{font-size:13px;font-weight:700;color:#8B6914;background:#FFF8DD;border:2px solid #E0C060;border-radius:var(--r-md);padding:8px 12px;margin-bottom:10px}
+.sb-answer{font-size:18px;font-weight:900;color:var(--rose-deep);background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:10px 14px;line-height:1.3}
+.sb-translation{font-size:13px;font-weight:700;color:var(--mauve-soft);margin-top:4px;font-style:italic}
+/* Translation drill */
+.td-dir{font-size:14px;font-weight:900;color:var(--mauve-soft);text-align:center;margin-bottom:6px;letter-spacing:0.8px}
+.td-source{font-size:24px;font-weight:900;color:var(--mauve);text-align:center;line-height:1.25;padding:6px 0}
+/* Quick review badge */
+.qr-source{font-size:12px;font-weight:800;color:var(--rose-deep);background:#FFE0EC;border:2px solid var(--pink-border-strong);border-radius:var(--r-pill);padding:5px 12px;display:inline-block;margin-bottom:10px}
 /* Guided next button */
 .guided-next{width:100%;font-family:var(--font);font-weight:900;font-size:16px;border:none;border-radius:var(--r-pill);padding:15px;cursor:pointer;background:var(--rose);color:var(--white);box-shadow:var(--shadow-pop);transition:transform .12s,background .14s;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px}
 .guided-next:active{transform:translateY(2px)}
@@ -1399,10 +1438,6 @@ body.presenter-mode #btnPresenter { background: var(--rose); color:#fff; }
         <div class="backend-tooltip" id="backendTooltip">Checking backend…</div>
       </div>
       <button class="vtb" id="btnPresenter" title="Modo presentador (texto grande)">🖥️</button>
-      <div class="view-toggle">
-        <button class="vtb active-teacher" id="btnViewTeacher">👨‍🏫 Teacher</button>
-        <button class="vtb" id="btnViewStudent">👩‍🎓 Student</button>
-      </div>
     </div>
     <div class="phase-progress" id="guidedPhaseProgress"></div>
     <div class="kbd-hints" id="kbdHints" style="display:none"><span>C = Correct</span><span>W = Wrong</span><span>→ = Next</span></div>
@@ -1608,18 +1643,6 @@ body.presenter-mode #btnPresenter { background: var(--rose); color:#fff; }
     <button class="history-close" id="btnCloseHistory">✕</button>
   </div>
   <div class="history-scroll" id="historyScroll"></div>
-</div>
-
-<!-- ══ MODE CHOICE DIALOG ══ -->
-<div class="dialog-overlay" id="modeDialog">
-  <div class="dialog">
-    <h3>Choose mode</h3>
-    <p>This lesson supports both solo practice and guided session with a teacher.</p>
-    <div class="dialog-btns">
-      <button class="btn-pill" id="btnModeGuided" style="font-size:14px;padding:12px">👨‍🏫 Guided Session</button>
-      <button class="btn-ghost" id="btnModeSolo" style="justify-content:center;width:100%">📖 Solo Practice</button>
-    </div>
-  </div>
 </div>
 
 <!-- ══ SESSION DETAIL MODAL ══ -->
@@ -2510,20 +2533,17 @@ function renderLessons() {
       const pct = lessonCompletion(l);
       const done = isLessonDone(l.id);
       const locked = false; // could enforce sequencing
-      const exCount = (l.exercises || []).length;
-      const lMode = l.mode || 'solo';
-      const modeTag = lMode === 'guided' ? ' <span style="font-size:10px;background:var(--mauve);color:var(--white);border-radius:99px;padding:2px 7px;margin-left:4px">guided</span>'
-        : lMode === 'both' ? ' <span style="font-size:10px;background:var(--rose);color:var(--white);border-radius:99px;padding:2px 7px;margin-left:4px">guided+solo</span>' : '';
-      const metaText = lMode === 'guided' ? 'Guided session' : `${exCount} exercise${exCount === 1 ? '' : 's'}`;
+      const phaseCount = (l.phases || []).length;
+      const metaText = phaseCount ? `Clase · ${phaseCount} fases` : 'Lección sin contenido';
       const hwDone = l.homework && isHomeworkDone(l.id);
       const hwTag = l.homework ? ` <span class="hw-badge${hwDone ? ' done' : ''}">${hwDone ? '✅' : '📚'}</span>` : '';
       const hwBtn = l.homework ? `<button class="lesson-hw-btn" data-unit="${u.id}" data-lesson="${l.id}">📚 HW</button>` : '';
-      const iconHtml = done ? '✅' : (pct === 100 ? '✓' : (lMode === 'guided' ? '👨‍🏫' : '📖'));
+      const iconHtml = done ? '✅' : (pct === 100 ? '✓' : '👨‍🏫');
       const html = `
         <div class="lesson-row${locked ? ' locked' : ''}${done ? ' lesson-done' : ''}" data-unit="${u.id}" data-lesson="${l.id}">
           <div class="l-icon">${iconHtml}</div>
           <div class="l-body">
-            <div class="l-title">${esc(l.title)}${modeTag}${hwTag}</div>
+            <div class="l-title">${esc(l.title)}${hwTag}</div>
             <div class="l-meta">${metaText}</div>
             <div class="l-prog"><span style="width:${pct}%"></span></div>
           </div>
@@ -4936,7 +4956,6 @@ function exportProgressReport() {
 // ══════════════════════════════════════
 //  LESSON MODE ROUTER
 // ══════════════════════════════════════
-let pendingModeLesson = null;
 
 function openLessonPicker() {
   if (!curriculum) { showToast('No curriculum loaded'); return; }
@@ -4977,15 +4996,7 @@ function handleLessonClick(unitId, lessonId) {
   const unit = curriculum?.units.find(u => u.id === unitId);
   const lesson = unit?.lessons.find(l => l.id === lessonId);
   if (!lesson) return;
-  const mode = lesson.mode || 'solo';
-  if (mode === 'guided') {
-    startGuidedSession(unitId, lessonId);
-  } else if (mode === 'both') {
-    pendingModeLesson = { unitId, lessonId };
-    document.getElementById('modeDialog').classList.add('open');
-  } else {
-    startSession(unitId, lessonId, 'practice');
-  }
+  startGuidedSession(unitId, lessonId);
 }
 
 // ══════════════════════════════════════
@@ -4997,26 +5008,26 @@ function startGuidedSession(unitId, lessonId) {
   const unit = curriculum?.units.find(u => u.id === unitId);
   const lesson = unit?.lessons.find(l => l.id === lessonId);
   if (!lesson || !lesson.phases || !lesson.phases.length) {
-    showToast('No guided phases in this lesson'); return;
+    showToast('Esta lección está vacía. Genérala desde el generador primero ♡'); return;
   }
-  const _recapPhase = buildVocabRecapPhase(lesson);
-  const _allPhases  = _recapPhase ? [...(lesson.phases || []), _recapPhase] : (lesson.phases || []);
+  const _allPhases = buildAllSessionPhases(lesson, unit);
   guidedSession = {
     lesson, unit, unitId, lessonId,
     phases: _allPhases,
     phaseIdx: 0, itemIdx: 0, lineIdx: 0,
-    view: 'teacher',
     drillResults: [], checkpointResults: [], skipResults: [],
     drillAnswered: false, checkpointAnswered: false,
     repeatCount: 0, hintShown: false, notesShown: false,
     drillExpanded: false, cpExpanded: false,
     quizAnswered: false, quizSelected: null,
+    listeningRevealed: false,
+    sentenceRevealed: false,
+    pairResults: [], pairAnswered: false,
+    cpRubric: null,
     showingIntro: !!(_allPhases[0]?.intro_notes),
     startTime: Date.now(), timerInterval: null
   };
   document.getElementById('guidedLessonTitle').textContent = lesson.title;
-  document.getElementById('btnViewTeacher').className = 'vtb active-teacher';
-  document.getElementById('btnViewStudent').className = 'vtb';
   setLevelAccent(unit?.level);
   showScreen('screenGuided');
   startGuidedTimer();
@@ -5043,7 +5054,7 @@ function saveResume() {
   const g = guidedSession;
   store(RESUME_KEY, {
     unitId: g.unitId, lessonId: g.lessonId, lessonTitle: g.lesson?.title || '',
-    phaseIdx: g.phaseIdx, itemIdx: g.itemIdx, lineIdx: g.lineIdx, view: g.view,
+    phaseIdx: g.phaseIdx, itemIdx: g.itemIdx, lineIdx: g.lineIdx,
     drillResults: g.drillResults, checkpointResults: g.checkpointResults, skipResults: g.skipResults,
     sessionId: currentSessionId, elapsedMs: Date.now() - g.startTime, savedAt: Date.now()
   });
@@ -5063,18 +5074,20 @@ function resumeGuidedSession() {
   const r = getResumableSession();
   if (!r) { showToast('No hay sesión para reanudar'); return; }
   const { unit, lesson } = findLessonById(r.lessonId);
-  const _recapPhaseR = buildVocabRecapPhase(lesson);
-  const _allPhasesR  = _recapPhaseR ? [...(lesson.phases || []), _recapPhaseR] : (lesson.phases || []);
+  const _allPhasesR = buildAllSessionPhases(lesson, unit);
   guidedSession = {
     lesson, unit, unitId: r.unitId, lessonId: r.lessonId,
     phases: _allPhasesR,
     phaseIdx: Math.min(r.phaseIdx || 0, _allPhasesR.length - 1),
     itemIdx: r.itemIdx || 0, lineIdx: r.lineIdx || 0,
-    view: r.view || 'teacher',
     drillResults: r.drillResults || [], checkpointResults: r.checkpointResults || [], skipResults: r.skipResults || [],
     drillAnswered: false, checkpointAnswered: false,
     repeatCount: 0, hintShown: false, notesShown: false, drillExpanded: false, cpExpanded: false,
     quizAnswered: false, quizSelected: null,
+    listeningRevealed: false,
+    sentenceRevealed: false,
+    pairResults: [], pairAnswered: false,
+    cpRubric: null,
     showingIntro: false,
     startTime: Date.now() - (r.elapsedMs || 0), timerInterval: null
   };
@@ -5088,8 +5101,6 @@ function resumeGuidedSession() {
     }).then(d => { if (d?.session_id) currentSessionId = d.session_id; });
   }
   document.getElementById('guidedLessonTitle').textContent = lesson.title;
-  document.getElementById('btnViewTeacher').className = guidedSession.view === 'teacher' ? 'vtb active-teacher' : 'vtb';
-  document.getElementById('btnViewStudent').className = guidedSession.view === 'student' ? 'vtb active-student' : 'vtb';
   setLevelAccent(unit?.level);
   showScreen('screenGuided');
   startGuidedTimer();
@@ -5137,6 +5148,167 @@ function buildVocabRecapPhase(lesson) {
   };
 }
 
+// ── Auto-generated phases for the 5 new exercise types ─────────
+const _shuf = arr => [...arr].sort(() => Math.random() - .5);
+
+function _presItemsOf(lesson) {
+  return (lesson.phases || [])
+    .filter(p => p.type === 'presentation')
+    .flatMap(p => p.items || [])
+    .filter(it => it.word && it.translation);
+}
+function _dialogueLinesOf(lesson) {
+  return (lesson.phases || [])
+    .filter(p => p.type === 'dialogue')
+    .flatMap(p => p.lines || [])
+    .filter(ln => ln && ln.text);
+}
+
+// LISTENING: from dialogue teacher lines + presentation examples
+function buildListeningPhase(lesson) {
+  const sources = [];
+  _dialogueLinesOf(lesson).filter(ln => ln.speaker === 'teacher').forEach(ln => {
+    sources.push({ text: ln.text, translation: ln.translation || '' });
+  });
+  _presItemsOf(lesson).filter(it => it.example).forEach(it => {
+    sources.push({ text: it.example, translation: it.translation || '' });
+  });
+  if (sources.length < 2) return null;
+  const items = _shuf(sources).slice(0, 5).map(s => ({
+    type: 'listening', text: s.text, translation: s.translation
+  }));
+  return {
+    type: 'listening', title: '🎧 Listening', _auto: true,
+    intro_notes: 'Reproduce cada frase y pide al alumno que la repita o explique qué entendió.',
+    items
+  };
+}
+
+// MINIMAL PAIRS: hardcoded bank by level (no reliable source data)
+const _MIN_PAIRS_BY_LEVEL = {
+  A1: [['ship','sheep','/ɪ/ vs /iː/'],['live','leave','/ɪ/ vs /iː/'],['bit','beat','/ɪ/ vs /iː/'],['hat','hot','/æ/ vs /ɒ/']],
+  A2: [['pen','pan','/e/ vs /æ/'],['men','man','/e/ vs /æ/'],['cat','cut','/æ/ vs /ʌ/'],['back','bag','final /k/ vs /g/']],
+  B1: [['three','free','/θ/ vs /f/'],['think','sink','/θ/ vs /s/'],['very','berry','/v/ vs /b/'],['then','den','/ð/ vs /d/']],
+  B2: [['walk','work','/ɔː/ vs /ɜː/'],['ice','eyes','final /s/ vs /z/'],['sit','seat','/ɪ/ vs /iː/'],['caught','court','same sound — homophones']],
+  C1: [['pulled','pooled','/ʊ/ vs /uː/'],['full','fool','/ʊ/ vs /uː/'],['accept','except','/æ/ vs /ɪ/'],['affect','effect','noun vs verb stress']]
+};
+function buildMinimalPairsPhase(lesson, level) {
+  const bank = _MIN_PAIRS_BY_LEVEL[level] || _MIN_PAIRS_BY_LEVEL.A1;
+  const items = _shuf(bank).slice(0, 4).map(([a,b,contrast]) => ({
+    type:'minimal_pairs', pair_a:a, pair_b:b, contrast
+  }));
+  return {
+    type:'minimal_pairs', title:'🔊 Minimal Pairs', _auto: true,
+    intro_notes:'Di una de las dos palabras. El alumno tiene que identificar cuál escuchó. Después intercambien.',
+    items
+  };
+}
+
+// SENTENCE BUILD: from dialogue lines or example sentences (3-8 words)
+function buildSentenceBuildPhase(lesson) {
+  const sources = [];
+  _dialogueLinesOf(lesson).forEach(ln => sources.push({ sentence: ln.text, translation: ln.translation || '' }));
+  _presItemsOf(lesson).filter(it => it.example).forEach(it => sources.push({ sentence: it.example, translation: '' }));
+  const usable = sources.filter(s => {
+    const wc = s.sentence.split(/\s+/).filter(Boolean).length;
+    return wc >= 3 && wc <= 9;
+  });
+  if (usable.length < 2) return null;
+  const items = _shuf(usable).slice(0, 4).map(s => ({
+    type:'sentence_build', sentence:s.sentence.replace(/[.?!]$/,'').trim(),
+    translation: s.translation
+  }));
+  return {
+    type:'sentence_build', title:'🧩 Sentence Build', _auto: true,
+    intro_notes:'El alumno ordena las palabras para formar la oración correcta. Luego repítela en voz alta.',
+    items
+  };
+}
+
+// TRANSLATION DRILL: from presentation items, mix en→es and es→en
+function buildTranslationDrillPhase(lesson) {
+  const pres = _presItemsOf(lesson);
+  if (pres.length < 2) return null;
+  const items = [];
+  _shuf(pres).slice(0, Math.min(pres.length, 4)).forEach(it => {
+    items.push({ type:'translation_drill', direction:'en-es',
+      source: it.word, target: it.translation });
+  });
+  _shuf(pres).slice(0, Math.min(pres.length, 4)).forEach(it => {
+    items.push({ type:'translation_drill', direction:'es-en',
+      source: it.translation, target: it.word });
+  });
+  return {
+    type:'translation_drill', title:'🔁 Traducción', _auto: true,
+    intro_notes:'Pide al alumno traducir en voz alta. Alterna inglés↔español para entrenar ambas direcciones.',
+    items: _shuf(items).slice(0, 6)
+  };
+}
+
+// QUICK REVIEW: pull FSRS-due items from prior lessons in the curriculum
+function buildQuickReviewPhase(lesson) {
+  if (!curriculum || typeof FSRS === 'undefined') return null;
+  const dueItems = [];
+  for (const u of (curriculum.units || [])) {
+    for (const l of (u.lessons || [])) {
+      if (l.id === lesson.id) continue;
+      const exs = Array.isArray(l.exercises) ? l.exercises : [];
+      for (const ex of exs) {
+        const card = progress && progress[ex.id];
+        if (card && FSRS.isDue(card)) {
+          const prompt = ex.prompt || ex.question || ex.word || '';
+          const answer = ex.answer || ex.expected || ex.translation || '';
+          if (prompt && answer) {
+            dueItems.push({
+              type:'quick_review', prompt, answer,
+              source_lesson_title: l.title || l.id
+            });
+          }
+        }
+      }
+    }
+  }
+  if (dueItems.length === 0) return null;
+  return {
+    type:'quick_review', title:'🔄 Quick Review', _auto: true,
+    intro_notes:`Repaso rápido de ${Math.min(dueItems.length, 5)} ítems pendientes de lecciones anteriores.`,
+    items: _shuf(dueItems).slice(0, 5)
+  };
+}
+
+// Coordinator: build the complete ordered phase list for a session.
+// Ensures all 9 exercise types appear by appending auto-synthesized phases.
+function buildAllSessionPhases(lesson, unit) {
+  const level = unit?.level || LEVEL_BY_UNIT[unit?.id] || 'A1';
+  const original = lesson.phases || [];
+  // Skip auto-phases of a given type if the lesson already provides one
+  const has = t => original.some(p => p.type === t);
+  const out = [];
+
+  // Quick review FIRST as warm-up (only if there are prior due items)
+  const qr = !has('quick_review') ? buildQuickReviewPhase(lesson) : null;
+  if (qr) out.push(qr);
+
+  // Original lesson phases preserved in order
+  out.push(...original);
+
+  // Append missing auto-types
+  const listen = !has('listening')          ? buildListeningPhase(lesson)        : null;
+  const tdrill = !has('translation_drill')  ? buildTranslationDrillPhase(lesson) : null;
+  const mpairs = !has('minimal_pairs')      ? buildMinimalPairsPhase(lesson, level) : null;
+  const sbuild = !has('sentence_build')     ? buildSentenceBuildPhase(lesson)    : null;
+  if (listen) out.push(listen);
+  if (tdrill) out.push(tdrill);
+  if (mpairs) out.push(mpairs);
+  if (sbuild) out.push(sbuild);
+
+  // Vocab recap LAST (only if not already in lesson)
+  const recap = !has('vocab_recap') ? buildVocabRecapPhase(lesson) : null;
+  if (recap) out.push(recap);
+
+  return out;
+}
+
 function gPhase() { return guidedSession.phases[guidedSession.phaseIdx]; }
 function gItem() {
   const phase = gPhase();
@@ -5167,8 +5339,9 @@ function renderGuidedPhaseProgress() {
 
 function renderGuidedContent() {
   if (!guidedSession) return;
-  const { view, drillResults, drillAnswered, checkpointAnswered,
-          repeatCount, hintShown, notesShown, quizAnswered, quizSelected, showingIntro } = guidedSession;
+  const { drillResults, drillAnswered, checkpointAnswered,
+          repeatCount, hintShown, notesShown, quizAnswered, quizSelected, showingIntro,
+          listeningRevealed, sentenceRevealed, pairAnswered, cpRubric } = guidedSession;
   const phase = gPhase();
   const item = gItem();
   if (!phase || !item) { showGuidedSummary(); return; }
@@ -5176,14 +5349,26 @@ function renderGuidedContent() {
   // so the card always renders (never a blank phase-card).
   if (!item.type && phase.type && phase.type !== 'dialogue') item.type = phase.type;
 
-  const phaseLabels = { presentation:'Presentation', verbal_drill:'Verbal Drill', dialogue:'Dialogue', checkpoint:'Checkpoint' };
-  const phaseIcons  = { presentation:'📚', verbal_drill:'🎯', dialogue:'💬', checkpoint:'✅' };
+  const phaseLabels = {
+    presentation:'Presentation', verbal_drill:'Verbal Drill', dialogue:'Dialogue',
+    checkpoint:'Checkpoint', vocab_quiz:'Vocab Quiz', vocab_recap:'Repaso',
+    listening:'Listening', minimal_pairs:'Minimal Pairs',
+    sentence_build:'Sentence Build', translation_drill:'Translation',
+    quick_review:'Quick Review'
+  };
+  const phaseIcons = {
+    presentation:'📚', verbal_drill:'🎯', dialogue:'💬', checkpoint:'✅',
+    vocab_quiz:'🎲', vocab_recap:'🎯',
+    listening:'🎧', minimal_pairs:'🔊',
+    sentence_build:'🧩', translation_drill:'🔁',
+    quick_review:'🔄'
+  };
   const itemNum = guidedSession.itemIdx + 1;
   const itemTotal = phase.type === 'dialogue' ? 1 : (phase.items || []).length;
   const el = document.getElementById('guidedContent');
 
   // ── INTRO CARD ──────────────────────────────────────────────
-  if (showingIntro && view === 'teacher') {
+  if (showingIntro) {
     el.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:space-between;margin:10px 0 10px">
         <div class="phase-type-chip">${phaseIcons[phase.type]||'📝'} ${esc(phase.title||phaseLabels[phase.type]||phase.type)}</div>
@@ -5200,140 +5385,126 @@ function renderGuidedContent() {
 
   let inner = '', actions = '';
 
+  // Helper: streak badge for drill-style types
+  const _streakBadge = () => {
+    let streak = 0;
+    for (let i = drillResults.length - 1; i >= 0; i--) {
+      if (drillResults[i].correct) streak++; else break;
+    }
+    return streak > 1 ? `<div class="streak-badge">🔥 ${streak} en racha</div>` : '';
+  };
+  const _notesBlock = () => item.teacher_notes ? (notesShown
+    ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div><button class="reveal-toggle-btn" id="notesRevealBtn">🙈 Ocultar notas</button>`
+    : `<button class="reveal-toggle-btn" id="notesRevealBtn">📝 Notas del prof.</button>`) : '';
+  const _drillButtons = () => `
+    <div class="drill-result-btns">
+      <button class="drill-btn-c${drillAnswered?' drill-scored':''}" id="drillC">✓</button>
+      <button class="drill-btn-w${drillAnswered?' drill-scored':''}" id="drillW">✗</button>
+    </div>
+    <div class="drill-score-row">${drillResults.map(r => `<div class="drill-dot ${r.correct?'c':'w'}"></div>`).join('')}</div>`;
+
   // ── PRESENTATION ─────────────────────────────────────────────
   if (item.type === 'presentation') {
-    if (view === 'teacher') {
-      const target = item.repeat_target ?? 2;
-      const done = repeatCount >= target;
-      inner = `
-        <div style="display:flex;align-items:center;justify-content:center;gap:8px">
-          <div class="pres-word">${esc(item.word||'')}</div>
-          <button class="speak-btn" data-text="${esc(item.word||'')}" title="Escuchar">${SPEAK_SVG}</button>
-        </div>
-        ${item.phonetic ? `<div class="pres-phonetic">${esc(item.phonetic)}</div>` : ''}
-        <div class="pres-translation">${esc(item.translation||'')}</div>
-        ${item.example ? `<div class="pres-example" style="font-style:italic;color:var(--mauve-soft);font-weight:700;text-align:center;margin-top:6px">"${esc(item.example)}"</div>` : ''}
-        ${item.teacher_notes ? (notesShown
-          ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div><button class="reveal-toggle-btn" id="notesRevealBtn">🙈 Ocultar notas</button>`
-          : `<button class="reveal-toggle-btn" id="notesRevealBtn">📝 Notas del prof.</button>`) : ''}
-        <button class="repeat-btn${done?' done':''}" id="repeatBtn">
-          ${done ? `✅ Done (${repeatCount} / ${target})` : `🔁 Repeat (${repeatCount} / ${target})`}
-        </button>`;
-    } else {
-      inner = `
-        <div class="student-word">${esc(item.word||'')}</div>
-        ${item.phonetic ? `<div class="pres-phonetic" style="text-align:center">${esc(item.phonetic)}</div>` : ''}
-        <div class="student-repeat-card" style="margin-top:14px">🗣️ Repeat after me ♪</div>`;
-    }
+    const target = item.repeat_target ?? 2;
+    const done = repeatCount >= target;
+    inner = `
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px">
+        <div class="pres-word">${esc(item.word||'')}</div>
+        <button class="speak-btn" data-text="${esc(item.word||'')}" title="Escuchar">${SPEAK_SVG}</button>
+      </div>
+      ${item.phonetic ? `<div class="pres-phonetic">${esc(item.phonetic)}</div>` : ''}
+      <div class="pres-translation">${esc(item.translation||'')}</div>
+      ${item.example ? `<div class="pres-example" style="font-style:italic;color:var(--mauve-soft);font-weight:700;text-align:center;margin-top:6px">"${esc(item.example)}"</div>` : ''}
+      ${_notesBlock()}
+      <button class="repeat-btn${done?' done':''}" id="repeatBtn">
+        ${done ? `✅ Done (${repeatCount} / ${target})` : `🔁 Repeat (${repeatCount} / ${target})`}
+      </button>`;
     actions = nextBtn();
 
   // ── VERBAL DRILL ─────────────────────────────────────────────
   } else if (item.type === 'verbal_drill') {
-    if (view === 'teacher') {
-      const { drillExpanded } = guidedSession;
-      const scoreDots = drillResults.map(r => `<div class="drill-dot ${r.correct?'c':'w'}"></div>`).join('');
-      const altAnswers = (item.acceptable_answers||[]).length > 1
-        ? ` <span style="font-weight:700;color:var(--mauve-soft);font-size:13px">/ ${item.acceptable_answers.slice(1).map(esc).join(' / ')}</span>` : '';
-      const answerHtml = drillExpanded
-        ? `<div class="drill-answer">${esc(item.answer || item.expected || '')}${altAnswers}</div>
-           <button class="reveal-toggle-btn" id="toggleDrillBtn">🙈 Hide answer</button>`
-        : `<button class="reveal-toggle-btn" id="toggleDrillBtn">👁 Show answer</button>`;
-      inner = `
-        <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:8px">Ask aloud:</div>
-        <div class="drill-prompt">${esc(item.prompt||'')}</div>
-        ${answerHtml}
-        ${item.teacher_notes ? (notesShown
-          ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div><button class="reveal-toggle-btn" id="notesRevealBtn">🙈 Ocultar notas</button>`
-          : `<button class="reveal-toggle-btn" id="notesRevealBtn">📝 Notas del prof.</button>`) : ''}
-        ${item.hint ? (hintShown
-          ? `<div class="hint-box">💡 ${esc(item.hint)}</div>`
-          : `<button class="hint-reveal-btn" id="hintRevealBtn">💡 Show Hint</button>`)
-          : ''}
-        <div class="drill-result-btns">
-          <button class="drill-btn-c${drillAnswered?' drill-scored':''}" id="drillC">✓</button>
-          <button class="drill-btn-w${drillAnswered?' drill-scored':''}" id="drillW">✗</button>
-        </div>
-        <div class="drill-score-row">${scoreDots}</div>`;
-      actions = nextBtn(!drillAnswered);
-    } else {
-      inner = `<div class="student-prompt-card">
-        <div class="student-prompt-label">👂 Question</div>
-        <div class="student-prompt-text">${esc(item.prompt||'')}</div>
+    const { drillExpanded } = guidedSession;
+    const altAnswers = (item.acceptable_answers||[]).length > 1
+      ? ` <span style="font-weight:700;color:var(--mauve-soft);font-size:13px">/ ${item.acceptable_answers.slice(1).map(esc).join(' / ')}</span>` : '';
+    const answerHtml = drillExpanded
+      ? `<div class="drill-answer">${esc(item.answer || item.expected || '')}${altAnswers}</div>
+         <button class="reveal-toggle-btn" id="toggleDrillBtn">🙈 Hide answer</button>`
+      : `<button class="reveal-toggle-btn" id="toggleDrillBtn">👁 Show answer</button>`;
+    inner = `
+      <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <span>Ask aloud:</span>
+        ${_streakBadge()}
       </div>
-      <div class="student-repeat-card" style="margin-top:10px">🗣️ Answer aloud ♪</div>`;
-    }
+      <div class="drill-prompt">${esc(item.prompt||'')}</div>
+      ${answerHtml}
+      ${_notesBlock()}
+      ${item.hint ? (hintShown
+        ? `<div class="hint-box">💡 ${esc(item.hint)}</div>`
+        : `<button class="hint-reveal-btn" id="hintRevealBtn">💡 Show Hint</button>`)
+        : ''}
+      ${_drillButtons()}`;
+    actions = nextBtn(!drillAnswered);
 
   // ── DIALOGUE ─────────────────────────────────────────────────
   } else if (item.type === 'dialogue') {
     const lines = item.lines || [];
     const { lineIdx } = guidedSession;
-    if (view === 'teacher') {
-      const linesHtml = lines.map((ln, i) => {
-        const cls = i < lineIdx ? 'past' : i === lineIdx ? 'active' : 'future';
-        const side = ln.speaker === 'teacher' ? 'teacher-l' : 'student-l';
-        const isActive = i === lineIdx;
-        const isLast = lineIdx >= lines.length - 1;
-        return `<div class="dl ${cls} ${side}">
-          <div class="dl-body">
-            <div class="dl-who ${ln.speaker==='teacher'?'t':'s'}">${ln.speaker==='teacher'?'👨‍🏫 Teacher':'👩‍🎓 Student'}</div>
-            <div style="display:flex;align-items:flex-start;gap:6px">
-              <div class="dl-text">${esc(ln.text||'')}</div>
-              <button class="speak-btn" data-text="${esc(ln.text||'')}" title="Escuchar" style="flex-shrink:0;margin-top:2px">${SPEAK_SVG}</button>
-            </div>
-            ${ln.translation?`<div class="dl-tr">${esc(ln.translation)}</div>`:''}
-            ${isActive&&ln.teacher_notes?(notesShown
-              ? `<div class="teacher-notes" style="margin-top:8px">📝 ${esc(ln.teacher_notes)}</div><button class="reveal-toggle-btn" id="notesRevealBtn" style="margin-top:4px">🙈 Ocultar notas</button>`
-              : `<button class="reveal-toggle-btn" id="notesRevealBtn" style="margin-top:4px">📝 Notas del prof.</button>`) : ''}
+    const linesHtml = lines.map((ln, i) => {
+      const cls = i < lineIdx ? 'past' : i === lineIdx ? 'active' : 'future';
+      const side = ln.speaker === 'teacher' ? 'teacher-l' : 'student-l';
+      const isActive = i === lineIdx;
+      const isLast = lineIdx >= lines.length - 1;
+      const clickable = !isActive ? ` data-jump="${i}" style="cursor:pointer"` : '';
+      return `<div class="dl ${cls} ${side}"${clickable}>
+        <div class="dl-body">
+          <div class="dl-who ${ln.speaker==='teacher'?'t':'s'}">${ln.speaker==='teacher'?'👨‍🏫 Teacher':'👩‍🎓 Student'}</div>
+          <div style="display:flex;align-items:flex-start;gap:6px">
+            <div class="dl-text">${esc(ln.text||'')}</div>
+            <button class="speak-btn" data-text="${esc(ln.text||'')}" title="Escuchar" style="flex-shrink:0;margin-top:2px">${SPEAK_SVG}</button>
           </div>
-          ${isActive?`<button class="dl-next-inline" id="inlineNextBtn" title="${isLast?'Next Item':'Next Line'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:''}
-        </div>`;
-      }).join('');
-      inner = `${item.setup?`<div class="dialogue-setup">💭 ${esc(item.setup)}</div>`:''}
-        <div class="dialogue-lines">${linesHtml}</div>`;
-    } else {
-      const ln = lines[lineIdx];
-      if (ln && ln.speaker === 'student') {
-        inner = `<div class="student-turn-card">
-          <div class="st-label">Your turn ♪</div>
-          <div class="st-text">${esc(ln.text||'')}</div>
-          ${ln.translation?`<div class="st-tr">${esc(ln.translation)}</div>`:''}
-        </div>`;
-      } else {
-        inner = `<div class="listen-card"><div class="listen-icon">👂</div><div class="listen-text">Listen…</div></div>`;
-      }
-    }
+          ${ln.translation?`<div class="dl-tr">${esc(ln.translation)}</div>`:''}
+          ${isActive&&ln.teacher_notes?(notesShown
+            ? `<div class="teacher-notes" style="margin-top:8px">📝 ${esc(ln.teacher_notes)}</div><button class="reveal-toggle-btn" id="notesRevealBtn" style="margin-top:4px">🙈 Ocultar notas</button>`
+            : `<button class="reveal-toggle-btn" id="notesRevealBtn" style="margin-top:4px">📝 Notas del prof.</button>`) : ''}
+        </div>
+        ${isActive?`<button class="dl-next-inline" id="inlineNextBtn" title="${isLast?'Next Item':'Next Line'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:''}
+      </div>`;
+    }).join('');
+    inner = `${item.setup?`<div class="dialogue-setup">💭 ${esc(item.setup)}</div>`:''}
+      <div class="dialogue-lines">${linesHtml}</div>`;
     const isLastLine = lineIdx >= lines.length - 1;
     actions = `<button class="guided-next" id="guidedNextBtn">${isLastLine ? 'Next Item' : 'Next Line'} <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`;
 
   // ── CHECKPOINT ───────────────────────────────────────────────
   } else if (item.type === 'checkpoint') {
-    if (view === 'teacher') {
-      const { cpExpanded } = guidedSession;
-      const expectedHtml = cpExpanded
-        ? `<div class="cp-expected">
-             <div class="cp-expected-label">Expected answer</div>
-             <div class="cp-expected-val">${esc(item.expected||'')}</div>
-           </div>
-           <button class="reveal-toggle-btn" id="toggleCpBtn">🙈 Hide answer</button>`
-        : `<button class="reveal-toggle-btn" id="toggleCpBtn">👁 Show expected answer</button>`;
-      inner = `
-        <div class="cp-prompt">${esc(item.prompt||'')}</div>
-        ${expectedHtml}
-        ${item.teacher_notes ? (notesShown
-          ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div><button class="reveal-toggle-btn" id="notesRevealBtn">🙈 Ocultar notas</button>`
-          : `<button class="reveal-toggle-btn" id="notesRevealBtn">📝 Notas del prof.</button>`) : ''}
-        <div class="cp-btns">
-          <button class="cp-pass${checkpointAnswered?' cp-scored':''}" id="cpPass">✓ PASS</button>
-          <button class="cp-review${checkpointAnswered?' cp-scored':''}" id="cpReview">↺ NEEDS REVIEW</button>
-        </div>`;
-      actions = nextBtn(!checkpointAnswered);
-    } else {
-      inner = `<div class="student-prompt-card">
-        <div class="student-prompt-label">🌟 Question</div>
-        <div class="student-prompt-text">${esc(item.prompt||'')}</div>
-      </div>
-      <div class="student-repeat-card" style="margin-top:10px">🗣️ Answer aloud ♪</div>`;
-    }
+    const { cpExpanded } = guidedSession;
+    const rubric = cpRubric || { grammar:false, vocab:false, fluency:false };
+    const expectedHtml = cpExpanded
+      ? `<div class="cp-expected">
+           <div class="cp-expected-label">Expected answer</div>
+           <div class="cp-expected-val">${esc(item.expected||'')}</div>
+         </div>
+         <button class="reveal-toggle-btn" id="toggleCpBtn">🙈 Hide answer</button>`
+      : `<button class="reveal-toggle-btn" id="toggleCpBtn">👁 Show expected answer</button>`;
+    const rubricRow = `
+      <div class="cp-rubric">
+        <div class="cp-rubric-label">Marca lo que falló:</div>
+        <div class="cp-rubric-chips">
+          <button class="cp-chip${rubric.grammar?' active':''}" data-chip="grammar">Gramática</button>
+          <button class="cp-chip${rubric.vocab?' active':''}" data-chip="vocab">Vocabulario</button>
+          <button class="cp-chip${rubric.fluency?' active':''}" data-chip="fluency">Fluidez</button>
+        </div>
+      </div>`;
+    inner = `
+      <div class="cp-prompt">${esc(item.prompt||'')}</div>
+      ${expectedHtml}
+      ${_notesBlock()}
+      ${rubricRow}
+      <div class="cp-btns">
+        <button class="cp-pass${checkpointAnswered?' cp-scored':''}" id="cpPass">✓ PASS</button>
+        <button class="cp-review${checkpointAnswered?' cp-scored':''}" id="cpReview">↺ NEEDS REVIEW</button>
+      </div>`;
+    actions = nextBtn(!checkpointAnswered);
 
   // ── VOCAB RECAP QUIZ ─────────────────────────────────────────
   } else if (item.type === 'vocab_quiz') {
@@ -5350,16 +5521,141 @@ function renderGuidedContent() {
       ? `<div style="margin-top:10px;font-size:14px;font-weight:800;text-align:center;color:${quizSelected===item.answer?'#2A7A4E':'#C0392B'}">${quizSelected===item.answer?'✓ ¡Correcto! 🎉':'✗ Era: '+esc(item.answer)}</div>` : '';
     inner = `<div class="vq-question">${esc(item.prompt||'')}</div><div class="vq-options">${optBtns}</div>${feedback}`;
     actions = nextBtn(!quizAnswered);
+
+  // ── LISTENING ────────────────────────────────────────────────
+  } else if (item.type === 'listening') {
+    const text = item.text || item.prompt || '';
+    const transcript = listeningRevealed
+      ? `<div class="listen-transcript">
+           <div class="listen-transcript-label">Transcript</div>
+           <div class="listen-transcript-text">${esc(text)}</div>
+           ${item.translation ? `<div class="listen-transcript-tr">${esc(item.translation)}</div>` : ''}
+         </div>
+         <button class="reveal-toggle-btn" id="toggleListenBtn">🙈 Ocultar transcripción</button>`
+      : `<button class="reveal-toggle-btn" id="toggleListenBtn">👁 Mostrar transcripción</button>`;
+    inner = `
+      <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <span>Reproduce y pide al alumno que repita o responda:</span>
+        ${_streakBadge()}
+      </div>
+      <div class="listen-big">
+        <button class="listen-play-btn" data-text="${esc(text)}" title="Reproducir">
+          <span class="listen-emoji">🎧</span>
+          <span class="listen-play-label">Reproducir</span>
+        </button>
+      </div>
+      ${transcript}
+      ${_notesBlock()}
+      ${_drillButtons()}`;
+    actions = nextBtn(!drillAnswered);
+
+  // ── MINIMAL PAIRS ────────────────────────────────────────────
+  } else if (item.type === 'minimal_pairs') {
+    const a = item.pair_a || item.a || '';
+    const b = item.pair_b || item.b || '';
+    const pa = item.phonetic_a || '';
+    const pb = item.phonetic_b || '';
+    inner = `
+      <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:10px;text-align:center">
+        Di una de las dos. El alumno identifica cuál fue.
+      </div>
+      <div class="mp-row">
+        <div class="mp-card">
+          <div class="mp-word">${esc(a)}</div>
+          ${pa ? `<div class="mp-phonetic">${esc(pa)}</div>` : ''}
+          <button class="speak-btn mp-speak" data-text="${esc(a)}" title="Decir A">${SPEAK_SVG}</button>
+        </div>
+        <div class="mp-vs">vs</div>
+        <div class="mp-card">
+          <div class="mp-word">${esc(b)}</div>
+          ${pb ? `<div class="mp-phonetic">${esc(pb)}</div>` : ''}
+          <button class="speak-btn mp-speak" data-text="${esc(b)}" title="Decir B">${SPEAK_SVG}</button>
+        </div>
+      </div>
+      ${item.contrast ? `<div class="mp-contrast">Contraste: <b>${esc(item.contrast)}</b></div>` : ''}
+      ${_notesBlock()}
+      ${_drillButtons()}`;
+    actions = nextBtn(!drillAnswered);
+
+  // ── SENTENCE BUILD ───────────────────────────────────────────
+  } else if (item.type === 'sentence_build') {
+    const sentence = item.sentence || item.answer || '';
+    const tokens = Array.isArray(item.scrambled) && item.scrambled.length
+      ? item.scrambled
+      : sentence.split(/\s+/).filter(Boolean).sort(() => Math.random() - .5);
+    const chips = tokens.map(t => `<span class="sb-chip">${esc(t)}</span>`).join('');
+    const reveal = sentenceRevealed
+      ? `<div class="sb-answer">${esc(sentence)}</div>
+         ${item.translation ? `<div class="sb-translation">${esc(item.translation)}</div>` : ''}
+         <button class="reveal-toggle-btn" id="toggleSentenceBtn">🙈 Ocultar respuesta</button>`
+      : `<button class="reveal-toggle-btn" id="toggleSentenceBtn">👁 Mostrar respuesta</button>`;
+    inner = `
+      <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+        <span>El alumno arma la oración con estas palabras:</span>
+        ${_streakBadge()}
+      </div>
+      <div class="sb-chips">${chips}</div>
+      ${item.hint ? `<div class="sb-hint">💡 ${esc(item.hint)}</div>` : ''}
+      ${reveal}
+      ${_notesBlock()}
+      ${_drillButtons()}`;
+    actions = nextBtn(!drillAnswered);
+
+  // ── TRANSLATION DRILL ────────────────────────────────────────
+  } else if (item.type === 'translation_drill') {
+    const dir = item.direction || 'es-en';
+    const fromFlag = dir === 'en-es' ? '🇺🇸' : '🇲🇽';
+    const toFlag   = dir === 'en-es' ? '🇲🇽' : '🇺🇸';
+    const source = item.source || item.prompt || '';
+    const target = item.target || item.answer || item.expected || '';
+    const speakLang = dir === 'en-es' ? source : target; // speak the English side
+    const { drillExpanded } = guidedSession;
+    const answerHtml = drillExpanded
+      ? `<div class="drill-answer">${esc(target)}</div>
+         <button class="reveal-toggle-btn" id="toggleDrillBtn">🙈 Hide answer</button>`
+      : `<button class="reveal-toggle-btn" id="toggleDrillBtn">👁 Show answer</button>`;
+    inner = `
+      <div class="td-dir">${fromFlag} → ${toFlag}</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px">
+        <div class="td-source">${esc(source)}</div>
+        <button class="speak-btn" data-text="${esc(speakLang)}" title="Escuchar">${SPEAK_SVG}</button>
+      </div>
+      <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin:12px 0 4px;text-align:center;display:flex;justify-content:space-between;align-items:center">
+        <span>El alumno traduce en voz alta:</span>
+        ${_streakBadge()}
+      </div>
+      ${answerHtml}
+      ${_notesBlock()}
+      ${_drillButtons()}`;
+    actions = nextBtn(!drillAnswered);
+
+  // ── QUICK REVIEW (FSRS due items) ─────────────────────────────
+  } else if (item.type === 'quick_review') {
+    const { drillExpanded } = guidedSession;
+    const answerHtml = drillExpanded
+      ? `<div class="drill-answer">${esc(item.answer || item.expected || '')}</div>
+         <button class="reveal-toggle-btn" id="toggleDrillBtn">🙈 Hide answer</button>`
+      : `<button class="reveal-toggle-btn" id="toggleDrillBtn">👁 Show answer</button>`;
+    inner = `
+      <div class="qr-source">🔄 Repaso de lección previa${item.source_lesson_title?`: <b>${esc(item.source_lesson_title)}</b>`:''}</div>
+      <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+        <span>Ask aloud:</span>
+        ${_streakBadge()}
+      </div>
+      <div class="drill-prompt">${esc(item.prompt||'')}</div>
+      ${answerHtml}
+      ${_notesBlock()}
+      ${_drillButtons()}`;
+    actions = nextBtn(!drillAnswered);
   }
 
-  const skipBtn = view === 'teacher'
-    ? `<button class="guided-skip" id="guidedSkipBtn">Skip ⟶</button>`
-    : '';
+  const skipBtn = `<button class="guided-skip" id="guidedSkipBtn">Skip ⟶</button>`;
 
-  // Show keyboard hints only for verbal_drill in teacher view
+  // Show keyboard hints for any drill-style type that uses ✓/✗
+  const drillStyleTypes = new Set(['verbal_drill','listening','minimal_pairs','sentence_build','translation_drill','quick_review']);
   const kbdHintsEl = document.getElementById('kbdHints');
   if (kbdHintsEl) {
-    kbdHintsEl.style.display = (item.type === 'verbal_drill' && view === 'teacher' && !drillAnswered) ? 'flex' : 'none';
+    kbdHintsEl.style.display = (drillStyleTypes.has(item.type) && !drillAnswered) ? 'flex' : 'none';
   }
 
   el.innerHTML = `
@@ -5371,8 +5667,11 @@ function renderGuidedContent() {
     ${actions}
     ${skipBtn}`;
 
-  // Wire speak buttons
+  // Wire speak buttons (covers listening play btn too via data-text)
   wireSpeakBtns(el);
+  el.querySelectorAll('.listen-play-btn[data-text]').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); speak(btn.dataset.text); });
+  });
 
   // Wire buttons
   document.getElementById('guidedNextBtn')?.addEventListener('click', advanceGuidedItem);
@@ -5385,11 +5684,31 @@ function renderGuidedContent() {
     btn.addEventListener('click', () => handleVocabQuizAnswer(btn.dataset.opt)));
   document.getElementById('toggleDrillBtn')?.addEventListener('click', () => { guidedSession.drillExpanded = !guidedSession.drillExpanded; renderGuidedContent(); });
   document.getElementById('toggleCpBtn')?.addEventListener('click', () => { guidedSession.cpExpanded = !guidedSession.cpExpanded; renderGuidedContent(); });
-  if (item.type === 'verbal_drill' && view === 'teacher' && !drillAnswered) {
+  document.getElementById('toggleListenBtn')?.addEventListener('click', () => { guidedSession.listeningRevealed = !guidedSession.listeningRevealed; renderGuidedContent(); });
+  document.getElementById('toggleSentenceBtn')?.addEventListener('click', () => { guidedSession.sentenceRevealed = !guidedSession.sentenceRevealed; renderGuidedContent(); });
+  // Dialogue click-to-jump
+  el.querySelectorAll('.dl[data-jump]').forEach(node => {
+    node.addEventListener('click', e => {
+      if (e.target.closest('button')) return;
+      const i = parseInt(node.dataset.jump, 10);
+      if (!isNaN(i)) { guidedSession.lineIdx = i; renderGuidedContent(); }
+    });
+  });
+  // Checkpoint rubric chips
+  el.querySelectorAll('.cp-chip[data-chip]').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const key = chip.dataset.chip;
+      guidedSession.cpRubric = { ...(guidedSession.cpRubric || {grammar:false,vocab:false,fluency:false}) };
+      guidedSession.cpRubric[key] = !guidedSession.cpRubric[key];
+      renderGuidedContent();
+    });
+  });
+  // Drill ✓/✗ for all drill-style types
+  if (drillStyleTypes.has(item.type) && !drillAnswered) {
     document.getElementById('drillC')?.addEventListener('click', () => recordDrill(true));
     document.getElementById('drillW')?.addEventListener('click', () => recordDrill(false));
   }
-  if (item.type === 'checkpoint' && view === 'teacher' && !checkpointAnswered) {
+  if (item.type === 'checkpoint' && !checkpointAnswered) {
     document.getElementById('cpPass')?.addEventListener('click', () => recordCheckpoint(true));
     document.getElementById('cpReview')?.addEventListener('click', () => recordCheckpoint(false));
   }
@@ -5406,12 +5725,12 @@ function recordDrill(correct) {
   const item = gItem();
   const phase = gPhase();
   const answer = item.answer || item.expected || '';
-  guidedSession.drillResults.push({ prompt: item.prompt, answer, correct });
+  guidedSession.drillResults.push({ prompt: item.prompt, answer, correct, type: item.type });
   guidedSession.drillAnswered = true;
   if (currentSessionId) {
     apiPost(`/sessions/${currentSessionId}/items`, {
       item_id: item.id || `${phase.type}_${guidedSession.itemIdx}`,
-      item_type: 'verbal_drill',
+      item_type: item.type || 'verbal_drill',
       phase: phase.id || phase.type,
       prompt: item.prompt || '',
       expected_answer: answer,
@@ -5424,7 +5743,8 @@ function recordDrill(correct) {
 function recordCheckpoint(passed) {
   const item = gItem();
   const phase = gPhase();
-  guidedSession.checkpointResults.push({ prompt: item.prompt, passed });
+  const rubric = guidedSession.cpRubric || null;
+  guidedSession.checkpointResults.push({ prompt: item.prompt, passed, rubric });
   guidedSession.checkpointAnswered = true;
   if (currentSessionId) {
     apiPost(`/sessions/${currentSessionId}/items`, {
@@ -5463,6 +5783,10 @@ function advanceGuidedItem() {
   guidedSession.cpExpanded = false;
   guidedSession.quizAnswered = false;
   guidedSession.quizSelected = null;
+  guidedSession.listeningRevealed = false;
+  guidedSession.sentenceRevealed = false;
+  guidedSession.pairAnswered = false;
+  guidedSession.cpRubric = null;
   // Advance within phase or to next phase
   const phaseItems = phase.type === 'dialogue' ? [phase] : (phase.items || []);
   if (guidedSession.itemIdx < phaseItems.length - 1) {
@@ -5522,8 +5846,9 @@ function skipGuidedItem() {
   if (!item || !phase) return;
   const label = item.prompt || item.word || item.type || 'item';
   guidedSession.skipResults.push({ phase: phase.type, label });
-  // If it's a verbal drill or checkpoint that hasn't been answered, mark as skipped (not counted)
-  if (item.type === 'verbal_drill' && !guidedSession.drillAnswered) {
+  // Mark drill-style types as answered so the skip doesn't get stuck on the next render
+  const _drillSkipTypes = new Set(['verbal_drill','listening','minimal_pairs','sentence_build','translation_drill','quick_review']);
+  if (_drillSkipTypes.has(item.type) && !guidedSession.drillAnswered) {
     guidedSession.drillAnswered = true;
   }
   if (item.type === 'checkpoint' && !guidedSession.checkpointAnswered) {
@@ -5701,7 +6026,6 @@ function startGuidedTimer() {
 function updateTimerDisplay() {
   const el = document.getElementById('guidedTimer');
   if (!el || !guidedSession) return;
-  el.style.display = guidedSession.view === 'teacher' ? '' : 'none';
   const elapsed = Math.floor((Date.now() - guidedSession.startTime) / 1000);
   const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
   const ss = String(elapsed % 60).padStart(2, '0');
@@ -6337,27 +6661,68 @@ GRAMÁTICA OBJETIVO: ${grammarStr}
 VOCABULARIO OBJETIVO: ~${unit.vocabulary_target} palabras
 TEMAS DE LA LECCIÓN: ${topicsStr}${notes}
 
-ESTRUCTURA REQUERIDA (clase de 45–55 min):
-- ~12 min · Presentation (phase type: "presentation") — MÍNIMO 8 palabras con fonética y ejemplo
-- ~15 min · Verbal Drills (phase type: "verbal_drill") — MÍNIMO 8 drills variados (preguntas, respuestas, completar)
-- ~12 min · Dialogue (phase type: "dialogue") — conversación real con MÍNIMO 10 líneas
-- ~10 min · Written Practice (exercises array) — MÍNIMO 10 ejercicios mixtos (MC, fill_blank, translate, word_order)
-- ~5 min  · Checkpoint (phase type: "checkpoint") — MÍNIMO 4 preguntas de evaluación final
-- ~5 min  · Homework (homework object) — contenido de estudio autónomo en casa
+ESTRUCTURA REQUERIDA — sesión EXTENSA orientada a aprender de verdad (60–90 min):
+La sesión debe incluir LAS 9 FASES de ejercicios. La cantidad importa más que la duración: queremos práctica masiva, no clases cortas.
 
-SCHEMA EXERCISE TYPES (array "exercises"):
-{"type":"multiple_choice","prompt":"...","options":["opt1","opt2","opt3","opt4"],"answer":"opt2","hint":"..."}   // "answer" = TEXTO EXACTO de la opción correcta (no la letra)
+ORDEN Y CONTENIDO DE LAS 9 FASES (array "phases"):
+1. "presentation"        — MÍNIMO 10 palabras (cada una con phonetic, translation, example, teacher_notes)
+2. "listening"           — MÍNIMO 8 ítems (frase en inglés que el profe reproduce con TTS y el alumno repite/responde)
+3. "translation_drill"   — MÍNIMO 12 ítems (mitad EN→ES, mitad ES→EN)
+4. "minimal_pairs"       — MÍNIMO 5 pares (palabras casi homófonas para entrenar pronunciación)
+5. "verbal_drill"        — MÍNIMO 12 drills (preguntas abiertas, respuestas, completar)
+6. "sentence_build"      — MÍNIMO 8 oraciones desordenadas para reconstruir
+7. "dialogue"            — conversación real con MÍNIMO 12 líneas alternadas teacher/student
+8. "checkpoint"          — MÍNIMO 5 preguntas de evaluación final
+9. "quick_review"        — MÍNIMO 6 ítems de repaso de lecciones ANTERIORES de la misma unidad/nivel
+
+Además, array "exercises" para práctica escrita autónoma (no en sesión guiada):
+- MÍNIMO 12 ejercicios mixtos (MC, fill_blank, translate, word_order, flashcard)
+- Incluye ≥4 de tipo translate (frases completas, no palabras sueltas)
+
+Y "homework" con al menos 3 secciones (incluye vocabulary_list).
+
+REGLA UNIVERSAL DE CADA ÍTEM:
+TODO ítem (sin excepción) debe tener su respuesta correcta y, donde aplique, un "hint" y "teacher_notes". Sin esos campos el ítem NO es válido.
+
+SCHEMA EXERCISE TYPES (array "exercises") — todos requieren "hint":
+{"type":"multiple_choice","prompt":"...","options":["opt1","opt2","opt3","opt4"],"answer":"opt2","hint":"..."}   // "answer" = TEXTO EXACTO
 {"type":"fill_blank","prompt":"She ___ a teacher.","answer":"is","acceptable_answers":["is"],"hint":"..."}
 {"type":"translate","prompt":"...","answer":"...","acceptable_answers":["..."],"hint":"..."}
 {"type":"word_order","prompt":"Ordena las palabras:","words":["am","I","María"],"answer":"I am María","hint":"..."}
-{"type":"flashcard","front":"hello","back":"hola","phonetic":"/həˈloʊ/"}
-{"type":"listening","text":"Good morning, how are you?","answer":"Good morning, how are you?","hint":"..."}   // se reproduce con voz; el alumno escribe lo que oye
+{"type":"flashcard","front":"hello","back":"hola","phonetic":"/həˈloʊ/","hint":"..."}
 
-SCHEMA PHASE ITEMS:
-Presentation: {"type":"presentation","word":"hello","phonetic":"/həˈloʊ/","translation":"hola","example":"Hello! My name is María.","teacher_notes":"..."}
-Verbal drill: {"type":"verbal_drill","prompt":"How do you say 'hola'?","expected":"Hello!","hint":"Empieza con H...","teacher_notes":"..."}
-Dialogue line: {"speaker":"teacher"|"student","text":"...","translation":"...","teacher_notes":"..."}
-Checkpoint: {"type":"checkpoint","prompt":"...","expected":"...","teacher_notes":"..."}
+SCHEMA PHASE ITEMS — las 9 fases:
+
+[1] presentation:
+{"type":"presentation","word":"hello","phonetic":"/həˈloʊ/","translation":"hola","example":"Hello! My name is María.","hint":"...","teacher_notes":"...","repeat_target":2}
+
+[2] listening (NUEVO):
+{"type":"listening","text":"Good morning, how are you?","translation":"Buenos días, ¿cómo estás?","answer":"Good morning, how are you?","hint":"Empieza con 'Good'...","teacher_notes":"Reprodúcelo 2 veces antes de revelar."}
+
+[3] translation_drill (NUEVO):
+{"type":"translation_drill","direction":"en-es","source":"How are you?","target":"¿Cómo estás?","answer":"¿Cómo estás?","hint":"Pregunta de saludo","teacher_notes":"..."}
+{"type":"translation_drill","direction":"es-en","source":"Mucho gusto","target":"Nice to meet you","answer":"Nice to meet you","hint":"Frase al conocer a alguien","teacher_notes":"..."}
+
+[4] minimal_pairs (NUEVO):
+{"type":"minimal_pairs","pair_a":"ship","pair_b":"sheep","phonetic_a":"/ʃɪp/","phonetic_b":"/ʃiːp/","contrast":"/ɪ/ vs /iː/","answer":"ship","hint":"La 'i' corta es más relajada","teacher_notes":"Dilo varias veces; el alumno señala cuál escuchó."}
+
+[5] verbal_drill:
+{"type":"verbal_drill","prompt":"How do you say 'hola'?","answer":"Hello!","expected":"Hello!","acceptable_answers":["Hello!","Hi!"],"hint":"Empieza con H...","teacher_notes":"..."}
+
+[6] sentence_build (NUEVO):
+{"type":"sentence_build","sentence":"My name is María","scrambled":["María","is","name","My"],"answer":"My name is María","translation":"Me llamo María","hint":"Empieza con el posesivo","teacher_notes":"Si lo logra rápido, pídele variar el nombre."}
+
+[7] dialogue:
+{"type":"dialogue","title":"Dialogue","setup":"Dos personas se conocen en una cafetería","lines":[
+  {"speaker":"teacher","text":"Hi, I'm Sarah.","translation":"Hola, soy Sarah.","teacher_notes":"..."},
+  {"speaker":"student","text":"Nice to meet you, Sarah. I'm María.","translation":"Mucho gusto, Sarah. Soy María.","teacher_notes":"..."}
+]}
+
+[8] checkpoint:
+{"type":"checkpoint","prompt":"Preséntate completo en inglés","expected":"Hi, I'm María. Nice to meet you.","answer":"Hi, I'm María. Nice to meet you.","hint":"Saludo + nombre + cortesía","teacher_notes":"Evalúa fluidez, gramática y vocabulario."}
+
+[9] quick_review (NUEVO):
+{"type":"quick_review","prompt":"How do you say 'adiós'?","answer":"Goodbye","expected":"Goodbye","source_lesson_title":"Lección previa de la unidad","hint":"Sinónimo de 'see you'","teacher_notes":"Si no recuerda, repítelo 3 veces antes de avanzar."}
 
 SCHEMA HOMEWORK SECTIONS (array "homework.sections"):
 {"type":"vocabulary_list","title":"...","items":[{"word":"...","phonetic":"...","translation":"...","example":"..."}]}
@@ -6366,7 +6731,7 @@ SCHEMA HOMEWORK SECTIONS (array "homework.sections"):
 {"type":"listen_and_repeat","title":"...","items":[{"phrase":"...","phonetic":"...","translation":"..."}]}
 {"type":"challenge","title":"...","task":"..."}
 
-SCHEMA TOP LEVEL:
+SCHEMA TOP LEVEL — usa EXACTAMENTE esta estructura, con las 9 fases en este orden:
 {
   "id": "${lessonSnake}",
   "units": [{
@@ -6377,24 +6742,35 @@ SCHEMA TOP LEVEL:
       "title": "${lesson.title}",
       "exercises": [],
       "phases": [
-        {"type":"presentation","title":"Presentation","items":[]},
-        {"type":"verbal_drill","title":"Verbal Drills","items":[]},
-        {"type":"dialogue","title":"Dialogue","lines":[]},
-        {"type":"checkpoint","title":"Checkpoint","items":[]}
+        {"type":"presentation","title":"📚 Presentation","intro_notes":"Presenta el vocabulario nuevo; cada palabra debe repetirse 2 veces.","items":[]},
+        {"type":"listening","title":"🎧 Listening","intro_notes":"Reproduce cada frase con TTS y pide que repita o explique.","items":[]},
+        {"type":"translation_drill","title":"🔁 Traducción","intro_notes":"Alterna EN→ES y ES→EN para entrenar ambas direcciones.","items":[]},
+        {"type":"minimal_pairs","title":"🔊 Minimal Pairs","intro_notes":"Pronunciación: di una palabra y el alumno identifica cuál fue.","items":[]},
+        {"type":"verbal_drill","title":"🎯 Verbal Drills","intro_notes":"Drills variados; usa los hints solo si se atora.","items":[]},
+        {"type":"sentence_build","title":"🧩 Sentence Build","intro_notes":"Pídele ordenar las palabras y luego decir la oración completa.","items":[]},
+        {"type":"dialogue","title":"💬 Dialogue","intro_notes":"Practiquen el diálogo; luego intercambien roles.","lines":[]},
+        {"type":"checkpoint","title":"✅ Checkpoint","intro_notes":"Evaluación final de la lección.","items":[]},
+        {"type":"quick_review","title":"🔄 Quick Review","intro_notes":"Repaso rápido de la(s) lección(es) anterior(es) de esta unidad.","items":[]}
       ],
-      "homework": {"estimated_minutes":15,"sections":[]}
+      "homework": {"estimated_minutes":20,"sections":[]}
     }]
   }]
 }
 
-REGLAS:
+REGLAS ESTRICTAS:
 - IDs únicos con prefijo de lección: ${lessonSnake}_e1, p1_i1, hw_s1
-- Prompts de ejercicios en ${promptLang} para nivel ${level}
+- Prompts en ${promptLang} para nivel ${level}
 - La estudiante es hispanohablante, meta: vivir en un país anglohablante
 - Vocabulario y gramática deben corresponder exactamente al nivel CEFR ${level}
-- MÍNIMO ESTRICTO: 10 exercises (incluye ≥3 de tipo translate), 8 presentation items, 8 verbal drills, 10 dialogue lines, 4 checkpoint items, 2 homework sections (incluye vocabulary_list)
-- Los exercises de tipo "translate" deben pedir traducir frases completas del tema de la lección, no solo palabras sueltas
-- Asegúrate de que los verbal drills cubran tanto preguntas abiertas como frases para completar y roleplay`;
+- LAS 9 FASES SON OBLIGATORIAS — si una falta, el JSON es inválido
+- TODO ítem debe tener su "answer" (o "expected"/"target") y "hint" donde el schema lo indique
+- TODO ítem de fase debe tener "teacher_notes" (instrucciones para el profe sobre cómo dirigirlo)
+- MÍNIMOS ESTRICTOS por fase: presentation 10, listening 8, translation_drill 12, minimal_pairs 5, verbal_drill 12, sentence_build 8, dialogue 12 líneas, checkpoint 5, quick_review 6
+- MÍNIMO 12 exercises (≥4 translate de frases completas)
+- MÍNIMO 3 homework sections (incluye vocabulary_list obligatorio)
+- Los quick_review items deben ser de temas YA cubiertos en lecciones anteriores de la unidad (deduce qué se vio antes según el orden de ${lesson.id})
+- Los minimal_pairs deben ser palabras realmente confundibles a nivel ${level} (NO inventes pares falsos)
+- PRIORIDAD: cantidad y calidad de práctica por encima de duración. No hay límite de minutos.`;
 }
 
 async function copyLessonPrompt() {
@@ -6781,24 +7157,6 @@ document.getElementById('btnGuidedBack').addEventListener('click', () => {
 // Presenter mode
 document.getElementById('btnPresenter').addEventListener('click', togglePresenterMode);
 
-// View toggle
-document.getElementById('btnViewTeacher').addEventListener('click', () => {
-  if (!guidedSession) return;
-  guidedSession.view = 'teacher';
-  document.getElementById('btnViewTeacher').className = 'vtb active-teacher';
-  document.getElementById('btnViewStudent').className = 'vtb';
-  updateTimerDisplay();
-  renderGuidedContent();
-});
-document.getElementById('btnViewStudent').addEventListener('click', () => {
-  if (!guidedSession) return;
-  guidedSession.view = 'student';
-  document.getElementById('btnViewTeacher').className = 'vtb';
-  document.getElementById('btnViewStudent').className = 'vtb active-student';
-  updateTimerDisplay();
-  renderGuidedContent();
-});
-
 // Session history panel
 document.getElementById('btnOpenHistory').addEventListener('click', openHistoryPanel);
 document.getElementById('btnCloseHistory').addEventListener('click', closeHistoryPanel);
@@ -6874,21 +7232,6 @@ document.getElementById('homeAvatar').addEventListener('click', () => {
   }
 });
 
-// Mode choice dialog
-document.getElementById('btnModeGuided').addEventListener('click', () => {
-  if (!pendingModeLesson) return;
-  const { unitId, lessonId } = pendingModeLesson;
-  pendingModeLesson = null;
-  document.getElementById('modeDialog').classList.remove('open');
-  startGuidedSession(unitId, lessonId);
-});
-document.getElementById('btnModeSolo').addEventListener('click', () => {
-  if (!pendingModeLesson) return;
-  const { unitId, lessonId } = pendingModeLesson;
-  pendingModeLesson = null;
-  document.getElementById('modeDialog').classList.remove('open');
-  startSession(unitId, lessonId, 'practice');
-});
 
 // Keyboard shortcuts during a solo session — teacher-friendly so you don't need
 // the mouse during class. Ignored when typing in an input/textarea (so the
@@ -6949,7 +7292,7 @@ document.addEventListener('keydown', e => {
 
 // Keyboard shortcuts during guided session
 document.addEventListener('keydown', e => {
-  if (!guidedSession || guidedSession.view !== 'teacher') return;
+  if (!guidedSession) return;
   const item = gItem && gItem();
   if (!item) return;
   const tag = document.activeElement?.tagName;
