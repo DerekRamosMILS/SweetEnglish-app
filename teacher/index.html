@@ -4565,15 +4565,6 @@ function renderReportToImage(scope) {
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
 
-    // Soft decorative circles for depth
-    ctx.save();
-    ctx.globalAlpha = 0.28;
-    ctx.fillStyle = '#FFB6D2';
-    ctx.beginPath(); ctx.arc(W - 80, 80, 340, 0, Math.PI * 2); ctx.fill();
-    ctx.globalAlpha = 0.13;
-    ctx.beginPath(); ctx.arc(110, H - 110, 260, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-
     // Mascot — top-right corner, multiply-like blend via globalAlpha
     if (mascotImg) {
       ctx.save();
