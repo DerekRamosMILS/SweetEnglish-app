@@ -5006,7 +5006,7 @@ function startGuidedSession(unitId, lessonId) {
     view: 'teacher',
     drillResults: [], checkpointResults: [], skipResults: [],
     drillAnswered: false, checkpointAnswered: false,
-    repeatCount: 0, hintShown: false,
+    repeatCount: 0, hintShown: false, notesShown: false,
     drillExpanded: false, cpExpanded: false,
     showingIntro: !!(lesson.phases[0]?.intro_notes),
     startTime: Date.now(), timerInterval: null
@@ -5068,7 +5068,7 @@ function resumeGuidedSession() {
     view: r.view || 'teacher',
     drillResults: r.drillResults || [], checkpointResults: r.checkpointResults || [], skipResults: r.skipResults || [],
     drillAnswered: false, checkpointAnswered: false,
-    repeatCount: 0, hintShown: false, drillExpanded: false, cpExpanded: false,
+    repeatCount: 0, hintShown: false, notesShown: false, drillExpanded: false, cpExpanded: false,
     showingIntro: false,
     startTime: Date.now() - (r.elapsedMs || 0), timerInterval: null
   };
@@ -5122,7 +5122,7 @@ function renderGuidedPhaseProgress() {
 function renderGuidedContent() {
   if (!guidedSession) return;
   const { view, drillResults, drillAnswered, checkpointAnswered,
-          repeatCount, hintShown, showingIntro } = guidedSession;
+          repeatCount, hintShown, notesShown, showingIntro } = guidedSession;
   const phase = gPhase();
   const item = gItem();
   if (!phase || !item) { showGuidedSummary(); return; }
@@ -5167,7 +5167,9 @@ function renderGuidedContent() {
         ${item.phonetic ? `<div class="pres-phonetic">${esc(item.phonetic)}</div>` : ''}
         <div class="pres-translation">${esc(item.translation||'')}</div>
         ${item.example ? `<div class="pres-example" style="font-style:italic;color:var(--mauve-soft);font-weight:700;text-align:center;margin-top:6px">"${esc(item.example)}"</div>` : ''}
-        ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
+        ${item.teacher_notes ? (notesShown
+          ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div><button class="reveal-toggle-btn" id="notesRevealBtn">🙈 Ocultar notas</button>`
+          : `<button class="reveal-toggle-btn" id="notesRevealBtn">📝 Notas del prof.</button>`) : ''}
         <button class="repeat-btn${done?' done':''}" id="repeatBtn">
           ${done ? `✅ Done (${repeatCount} / ${target})` : `🔁 Repeat (${repeatCount} / ${target})`}
         </button>`;
@@ -5194,7 +5196,9 @@ function renderGuidedContent() {
         <div style="font-size:12px;font-weight:800;color:var(--mauve-soft);margin-bottom:8px">Ask aloud:</div>
         <div class="drill-prompt">${esc(item.prompt||'')}</div>
         ${answerHtml}
-        ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
+        ${item.teacher_notes ? (notesShown
+          ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div><button class="reveal-toggle-btn" id="notesRevealBtn">🙈 Ocultar notas</button>`
+          : `<button class="reveal-toggle-btn" id="notesRevealBtn">📝 Notas del prof.</button>`) : ''}
         ${item.hint ? (hintShown
           ? `<div class="hint-box">💡 ${esc(item.hint)}</div>`
           : `<button class="hint-reveal-btn" id="hintRevealBtn">💡 Show Hint</button>`)
@@ -5231,7 +5235,9 @@ function renderGuidedContent() {
               <button class="speak-btn" data-text="${esc(ln.text||'')}" title="Escuchar" style="flex-shrink:0;margin-top:2px">${SPEAK_SVG}</button>
             </div>
             ${ln.translation?`<div class="dl-tr">${esc(ln.translation)}</div>`:''}
-            ${isActive&&ln.teacher_notes?`<div class="teacher-notes" style="margin-top:8px">📝 ${esc(ln.teacher_notes)}</div>`:''}
+            ${isActive&&ln.teacher_notes?(notesShown
+              ? `<div class="teacher-notes" style="margin-top:8px">📝 ${esc(ln.teacher_notes)}</div><button class="reveal-toggle-btn" id="notesRevealBtn" style="margin-top:4px">🙈 Ocultar notas</button>`
+              : `<button class="reveal-toggle-btn" id="notesRevealBtn" style="margin-top:4px">📝 Notas del prof.</button>`) : ''}
           </div>
           ${isActive?`<button class="dl-next-inline" id="inlineNextBtn" title="${isLast?'Next Item':'Next Line'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>`:''}
         </div>`;
@@ -5267,7 +5273,9 @@ function renderGuidedContent() {
       inner = `
         <div class="cp-prompt">${esc(item.prompt||'')}</div>
         ${expectedHtml}
-        ${item.teacher_notes ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div>` : ''}
+        ${item.teacher_notes ? (notesShown
+          ? `<div class="teacher-notes">📝 ${esc(item.teacher_notes)}</div><button class="reveal-toggle-btn" id="notesRevealBtn">🙈 Ocultar notas</button>`
+          : `<button class="reveal-toggle-btn" id="notesRevealBtn">📝 Notas del prof.</button>`) : ''}
         <div class="cp-btns">
           <button class="cp-pass${checkpointAnswered?' cp-scored':''}" id="cpPass">✓ PASS</button>
           <button class="cp-review${checkpointAnswered?' cp-scored':''}" id="cpReview">↺ NEEDS REVIEW</button>
@@ -5310,6 +5318,7 @@ function renderGuidedContent() {
   document.getElementById('guidedSkipBtn')?.addEventListener('click', skipGuidedItem);
   document.getElementById('repeatBtn')?.addEventListener('click', tapRepeat);
   document.getElementById('hintRevealBtn')?.addEventListener('click', showDrillHint);
+  document.getElementById('notesRevealBtn')?.addEventListener('click', toggleDrillNotes);
   document.getElementById('toggleDrillBtn')?.addEventListener('click', () => { guidedSession.drillExpanded = !guidedSession.drillExpanded; renderGuidedContent(); });
   document.getElementById('toggleCpBtn')?.addEventListener('click', () => { guidedSession.cpExpanded = !guidedSession.cpExpanded; renderGuidedContent(); });
   if (item.type === 'verbal_drill' && view === 'teacher' && !drillAnswered) {
@@ -5385,6 +5394,7 @@ function advanceGuidedItem() {
   guidedSession.checkpointAnswered = false;
   guidedSession.repeatCount = 0;
   guidedSession.hintShown = false;
+  guidedSession.notesShown = false;
   guidedSession.drillExpanded = false;
   guidedSession.cpExpanded = false;
   // Advance within phase or to next phase
@@ -5419,6 +5429,11 @@ function tapRepeat() {
 
 function showDrillHint() {
   guidedSession.hintShown = true;
+  renderGuidedContent();
+}
+
+function toggleDrillNotes() {
+  guidedSession.notesShown = !guidedSession.notesShown;
   renderGuidedContent();
 }
 
