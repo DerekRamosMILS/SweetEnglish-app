@@ -4476,7 +4476,8 @@ function reportStats(scope) {
 }
 
 function openShareableReport(scope) {
-  const s = reportStats(scope || 'daily');
+  let curScope = scope || 'daily';
+  const s = reportStats(curScope);
   const existing = document.getElementById('reportOverlay');
   if (existing) existing.remove();
   const overlay = document.createElement('div');
@@ -4524,13 +4525,14 @@ function openShareableReport(scope) {
       <div id="reportCardWrap">${renderCard(s.scope, s)}</div>
       <div style="display:flex;gap:8px;align-self:stretch">
         <button id="reportClose" style="flex:1;background:none;border:none;font-family:var(--font);font-weight:800;font-size:13px;color:var(--mauve-soft);padding:9px;cursor:pointer">Cerrar</button>
-        <button id="reportShareBtn" style="flex:2;background:var(--rose);color:#fff;border:none;border-radius:99px;font-family:var(--font);font-weight:800;font-size:13px;padding:9px;cursor:pointer">📤 Descargar PNG</button>
+        <button id="reportShareBtn" style="flex:2;background:var(--rose);color:#fff;border:none;border-radius:99px;font-family:var(--font);font-weight:800;font-size:13px;padding:9px;cursor:pointer">📤 Guardar imagen</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
 
   overlay.querySelectorAll('.report-scope-btn').forEach(b => {
     b.addEventListener('click', () => {
+      curScope = b.dataset.scope;
       overlay.querySelectorAll('.report-scope-btn').forEach(x => {
         x.style.background = x.dataset.scope === b.dataset.scope ? 'var(--rose)' : '#F8F8FA';
         x.style.color = x.dataset.scope === b.dataset.scope ? '#fff' : 'var(--mauve-soft)';
@@ -4542,87 +4544,137 @@ function openShareableReport(scope) {
   overlay.querySelector('#reportClose').addEventListener('click', () => overlay.remove());
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   overlay.querySelector('#reportShareBtn').addEventListener('click', () => {
-    renderReportToPNG(document.getElementById('reportCard'));
+    renderReportToImage(curScope);
   });
 }
 
-// Render the report card as PNG using an offscreen canvas drawing.
-function renderReportToPNG(cardEl) {
-  // Plain canvas redraw — no html2canvas dependency.
-  const W = 720, H = 1080;
+// Render the report card as a JPEG image using an offscreen canvas.
+// Loads the mascot image first so it appears in the exported file.
+function renderReportToImage(scope) {
+  const st = reportStats(scope || 'daily');
+  const W = 1080, H = 1350; // 4:5 — ideal for WhatsApp / Instagram
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   const ctx = c.getContext('2d');
 
-  // Background gradient
-  const g = ctx.createLinearGradient(0, 0, 0, H);
-  g.addColorStop(0, '#FFF8FC');
-  g.addColorStop(1, '#FFE9F2');
-  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  function draw(mascotImg) {
+    // Background gradient (matches the HTML card)
+    const g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, '#FFF0F8');
+    g.addColorStop(1, '#FFD6EC');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
 
-  // Extract data we already computed
-  const title = cardEl.querySelector('div div:nth-child(3)')?.textContent || '';
-  const subtitle = cardEl.querySelector('div div:nth-child(4)')?.textContent || '';
-  const stats = cardEl.querySelectorAll('div[style*="grid-template-columns"] > div');
-  const extra = Array.from(cardEl.querySelectorAll('div')).filter(d => /Estoy en|palabras nuevas|palabra reto/.test(d.textContent || ''));
-  const footer = Array.from(cardEl.querySelectorAll('div'))
-    .find(d => /XP totales/.test(d.textContent || ''))?.textContent || '';
+    // Soft decorative circles for depth
+    ctx.save();
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = '#FFB6D2';
+    ctx.beginPath(); ctx.arc(W - 80, 80, 340, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 0.13;
+    ctx.beginPath(); ctx.arc(110, H - 110, 260, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
 
-  ctx.fillStyle = '#C94F7C';
-  ctx.font = 'bold 22px -apple-system, sans-serif';
-  ctx.fillText('SWEETENGLISH ♡', 60, 90);
-  ctx.fillStyle = '#3A2040';
-  ctx.font = 'bold 56px -apple-system, sans-serif';
-  ctx.fillText(title, 60, 170);
-  ctx.fillStyle = '#8A6472';
-  ctx.font = '24px -apple-system, sans-serif';
-  ctx.fillText(subtitle, 60, 215);
+    // Mascot — top-right corner, multiply-like blend via globalAlpha
+    if (mascotImg) {
+      ctx.save();
+      ctx.globalAlpha = 0.88;
+      ctx.globalCompositeOperation = 'multiply';
+      const mw = 420, mh = 420;
+      ctx.drawImage(mascotImg, W - mw - 20, -40, mw, mh);
+      ctx.restore();
+    }
 
-  // Stats card
-  const sx = 60, sy = 270, sw = W - 120, sh = 220;
-  ctx.fillStyle = '#fff';
-  roundRect(ctx, sx, sy, sw, sh, 24); ctx.fill();
+    const PX = 90; // horizontal padding
 
-  const cells = Array.from(stats).map(d => ({
-    label: d.querySelector('div:first-child')?.textContent || '',
-    value: d.querySelector('div:last-child')?.textContent || ''
-  }));
-  cells.forEach((cell, i) => {
-    const cx = sx + 40 + (i % 2) * (sw / 2);
-    const cy = sy + 60 + Math.floor(i / 2) * 100;
-    ctx.fillStyle = '#8A6472';
-    ctx.font = 'bold 18px -apple-system, sans-serif';
-    ctx.fillText(cell.label, cx, cy);
+    // Brand
     ctx.fillStyle = '#C94F7C';
-    ctx.font = 'bold 38px -apple-system, sans-serif';
-    ctx.fillText(cell.value, cx, cy + 44);
-  });
+    ctx.font = 'bold 36px -apple-system, "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText('SWEETENGLISH ♡', PX, 110);
 
-  // Extras
-  let ey = sy + sh + 50;
-  ctx.fillStyle = '#3A2040';
-  ctx.font = 'bold 22px -apple-system, sans-serif';
-  extra.forEach(e => {
-    ctx.fillText(e.textContent.trim(), 60, ey);
-    ey += 36;
-  });
+    // Title
+    const titleText = st.scope === 'daily' ? 'Reporte de hoy' : 'Esta semana';
+    ctx.fillStyle = '#3A2040';
+    ctx.font = 'bold 90px -apple-system, "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText(titleText, PX, 230);
 
-  // Footer
-  ctx.fillStyle = '#8A6472';
-  ctx.font = 'bold 18px -apple-system, sans-serif';
-  ctx.fillText(footer.replace(/\s+/g, ' ').trim(), 60, H - 90);
-  ctx.fillStyle = '#C94F7C';
-  ctx.fillText(`${studentName || 'Monche'} ♡`, W - 200, H - 90);
+    // Date
+    const dateLabel = st.scope === 'daily'
+      ? new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })
+      : (() => {
+          const d = new Date(), a = new Date(d);
+          a.setDate(a.getDate() - 6);
+          return `${a.toLocaleDateString('es-MX',{day:'numeric',month:'short'})} – ${d.toLocaleDateString('es-MX',{day:'numeric',month:'short'})}`;
+        })();
+    ctx.fillStyle = '#8A6472';
+    ctx.font = 'bold 36px -apple-system, "Helvetica Neue", Arial, sans-serif';
+    ctx.fillText(dateLabel.charAt(0).toUpperCase() + dateLabel.slice(1), PX, 295);
 
-  // Download
-  c.toBlob(blob => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `sweetenglish_${title.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'report'}_${today()}.png`;
-    document.body.appendChild(a); a.click();
-    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
-    showToast('PNG descargado ♡');
-  }, 'image/png');
+    // Stats card
+    const sx = PX, sy = 360, sw = W - PX * 2, sh = 340;
+    ctx.fillStyle = 'rgba(255,255,255,0.82)';
+    roundRect(ctx, sx, sy, sw, sh, 40); ctx.fill();
+
+    const cells = [
+      { label: '⏱ Tiempo',     value: `${st.minutes} min` },
+      { label: '📚 Ejercicios', value: String(st.exercises) },
+      { label: '🎯 Sesiones',   value: String(st.sessions) },
+      { label: st.accuracy != null ? '✓ Accuracy' : '🔥 Racha',
+        value: st.accuracy != null ? `${st.accuracy}%` : `${st.streak}d` },
+    ];
+    cells.forEach((cell, i) => {
+      const col = i % 2, row = Math.floor(i / 2);
+      const cx = sx + 70 + col * (sw / 2);
+      const cy = sy + 100 + row * 155;
+      ctx.fillStyle = '#8A6472';
+      ctx.font = 'bold 28px -apple-system, "Helvetica Neue", Arial, sans-serif';
+      ctx.fillText(cell.label, cx, cy);
+      ctx.fillStyle = '#C94F7C';
+      ctx.font = 'bold 62px -apple-system, "Helvetica Neue", Arial, sans-serif';
+      ctx.fillText(cell.value, cx, cy + 70);
+    });
+
+    // Extra info lines
+    let ey = sy + sh + 70;
+    ctx.fillStyle = '#3A2040';
+    ctx.font = 'bold 36px -apple-system, "Helvetica Neue", Arial, sans-serif';
+    if (st.currentLesson) { ctx.fillText(`📖 Estoy en: ${st.currentLesson}`, PX, ey); ey += 56; }
+    if (st.newWords > 0)  { ctx.fillText(`✨ Aprendí ${st.newWords} palabras nuevas`, PX, ey); ey += 56; }
+    if (st.hardest)       { ctx.fillText(`💪 Palabra reto: ${st.hardest}`, PX, ey); ey += 56; }
+
+    // Divider
+    ctx.strokeStyle = 'rgba(201,79,124,0.25)';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(PX, H - 180); ctx.lineTo(W - PX, H - 180); ctx.stroke();
+
+    // Footer left
+    ctx.fillStyle = '#8A6472';
+    ctx.font = 'bold 30px -apple-system, "Helvetica Neue", Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(`♡ ${st.xp} XP totales  ·  🔥 ${st.streak} días`, PX, H - 110);
+
+    // Footer right — student name
+    ctx.fillStyle = '#C94F7C';
+    ctx.font = 'bold 30px -apple-system, "Helvetica Neue", Arial, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(`${studentName || 'Monche'} ♡`, W - PX, H - 110);
+    ctx.textAlign = 'left';
+
+    // Download as JPEG (smaller file, WhatsApp/Instagram compatible)
+    c.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sweetenglish_${st.scope === 'daily' ? 'hoy' : 'semana'}_${today()}.jpg`;
+      document.body.appendChild(a); a.click();
+      setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+      showToast('Imagen lista para compartir ♡');
+    }, 'image/jpeg', 0.93);
+  }
+
+  const img = new Image();
+  img.onload  = () => draw(img);
+  img.onerror = () => draw(null);
+  img.src = 'msp-excited.jpg';
 }
 
 function performProgressReset() {

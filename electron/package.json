@@ -1,6 +1,6 @@
 {
   "name": "sweetenglish",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "SweetEnglish Teacher App",
   "main": "main.js",
   "scripts": {
@@ -12,17 +12,31 @@
     "appId": "com.sweetenglish.teacher",
     "productName": "SweetEnglish",
     "publish": [
-      { "provider": "github", "owner": "DerekRamosMILS", "repo": "SweetEnglish-app" }
+      {
+        "provider": "github",
+        "owner": "DerekRamosMILS",
+        "repo": "SweetEnglish-app"
+      }
     ],
     "mac": {
-      "target": [{ "target": "dmg", "arch": ["arm64"] }],
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ],
       "icon": "assets/icon.icns",
       "category": "public.app-category.education"
     },
     "dmg": {
       "title": "SweetEnglish",
       "background": null,
-      "window": { "width": 540, "height": 380 }
+      "window": {
+        "width": 540,
+        "height": 380
+      }
     },
     "files": [
       "main.js",
@@ -34,7 +48,9 @@
       {
         "from": "../teacher",
         "to": "teacher",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ]
   },
