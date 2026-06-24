@@ -819,6 +819,10 @@ html,body{height:100%;font-family:var(--font);color:var(--mauve);-webkit-font-sm
 .intro-text{font-size:15px;font-weight:700;color:#6B4E00;line-height:1.55;margin-bottom:16px}
 .intro-got-it{font-family:var(--font);font-weight:900;font-size:14px;border:none;border-radius:var(--r-pill);padding:12px 24px;cursor:pointer;background:var(--mauve);color:var(--white);transition:all .14s}
 .intro-got-it:hover{background:#3A1A26}
+/* Lesson intro / overview (teaching, no scoring) */
+.intro-heading{font-size:21px;font-weight:900;color:var(--rose-deep);text-align:center;margin-bottom:10px;line-height:1.3}
+.intro-body{font-size:15.5px;font-weight:700;color:var(--mauve);line-height:1.6;background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-md);padding:14px 16px;margin-bottom:12px}
+.intro-tip{font-size:13.5px;font-weight:700;color:#6B4E00;line-height:1.5;background:#FFF8DD;border:2px solid #E0C060;border-radius:var(--r-md);padding:11px 14px;margin-bottom:12px}
 
 /* ── TIMER ── */
 .guided-timer{font-size:12px;font-weight:900;color:var(--mauve-soft);background:var(--cream);border:2px solid var(--pink-border);border-radius:var(--r-pill);padding:4px 10px;letter-spacing:0.5px;flex-shrink:0;font-variant-numeric:tabular-nums}
@@ -5409,7 +5413,8 @@ function buildQuickReviewPhase(lesson) {
 }
 
 // Coordinator: build the complete ordered phase list for a session.
-// Ensures all 9 exercise types appear by appending auto-synthesized phases.
+// Pulls the authored "intro" phase to the front and ensures the practice
+// types appear by appending auto-synthesized phases where missing.
 function buildAllSessionPhases(lesson, unit) {
   const level = unit?.level || LEVEL_BY_UNIT[unit?.id] || 'A1';
   const original = lesson.phases || [];
@@ -5417,12 +5422,17 @@ function buildAllSessionPhases(lesson, unit) {
   const has = t => original.some(p => p.type === t);
   const out = [];
 
-  // Quick review FIRST as warm-up (only if there are prior due items)
+  // Intro / overview ALWAYS first — teaches the topic before any practice
+  const introPhase = original.find(p => p.type === 'intro') || null;
+  const rest = introPhase ? original.filter(p => p !== introPhase) : original;
+  if (introPhase) out.push(introPhase);
+
+  // Quick review next as warm-up (only if there are prior due items)
   const qr = !has('quick_review') ? buildQuickReviewPhase(lesson) : null;
   if (qr) out.push(qr);
 
-  // Original lesson phases preserved in order
-  out.push(...original);
+  // Remaining lesson phases preserved in order
+  out.push(...rest);
 
   // Append missing auto-types
   const listen = !has('listening')          ? buildListeningPhase(lesson)        : null;
@@ -5482,6 +5492,7 @@ function renderGuidedContent() {
   if (!item.type && phase.type && phase.type !== 'dialogue') item.type = phase.type;
 
   const phaseLabels = {
+    intro:'Introducción',
     presentation:'Presentation', verbal_drill:'Verbal Drill', dialogue:'Dialogue',
     checkpoint:'Checkpoint', vocab_quiz:'Vocab Quiz', vocab_recap:'Repaso',
     listening:'Listening', minimal_pairs:'Minimal Pairs',
@@ -5489,6 +5500,7 @@ function renderGuidedContent() {
     quick_review:'Quick Review'
   };
   const phaseIcons = {
+    intro:'📖',
     presentation:'📚', verbal_drill:'🎯', dialogue:'💬', checkpoint:'✅',
     vocab_quiz:'🎲', vocab_recap:'🎯',
     listening:'🎧', minimal_pairs:'🔊',
@@ -5535,8 +5547,27 @@ function renderGuidedContent() {
     </div>
     <div class="drill-score-row">${drillResults.map(r => `<div class="drill-dot ${r.correct?'c':'w'}"></div>`).join('')}</div>`;
 
+  // ── INTRO / OVERVIEW (teaching only, no scoring) ─────────────
+  if (item.type === 'intro') {
+    const enWord = item.english || item.word || '';
+    inner = `
+      ${item.heading ? `<div class="intro-heading">${esc(item.heading)}</div>` : ''}
+      ${item.body ? `<div class="intro-body">${esc(item.body)}</div>` : ''}
+      ${enWord ? `
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px">
+          <div class="pres-word">${esc(enWord)}</div>
+          <button class="speak-btn" data-text="${esc(enWord)}" title="Escuchar">${SPEAK_SVG}</button>
+        </div>
+        ${item.phonetic ? `<div class="pres-phonetic">${esc(item.phonetic)}</div>` : ''}
+        ${item.translation ? `<div class="pres-translation">${esc(item.translation)}</div>` : ''}
+        ${item.example ? `<div class="pres-example" style="font-style:italic;color:var(--mauve-soft);font-weight:700;text-align:center;margin-top:6px">"${esc(item.example)}"</div>` : ''}
+      ` : ''}
+      ${item.tip ? `<div class="intro-tip">💡 ${esc(item.tip)}</div>` : ''}
+      ${_notesBlock()}`;
+    actions = nextBtn();
+
   // ── PRESENTATION ─────────────────────────────────────────────
-  if (item.type === 'presentation') {
+  } else if (item.type === 'presentation') {
     const target = item.repeat_target ?? 2;
     const done = repeatCount >= target;
     inner = `
@@ -6782,7 +6813,11 @@ function buildLessonPrompt(unit, lesson) {
   else if (lesson.is_review) notes = `\nNOTA: Esta es una lección de repaso — refuerza todo lo de la unidad.`;
 
   return `Eres un generador de contenido para una app de aprendizaje de inglés.
-Responde ÚNICAMENTE con JSON válido. Sin explicaciones, sin texto extra, sin bloques de código markdown, solo el JSON puro.
+
+FORMATO DE RESPUESTA (OBLIGATORIO):
+- Responde con UN SOLO bloque de código \`\`\`json que contenga el JSON completo, directamente en el chat.
+- NO uses artifacts. NO uses canvas. NO abras un panel lateral. Escribe el JSON como texto normal en tu mensaje.
+- NADA de explicaciones, comentarios ni texto antes o después del bloque \`\`\`json.
 
 Genera la lección ${lesson.id} — "${lesson.title}"
 Unidad: ${unit.id} — ${unit.title}
@@ -6794,18 +6829,21 @@ VOCABULARIO OBJETIVO: ~${unit.vocabulary_target} palabras
 TEMAS DE LA LECCIÓN: ${topicsStr}${notes}
 
 ESTRUCTURA REQUERIDA — sesión EXTENSA orientada a aprender de verdad (60–90 min):
-La sesión debe incluir LAS 9 FASES de ejercicios. La cantidad importa más que la duración: queremos práctica masiva, no clases cortas.
+La sesión debe incluir LAS 10 FASES de ejercicios. La cantidad importa más que la duración: queremos práctica masiva, no clases cortas.
 
-ORDEN Y CONTENIDO DE LAS 9 FASES (array "phases"):
-1. "presentation"        — MÍNIMO 10 palabras (cada una con phonetic, translation, example, teacher_notes)
-2. "listening"           — MÍNIMO 8 ítems (frase en inglés que el profe reproduce con TTS y el alumno repite/responde)
-3. "translation_drill"   — MÍNIMO 12 ítems (mitad EN→ES, mitad ES→EN)
-4. "minimal_pairs"       — MÍNIMO 5 pares (palabras casi homófonas para entrenar pronunciación)
-5. "verbal_drill"        — MÍNIMO 12 drills (preguntas abiertas, respuestas, completar)
-6. "sentence_build"      — MÍNIMO 8 oraciones desordenadas para reconstruir
-7. "dialogue"            — conversación real con MÍNIMO 12 líneas alternadas teacher/student
-8. "checkpoint"          — MÍNIMO 5 preguntas de evaluación final
-9. "quick_review"        — MÍNIMO 6 ítems de repaso de lecciones ANTERIORES de la misma unidad/nivel
+ORDEN Y CONTENIDO DE LAS 10 FASES (array "phases"):
+1. "intro"               — INTRODUCCIÓN al tema ANTES de cualquier pregunta. MÍNIMO 4 tarjetas que ENSEÑAN (no preguntan): explican qué se va a ver, qué significa cada cosa y cómo se pronuncia, con ejemplos. Es lectura/escucha, sin respuesta del alumno.
+2. "presentation"        — MÍNIMO 10 palabras (cada una con phonetic, translation, example, teacher_notes)
+3. "listening"           — MÍNIMO 8 ítems (frase en inglés que el profe reproduce con TTS y el alumno repite/responde)
+4. "translation_drill"   — MÍNIMO 12 ítems (mitad EN→ES, mitad ES→EN)
+5. "minimal_pairs"       — MÍNIMO 5 pares (palabras casi homófonas para entrenar pronunciación)
+6. "verbal_drill"        — MÍNIMO 12 drills (preguntas abiertas, respuestas, completar)
+7. "sentence_build"      — MÍNIMO 8 oraciones desordenadas para reconstruir
+8. "dialogue"            — conversación real con MÍNIMO 12 líneas alternadas teacher/student
+9. "checkpoint"          — MÍNIMO 5 preguntas de evaluación final
+10. "quick_review"       — MÍNIMO 6 ítems de repaso de lecciones ANTERIORES de la misma unidad/nivel
+
+REGLA PEDAGÓGICA: la fase "intro" SIEMPRE va primero y NUNCA pregunta nada. Su único objetivo es que la alumna entienda el tema (significado + pronunciación + ejemplos) antes de empezar a practicar. Recién después llega "presentation" y el resto de la práctica.
 
 Además, array "exercises" para práctica escrita autónoma (no en sesión guiada):
 - MÍNIMO 12 ejercicios mixtos (MC, fill_blank, translate, word_order, flashcard)
@@ -6814,7 +6852,7 @@ Además, array "exercises" para práctica escrita autónoma (no en sesión guiad
 Y "homework" con al menos 3 secciones (incluye vocabulary_list).
 
 REGLA UNIVERSAL DE CADA ÍTEM:
-TODO ítem (sin excepción) debe tener su respuesta correcta y, donde aplique, un "hint" y "teacher_notes". Sin esos campos el ítem NO es válido.
+TODO ítem que pida una respuesta debe tener su respuesta correcta y, donde aplique, un "hint" y "teacher_notes". Sin esos campos el ítem NO es válido. (La fase "intro" es la ÚNICA excepción: no lleva "answer" porque no pregunta.)
 
 SCHEMA EXERCISE TYPES (array "exercises") — todos requieren "hint":
 {"type":"multiple_choice","prompt":"...","options":["opt1","opt2","opt3","opt4"],"answer":"opt2","hint":"..."}   // "answer" = TEXTO EXACTO
@@ -6823,37 +6861,41 @@ SCHEMA EXERCISE TYPES (array "exercises") — todos requieren "hint":
 {"type":"word_order","prompt":"Ordena las palabras:","words":["am","I","María"],"answer":"I am María","hint":"..."}
 {"type":"flashcard","front":"hello","back":"hola","phonetic":"/həˈloʊ/","hint":"..."}
 
-SCHEMA PHASE ITEMS — las 9 fases:
+SCHEMA PHASE ITEMS — las 10 fases:
 
-[1] presentation:
+[1] intro (NUEVO — ENSEÑA, no pregunta; SIN "answer"):
+{"type":"intro","heading":"Los números del 1 al 10","body":"En esta lección vas a aprender a contar en inglés. Cada número se escribe y se pronuncia distinto al español. Mira y escucha cada uno antes de practicar.","teacher_notes":"Lee la introducción con la alumna y reproduce el audio de cada ejemplo."}
+{"type":"intro","heading":"Cómo se pronuncia","english":"three","phonetic":"/θriː/","translation":"tres","example":"I have three sisters.","tip":"La 'th' se pronuncia sacando la lengua entre los dientes, no como una 't'.","teacher_notes":"Modela el sonido /θ/ y pídele que lo imite antes de seguir."}
+
+[2] presentation:
 {"type":"presentation","word":"hello","phonetic":"/həˈloʊ/","translation":"hola","example":"Hello! My name is María.","hint":"...","teacher_notes":"...","repeat_target":2}
 
-[2] listening (NUEVO):
+[3] listening:
 {"type":"listening","text":"Good morning, how are you?","translation":"Buenos días, ¿cómo estás?","answer":"Good morning, how are you?","hint":"Empieza con 'Good'...","teacher_notes":"Reprodúcelo 2 veces antes de revelar."}
 
-[3] translation_drill (NUEVO):
+[4] translation_drill:
 {"type":"translation_drill","direction":"en-es","source":"How are you?","target":"¿Cómo estás?","answer":"¿Cómo estás?","hint":"Pregunta de saludo","teacher_notes":"..."}
 {"type":"translation_drill","direction":"es-en","source":"Mucho gusto","target":"Nice to meet you","answer":"Nice to meet you","hint":"Frase al conocer a alguien","teacher_notes":"..."}
 
-[4] minimal_pairs (NUEVO):
+[5] minimal_pairs:
 {"type":"minimal_pairs","pair_a":"ship","pair_b":"sheep","phonetic_a":"/ʃɪp/","phonetic_b":"/ʃiːp/","contrast":"/ɪ/ vs /iː/","answer":"ship","hint":"La 'i' corta es más relajada","teacher_notes":"Dilo varias veces; el alumno señala cuál escuchó."}
 
-[5] verbal_drill:
+[6] verbal_drill:
 {"type":"verbal_drill","prompt":"How do you say 'hola'?","answer":"Hello!","expected":"Hello!","acceptable_answers":["Hello!","Hi!"],"hint":"Empieza con H...","teacher_notes":"..."}
 
-[6] sentence_build (NUEVO):
+[7] sentence_build:
 {"type":"sentence_build","sentence":"My name is María","scrambled":["María","is","name","My"],"answer":"My name is María","translation":"Me llamo María","hint":"Empieza con el posesivo","teacher_notes":"Si lo logra rápido, pídele variar el nombre."}
 
-[7] dialogue:
+[8] dialogue:
 {"type":"dialogue","title":"Dialogue","setup":"Dos personas se conocen en una cafetería","lines":[
   {"speaker":"teacher","text":"Hi, I'm Sarah.","translation":"Hola, soy Sarah.","teacher_notes":"..."},
   {"speaker":"student","text":"Nice to meet you, Sarah. I'm María.","translation":"Mucho gusto, Sarah. Soy María.","teacher_notes":"..."}
 ]}
 
-[8] checkpoint:
+[9] checkpoint:
 {"type":"checkpoint","prompt":"Preséntate completo en inglés","expected":"Hi, I'm María. Nice to meet you.","answer":"Hi, I'm María. Nice to meet you.","hint":"Saludo + nombre + cortesía","teacher_notes":"Evalúa fluidez, gramática y vocabulario."}
 
-[9] quick_review (NUEVO):
+[10] quick_review:
 {"type":"quick_review","prompt":"How do you say 'adiós'?","answer":"Goodbye","expected":"Goodbye","source_lesson_title":"Lección previa de la unidad","hint":"Sinónimo de 'see you'","teacher_notes":"Si no recuerda, repítelo 3 veces antes de avanzar."}
 
 SCHEMA HOMEWORK SECTIONS (array "homework.sections"):
@@ -6863,7 +6905,7 @@ SCHEMA HOMEWORK SECTIONS (array "homework.sections"):
 {"type":"listen_and_repeat","title":"...","items":[{"phrase":"...","phonetic":"...","translation":"..."}]}
 {"type":"challenge","title":"...","task":"..."}
 
-SCHEMA TOP LEVEL — usa EXACTAMENTE esta estructura, con las 9 fases en este orden:
+SCHEMA TOP LEVEL — usa EXACTAMENTE esta estructura, con las 10 fases en este orden:
 {
   "id": "${lessonSnake}",
   "units": [{
@@ -6874,6 +6916,7 @@ SCHEMA TOP LEVEL — usa EXACTAMENTE esta estructura, con las 9 fases en este or
       "title": "${lesson.title}",
       "exercises": [],
       "phases": [
+        {"type":"intro","title":"📖 Introducción","intro_notes":"Presenta el tema a la alumna: qué va a aprender, qué significa y cómo se pronuncia. No le hagas preguntas todavía.","items":[]},
         {"type":"presentation","title":"📚 Presentation","intro_notes":"Presenta el vocabulario nuevo; cada palabra debe repetirse 2 veces.","items":[]},
         {"type":"listening","title":"🎧 Listening","intro_notes":"Reproduce cada frase con TTS y pide que repita o explique.","items":[]},
         {"type":"translation_drill","title":"🔁 Traducción","intro_notes":"Alterna EN→ES y ES→EN para entrenar ambas direcciones.","items":[]},
@@ -6894,10 +6937,11 @@ REGLAS ESTRICTAS:
 - Prompts en ${promptLang} para nivel ${level}
 - La estudiante es hispanohablante, meta: vivir en un país anglohablante
 - Vocabulario y gramática deben corresponder exactamente al nivel CEFR ${level}
-- LAS 9 FASES SON OBLIGATORIAS — si una falta, el JSON es inválido
-- TODO ítem debe tener su "answer" (o "expected"/"target") y "hint" donde el schema lo indique
+- LAS 10 FASES SON OBLIGATORIAS — si una falta, el JSON es inválido
+- La fase "intro" va PRIMERA y solo ENSEÑA (sin "answer", sin preguntar); el "body" y los "tip" van en ${promptLang}
+- TODO ítem que pregunte debe tener su "answer" (o "expected"/"target") y "hint" donde el schema lo indique
 - TODO ítem de fase debe tener "teacher_notes" (instrucciones para el profe sobre cómo dirigirlo)
-- MÍNIMOS ESTRICTOS por fase: presentation 10, listening 8, translation_drill 12, minimal_pairs 5, verbal_drill 12, sentence_build 8, dialogue 12 líneas, checkpoint 5, quick_review 6
+- MÍNIMOS ESTRICTOS por fase: intro 4, presentation 10, listening 8, translation_drill 12, minimal_pairs 5, verbal_drill 12, sentence_build 8, dialogue 12 líneas, checkpoint 5, quick_review 6
 - MÍNIMO 12 exercises (≥4 translate de frases completas)
 - MÍNIMO 3 homework sections (incluye vocabulary_list obligatorio)
 - Los quick_review items deben ser de temas YA cubiertos en lecciones anteriores de la unidad (deduce qué se vio antes según el orden de ${lesson.id})
@@ -6975,6 +7019,20 @@ function editLessonContent() {
   setTimeout(() => document.getElementById('pasteArea').focus(), 100);
 }
 
+// Pull the JSON out of whatever the AI pasted: a ```json fenced block,
+// or just the outermost {…} if it wrapped the JSON in prose.
+function stripToJson(raw) {
+  let s = String(raw || '').trim();
+  const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) s = fence[1].trim();
+  if (s[0] !== '{' && s[0] !== '[') {
+    const start = s.indexOf('{');
+    const end = s.lastIndexOf('}');
+    if (start !== -1 && end > start) s = s.slice(start, end + 1);
+  }
+  return s.trim();
+}
+
 // Live validation/preview of pasted JSON before saving (#9)
 function updatePastePreview() {
   const raw = document.getElementById('pasteArea').value.trim();
@@ -6982,7 +7040,7 @@ function updatePastePreview() {
   if (!raw) { prev.style.display = 'none'; return; }
   let parsed;
   try {
-    const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+    const cleaned = stripToJson(raw);
     parsed = JSON.parse(cleaned);
   } catch (e) {
     prev.style.display = 'block';
@@ -7070,8 +7128,8 @@ function savePastedJson() {
 
   let parsed;
   try {
-    // Strip markdown code fences if AI wrapped the JSON
-    const cleaned = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+    // Strip markdown code fences / surrounding prose if AI wrapped the JSON
+    const cleaned = stripToJson(raw);
     parsed = JSON.parse(cleaned);
   } catch (e) {
     errEl.textContent = `Invalid JSON: ${e.message}`;
